@@ -7,6 +7,8 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+import { ThemeProvider } from "next-themes";
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>
@@ -15,14 +17,21 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.tsx'),
         ),
     setup({ el, App, props }) {
+        const WrappedApp = (
+            <ThemeProvider>
+                <App {...props} />
+            </ThemeProvider>
+        );
+
         if (import.meta.env.SSR) {
-            hydrateRoot(el, <App {...props} />);
+            hydrateRoot(el, WrappedApp);
             return;
         }
 
-        createRoot(el).render(<App {...props} />);
+        createRoot(el).render(WrappedApp);
     },
     progress: {
         color: '#4B5563',
     },
 });
+

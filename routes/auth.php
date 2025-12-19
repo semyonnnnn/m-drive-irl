@@ -16,7 +16,6 @@ Route::middleware('guest')->group(function () {
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
-    Route::get('/login', fn() => dd('hello from auth.php'))->name('login');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
