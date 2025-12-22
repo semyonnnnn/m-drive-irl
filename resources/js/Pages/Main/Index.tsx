@@ -1,10 +1,9 @@
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
 import { ButtonMenu } from '@/Components/Custom/ButtonMenu';
-import { useTheme } from 'next-themes';
 
 export default function Welcome({ }: PageProps<{}>) {
-  const { theme, setTheme } = useTheme();
+  // const { theme, setTheme } = useTheme();
   const handleImageError = () => {
     document
       .getElementById('screenshot-container')
@@ -17,15 +16,10 @@ export default function Welcome({ }: PageProps<{}>) {
   };
 
 
-  function handleSetTheme(theme: string) {
-    setTheme(theme);
-  }
 
   return (
     <>
       <Head title="Main" />
-      <button onClick={() => handleSetTheme('light')}>light</button>
-      <button onClick={() => handleSetTheme('dark')}>dark</button>
       <ButtonMenu />
     </>
   );

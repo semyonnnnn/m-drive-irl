@@ -7,7 +7,7 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/Components/Providers/ThemeProvider";
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -18,7 +18,7 @@ createInertiaApp({
         ),
     setup({ el, App, props }) {
         const WrappedApp = (
-            <ThemeProvider>
+            <ThemeProvider defaultTheme="dark" storageKey='vite-ui-theme'>
                 <App {...props} />
             </ThemeProvider>
         );
