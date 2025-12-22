@@ -10,19 +10,19 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "text-primary-foreground shadow hover:bg-primary/90 cursor-pointer dark:bg-white dark:text-black",
+          "bg-black text-white text-primary-foreground shadow hover:bg-primary/90 cursor-pointer dark:bg-white dark:text-black",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 cursor-pointer dark:bg-transparent dark:text-white",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 cursor-pointer dark:backdrop-blur-sm dark:bg-transparent dark:text-white",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground cursor-pointer dark:bg-transparent dark:text-white",
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground cursor-pointer dark:backdrop-blur-sm dark:bg-transparent dark:text-white",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 cursor-pointer dark:bg-transparent dark:text-white",
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 cursor-pointer dark:backdrop-blur-sm dark:text-white dark:bg-transparent",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground cursor-pointer dark:bg-transparent dark:text-white",
+          "hover:bg-accent hover:text-accent-foreground cursor-pointer dark:backdrop-blur-sm dark:text-white dark:bg-transparent",
         link:
-          "text-primary underline-offset-4 hover:underline cursor-pointer dark:bg-transparent dark:text-white",
+          "text-primary underline-offset-4 hover:underline cursor-pointer dark:backdrop-blur-sm dark:text-white dark:bg-transparent",
         main_menu:
-          "bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer dark:bg-transparent dark:text-white dark:hover:bg-white/20",
+          "bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer dark:backdrop-blur-sm dark:text-white dark:hover:bg-white/20 dark:bg-transparent",
       },
       size: {
         default: "h-9 px-4 py-2",

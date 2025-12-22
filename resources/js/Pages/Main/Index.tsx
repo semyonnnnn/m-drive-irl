@@ -1,6 +1,6 @@
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
-import { ButtonMenu } from '@/components/custom/ButtonMenu';
+import { NavButtonsMenu } from '@/components/custom/NavButtonsMenu';
 
 export default function Welcome({ }: PageProps<{}>) {
   // const { theme, setTheme } = useTheme();
@@ -20,7 +20,7 @@ export default function Welcome({ }: PageProps<{}>) {
   return (
     <>
       <Head title="Main" />
-      <ButtonMenu />
+      <NavButtonsMenu />
     </>
   );
 }
