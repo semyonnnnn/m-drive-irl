@@ -1,8 +1,8 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import { Checkbox } from '@/components/ui/checkbox';
+import InputError from '@/components/custom/InputError';
+import InputLabel from '@/components/custom/InputLabel';
+import { Button } from '@/components/ui/button';
+import TextInput from '@/components/custom/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -39,7 +39,7 @@ export default function Login({
             )}
 
             <form onSubmit={submit}>
-                <div>
+                <div className='rounded-none'>
                     <InputLabel htmlFor="email" value="Email" />
 
                     <TextInput
@@ -75,15 +75,12 @@ export default function Login({
                 <div className="mt-4 block">
                     <label className="flex items-center">
                         <Checkbox
-                            name="remember"
                             checked={data.remember}
-                            onChange={(e) =>
-                                setData(
-                                    'remember',
-                                    (e.target.checked || false) as false,
-                                )
+                            onCheckedChange={(checked) =>
+                                setData('remember', Boolean(checked))
                             }
                         />
+
                         <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">
                             Remember me
                         </span>
@@ -94,17 +91,17 @@ export default function Login({
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                            className="text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                         >
                             Forgot your password?
                         </Link>
                     )}
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                    <Button className="ms-4" disabled={processing} variant="default">
                         Log in
-                    </PrimaryButton>
+                    </Button>
                 </div>
             </form>
-        </GuestLayout>
+        </GuestLayout >
     );
 }

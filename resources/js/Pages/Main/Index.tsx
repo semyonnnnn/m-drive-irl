@@ -1,6 +1,6 @@
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
-import { ButtonMenu } from '@/Components/Custom/ButtonMenu';
+import { ButtonMenu } from '@/components/custom/ButtonMenu';
 
 export default function Welcome({ }: PageProps<{}>) {
   // const { theme, setTheme } = useTheme();

@@ -7,7 +7,7 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-import { ThemeProvider } from "@/Components/Providers/ThemeProvider";
+import { ThemeProvider } from "@/components/Providers/ThemeProvider";
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

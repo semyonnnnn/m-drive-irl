@@ -2,21 +2,17 @@
 
 import * as React from "react"
 
-import { ToggleMode } from '@/Components/Custom/ToggleMode';
+import { ToggleMode } from '@/components/custom/ToggleMode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFolder } from '@fortawesome/free-regular-svg-icons';
-import { Button } from "@/Components/Button"
-import { ButtonGroup } from "@/Components/ButtonGroup"
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import ApplicationLogo from "@/components/custom/ApplicationLogo";
 
 export function ButtonMenu() {
-    const [label, setLabel] = React.useState("personal")
-
     return (
         <div className="flex justify-center w-full items-center px-10 mt-2 gap-4">
-            <a href="" className="flex gap-2 items-center">
-                <FontAwesomeIcon icon={faFolder} className="text-4xl dark:text-white select-none cursor-pointer" />
-                <span className="text-sm text-nowrap dark:text-white">Крутое название</span>
-            </a>
+            <ApplicationLogo />
             <div className="flex w-full items-center justify-center">
                 <ButtonGroup>
                     <Button variant="main_menu">Проект</Button>
