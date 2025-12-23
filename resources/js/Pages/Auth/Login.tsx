@@ -32,13 +32,8 @@ export default function Login({
         <GuestLayout>
             <Head title="Log in" />
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
-
-            <form onSubmit={submit}>
+            <div className='bg-black/20 backdrop-blur-sm fixed inset-0 z-0' onClick={close}></div>
+            <form onSubmit={submit} className='z-50 relative border-2 px-6 py-10 border-gray-800'>
                 <div className='rounded-none'>
                     <InputLabel htmlFor="email" value="Email" />
 

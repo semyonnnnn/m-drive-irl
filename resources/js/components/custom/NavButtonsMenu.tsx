@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { ToggleMode } from '@/components/custom/ToggleMode';
+import { ToggleDarkMode } from '@/components/custom/ToggleDarkMode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFolder } from '@fortawesome/free-regular-svg-icons';
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export function NavButtonsMenu() {
                     <Button variant="main_menu">Новости</Button>
                 </ButtonGroup>
             </div>
-            <ToggleMode />
+            <ToggleDarkMode />
         </div>
     )
 }

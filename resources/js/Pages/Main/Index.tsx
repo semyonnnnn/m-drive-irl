@@ -1,6 +1,7 @@
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
 import { NavButtonsMenu } from '@/components/custom/NavButtonsMenu';
+import Guest from '@/Layouts/GuestLayout';
 
 export default function Welcome({ }: PageProps<{}>) {
   // const { theme, setTheme } = useTheme();
@@ -20,7 +21,7 @@ export default function Welcome({ }: PageProps<{}>) {
   return (
     <>
       <Head title="Main" />
-      <NavButtonsMenu />
+      <Guest />
     </>
   );
 }

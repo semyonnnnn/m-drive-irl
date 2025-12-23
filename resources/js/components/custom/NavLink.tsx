@@ -10,7 +10,7 @@ export default function NavLink({
         <Link
             {...props}
             className={
-                (" bg-background bg-transparent text-black hover:bg-accent hover:text-accent-foreground cursor-pointer dark:backdrop-blur-sm dark:text-white dark:bg-transparent dark:backdrop-blur-sm  dark:hover:bg-white/20 dark:hover:bg-white/20 "
+                ("bg-transparent text-black hover:bg-accent hover:text-accent-foreground cursor-pointer dark:text-white dark:bg-transparent dark:backdrop-blur-sm  dark:hover:bg-white/20" + " "
                     + className)
             }
         >
