@@ -7,6 +7,8 @@ export interface User {
     email_verified_at?: string;
 }
 
+export type registerOrLoginType = 'register' | 'login' | null;
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {

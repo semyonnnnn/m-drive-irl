@@ -9,8 +9,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        dropdownItem: "bg-transparent cursor-pointer",
         default:
-          "bg-black text-white text-primary-foreground shadow hover:bg-primary/90 cursor-pointer dark:bg-white dark:text-black",
+          "bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer dark:backdrop-blur-sm dark:text-white dark:hover:bg-white/20 dark:bg-transparent",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 cursor-pointer dark:backdrop-blur-sm dark:bg-transparent dark:text-white",
         outline:
@@ -21,8 +22,7 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground cursor-pointer dark:backdrop-blur-sm dark:text-white dark:bg-transparent",
         link:
           "text-primary underline-offset-4 hover:underline cursor-pointer dark:backdrop-blur-sm dark:text-white dark:bg-transparent",
-        main_menu:
-          "bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer dark:backdrop-blur-sm dark:text-white dark:hover:bg-white/20 dark:bg-transparent",
+        main_menu: "bg-black text-white text-primary-foreground shadow hover:bg-primary/90 cursor-pointer dark:bg-white dark:text-black",
       },
       size: {
         default: "h-9 px-4 py-2",
