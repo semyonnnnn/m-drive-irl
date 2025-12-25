@@ -129,7 +129,7 @@ export default function Guest({ header, children }: PropsWithChildren<{ header?:
 
                             </div>
 
-                            <div className="hidden sm:ms-6 sm:flex sm:items-center gap-10">
+                            <div className="hidden sm:ms-6 sm:flex sm:items-center gap-14">
                                 <ToggleDarkMode />
                                 <AuthDropdown />
                             </div>
@@ -163,8 +163,8 @@ export default function Guest({ header, children }: PropsWithChildren<{ header?:
                     {/* Responsive menu */}
                     <div className={`${showingNavigationDropdown ? 'block' : 'hidden'} sm:hidden`}>
                         <div className="space-y-1 pb-3 pt-2">
-                            <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                Dashboard
+                            <ResponsiveNavLink href={route('create_doc')} active={route().current('create_doc')}>
+                                CreateDoc
                             </ResponsiveNavLink>
                         </div>
 

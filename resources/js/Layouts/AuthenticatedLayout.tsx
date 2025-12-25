@@ -142,7 +142,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
 
                                 <DropdownMenuContent>
                                     <DropdownMenuItem asChild>
-                                        <Link href={route('profile.edit')}>Profile</Link>
+                                        <Link href={route('profile.edit')}>Профиль</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onSelect={(e) => {
@@ -150,7 +150,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                                             router.post(route('logout'));
                                         }}
                                     >
-                                        Log Out
+                                        Выйти
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -185,8 +185,8 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                 {/* Responsive menu */}
                 <div className={`${showingNavigationDropdown ? 'block' : 'hidden'} sm:hidden`}>
                     <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
+                        <ResponsiveNavLink href={route('create_doc')} active={route().current('create_doc')}>
+                            CreateDoc
                         </ResponsiveNavLink>
                     </div>
 
