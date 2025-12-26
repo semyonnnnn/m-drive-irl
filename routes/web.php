@@ -15,12 +15,16 @@ Route::get(
 Route::get('create_doc', function () {
     return Inertia::render('CreateDoc/Index');
 })->middleware(['auth', 'verified'])->name('create_doc');
-Route::post('create_doc', [DocumentController::class, 'create'])->middleware(['auth', 'verified'])->name('create_doc');
 
-Route::middleware('auth')->group(function () {
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('create_doc', [DocumentController::class, 'create'])->name('create_doc');
+    Route::get('generate_doc', [DocumentController::class, 'generate'])->name('generate_doc');
 });
 
 require __DIR__ . '/auth.php';

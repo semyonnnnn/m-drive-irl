@@ -3,7 +3,6 @@
 import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
-import { toast } from "sonner"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/card"
 import {
     Field,
-    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -29,7 +27,6 @@ import {
     InputGroupText,
     InputGroupTextarea,
 } from "@/components/ui/input-group"
-import { router } from '@inertiajs/react'
 
 
 
@@ -39,6 +36,10 @@ const formSchema = z.object({
         .min(5, "Bug title must be at least 5 characters.")
         .max(32, "Bug title must be at most 32 characters."),
     description: z
+        .string()
+        .min(20, "Description must be at least 20 characters.")
+        .max(100, "Description must be at most 100 characters."),
+    doc_name: z
         .string()
         .min(20, "Description must be at least 20 characters.")
         .max(100, "Description must be at most 100 characters."),
@@ -53,27 +54,6 @@ export function DocForm() {
         },
     })
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
-
-
-
-
-        toast("You submitted the following values:", {
-            description: (
-                <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-                    <code>{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-            position: "bottom-right",
-            classNames: {
-                content: "flex flex-col gap-2",
-            },
-            style: {
-                "--border-radius": "calc(var(--radius)  + 4px)",
-            } as React.CSSProperties,
-        })
-    }
-
     return (
         <Card className="w-full sm:max-w-md">
             <CardHeader>
@@ -83,14 +63,34 @@ export function DocForm() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form id="form-rhf-demo" onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    router.post('/create_doc', formData);
-
-                    form.handleSubmit(onSubmit);
-                }}>
+                <form
+                    action={"/generate_doc"}
+                    id="form-rhf-demo"
+                    onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+                        const formData = new FormData(e.currentTarget);
+                    }}>
                     <FieldGroup>
+                        <Controller
+                            name="doc_name"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor="form-rhf-demo-doc_name">
+                                        Имя документа
+                                    </FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id="form-rhf-demo-doc_name"
+                                        aria-invalid={fieldState.invalid}
+                                        placeholder="document"
+                                        autoComplete="off"
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError errors={[fieldState.error]} />
+                                    )}
+                                </Field>
+                            )}
+                        />
                         <Controller
                             name="title"
                             control={form.control}
@@ -153,8 +153,8 @@ export function DocForm() {
                     <Button type="button" variant="secondary" onClick={() => form.reset()}>
                         Reset
                     </Button>
-                    <Button variant={'outline'} type="submit" form="form-rhf-demo">
-                        Submit
+                    <Button variant={'outline'} form="form-rhf-demo" type="submit" >
+                        DOC
                     </Button>
                 </Field>
             </CardFooter>
