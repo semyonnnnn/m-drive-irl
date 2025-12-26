@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Services;
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\IOFactory;
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 
 
 
@@ -17,27 +16,60 @@ class DocumentService
     public function generate(DocCreateRequest $request)
     {
         $attributes = $request->validated();
+        $data = $attributes['description'];
+        $pdf = PDF::loadView('pdf.template', ['data' => $data]);
+        return $pdf->download($data['doc_name'] . '.pdf');
 
-        $text = $attributes['description'];
-        // dd($text);
+        // // dd($_GET);
+        // //new lines are recognized as \r\n
 
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
-        $section->addText($text);
+        // $description = $attributes['description'];
 
-        $filename = $attributes['doc_name'];
+        // $phpWord = new PhpWord();
+        // $section = $phpWord->addSection();
+
+        // $tableStyle = [
+        //     'alignment' => \PhpOffice\PhpWord\SimpleType\JcTable::END, // right-aligned
+        //     'width' => 33 * 50, // one third of page (approx)
+        //     'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT,
+        //     'borderSize' => 0,
+        //     // 'borderColor' => 'ffffff',
+        //     'cellMargin' => 0,
+        // ];
+
+        // $rowStyle = [
+        //     'borderSize' => 0,
+        //     // 'borderColor' => 'ffffff',
+        // ];
+
+        // $cellStyle = [
+        //     'borderSize' => 0,
+        //     // 'borderColor' => 'ffffff',
+        // ];
+
+        // $phpWord->addTableStyle('noBorderTable', $tableStyle);
+        // $table = $section->addTable('noBorderTable');
+
+        // for ($i = 1; $i <= 4; $i++) {
+        //     $table->addRow(null, $rowStyle);
+        //     $table->addCell(null, $cellStyle)
+        //         ->addText("Fake datum {$i}");
+        // }
 
 
-        $filename .= '.docx';
-        // dd($filename);
 
-        return response()->streamDownload(function () use ($phpWord) {
-            $writer = IOFactory::createWriter($phpWord, 'Word2007');
-            $writer->save('php://output');
-        }, $filename, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'Cache-Control' => 'max-age=0',
-        ]);
+
+
+        // $filename = $attributes['doc_name'];
+        // $filename .= '.docx';
+
+        // return response()->streamDownload(function () use ($phpWord) {
+        //     $writer = IOFactory::createWriter($phpWord, 'Word2007');
+        //     $writer->save('php://output');
+        // }, $filename, [
+        //     'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        //     'Cache-Control' => 'max-age=0',
+        // ]);
     }
 
 }
