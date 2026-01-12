@@ -3,18 +3,13 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MainController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use App\Http\Controllers\Document\DocumentController;
+use App\Http\Controllers\File\FileController;
 
 Route::get(
     '/',
     [MainController::class, 'index']
 );
-
-
-Route::get('create_doc', function () {
-    return Inertia::render('CreateDoc/Index');
-})->middleware(['auth', 'verified'])->name('create_doc');
 
 
 
@@ -23,8 +18,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::post('create_doc', [DocumentController::class, 'create'])->name('create_doc');
-    Route::get('generate_doc', [DocumentController::class, 'generate'])->name('generate_doc');
+    Route::post('generate_doc', [DocumentController::class, 'generate'])->name('generate_doc');
+    Route::get('create_doc', [DocumentController::class, 'create'])->name('create_doc');
+
+    Route::get('doc', [FileController::class, 'create'])->name('upload_file');
+    Route::post('doc', [FileController::class, 'store'])->name('store_file');
 });
 
 require __DIR__ . '/auth.php';

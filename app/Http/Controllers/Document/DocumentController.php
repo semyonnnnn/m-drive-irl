@@ -5,15 +5,14 @@ namespace App\Http\Controllers\Document;
 use App\Http\Controllers\Controller;
 use App\Services\DocumentService;
 use Inertia\Response;
-use Illuminate\Http\Request;
 use App\Http\Requests\DocCreate\DocCreateRequest;
-
+use Inertia\Inertia;
 
 class DocumentController extends Controller
 {
     public function create(): Response
     {
-        dd('CREATE');
+        return Inertia::render('CreateDoc/Index');
     }
     public function generate(DocCreateRequest $request)
     {
