@@ -21,8 +21,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('generate_doc', [DocumentController::class, 'generate'])->name('generate_doc');
     Route::get('create_doc', [DocumentController::class, 'create'])->name('create_doc');
 
-    Route::get('doc', [FileController::class, 'create'])->name('upload_file');
-    Route::post('doc', [FileController::class, 'store'])->name('store_file');
+    Route::get('file', [FileController::class, 'create'])->name('file_upload');
+    Route::post('file', [FileController::class, 'store'])->name('file_store');
 });
 
 require __DIR__ . '/auth.php';
