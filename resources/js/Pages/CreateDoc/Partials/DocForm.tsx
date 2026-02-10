@@ -64,7 +64,7 @@ export function DocForm() {
             </CardHeader>
             <CardContent>
                 <form
-                    action={"/generate_doc"}
+                    action={"doc"}
                     id="form-rhf-demo"
                     onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                         const formData = new FormData(e.currentTarget);

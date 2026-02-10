@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
+use App\Enum\PermissionsEnum;
 
 class UserController extends Controller
 {
@@ -29,7 +30,13 @@ class UserController extends Controller
         return Inertia::render('User/Edit', [
             'user' => new AuthUserResource($user),
             'roles' => Role::all(),
-            'roleLabels' => RolesEnum::labels()
+            'roleLabels' => RolesEnum::labels(),
+            'can' => [
+                'manageAdmins' => $user->can(PermissionsEnum::ManageAdmins->value),
+                'manageUsers' => $user->can(PermissionsEnum::ManageUsers->value),
+                'assignTasks' => $user->can(PermissionsEnum::AssignTasks->value),
+                'completeTasks' => $user->can(PermissionsEnum::CompleteTasks->value),
+            ]
         ]);
     }
 
@@ -38,6 +45,11 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        if ($user->hasRole(RolesEnum::Root->value)) {
+            return back()->with('error', 'Слыш, низзя!');
+        }
+
+
         $data = $request->validate([
             'roles' => ['required', 'array'],
         ]);

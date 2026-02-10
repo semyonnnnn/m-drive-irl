@@ -1,12 +1,12 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
 import { User } from "@/types";
-import InputLabel from "@/Components/InputLabel";
-import TextInput from "@/Components/TextInput";
-import InputError from "@/Components/InputError";
+import InputLabel from "@/components/custom/InputLabel";
+import TextInput from "@/components/custom/TextInput";
+import InputError from "@/components/custom/InputError";
 import { FormEventHandler } from "react";
-import PrimaryButton from "@/Components/PrimaryButton";
-import Radio from "@/Components/Radio";
+import PrimaryButton from "@/components/custom/PrimaryButton";
+import Radio from "@/components/custom/Radio";
 
 export default function Edit({
   roles,
