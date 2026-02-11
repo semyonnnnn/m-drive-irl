@@ -111,6 +111,9 @@ export function RegisterForm() {
 
             <div className="mt-4 flex items-center justify-end" onClick={() => {
             }}>
+                <Button disabled={processing}>
+                    Зарегистрироваться
+                </Button>
 
                 <Button
                     onClick={async (e) => {
@@ -122,11 +125,6 @@ export function RegisterForm() {
                     }}
                 >
                     Есть аккаунт?
-                </Button>
-
-
-                <Button disabled={processing}>
-                    Зарегистрироваться
                 </Button>
             </div>
         </form>

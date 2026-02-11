@@ -46,6 +46,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('create_doc', absolute: false));
+        return redirect(route('doc.create', absolute: false));
     }
 }

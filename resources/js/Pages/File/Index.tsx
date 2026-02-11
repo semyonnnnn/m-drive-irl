@@ -29,7 +29,6 @@ export default function CreateDoc() {
 
     // Handle form submission
     const handleSubmit = (e: React.FormEvent) => {
-        console.log('i did the submit');
         e.preventDefault();
         if (!files.length) {
             toast.error("No files selected");

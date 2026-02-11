@@ -7,13 +7,15 @@ import InputError from "@/components/custom/InputError";
 import { FormEventHandler } from "react";
 import PrimaryButton from "@/components/custom/PrimaryButton";
 import Radio from "@/components/custom/Radio";
+import { Role } from '@/types';
+
 
 export default function Edit({
   roles,
   user,
   roleLabels,
 }: {
-  roles: any;
+  roles: Role[];
   user: User;
   roleLabels: Record<string, string>;
 }) {
@@ -22,6 +24,8 @@ export default function Edit({
     email: user.email,
     roles: user.roles,
   });
+
+  const roles_no_root = roles.filter(role => role.name.toLowerCase() !== 'root');
 
   const updateUser: FormEventHandler = (ev) => {
     ev.preventDefault();
@@ -81,8 +85,8 @@ export default function Edit({
             </div>
 
             <div className="mb-8">
-              <InputLabel value="Role" />
-              {roles.map((role: any) => (
+              <InputLabel value="Роль" />
+              {roles_no_root.map((role: any) => (
                 <label className="flex items-center mb-1" key={role.id}>
                   <Radio
                     name="roles"

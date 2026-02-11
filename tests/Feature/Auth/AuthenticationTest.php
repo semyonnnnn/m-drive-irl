@@ -17,7 +17,7 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('create_doc', absolute: false));
+    $response->assertRedirect(route('doc.create', absolute: false));
 });
 
 test('users can not authenticate with invalid password', function () {

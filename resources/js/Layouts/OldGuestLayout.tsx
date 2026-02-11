@@ -163,7 +163,7 @@ export default function Guest({ header, children }: PropsWithChildren<{ header?:
                     {/* Responsive menu */}
                     <div className={`${showingNavigationDropdown ? 'block' : 'hidden'} sm:hidden`}>
                         <div className="space-y-1 pb-3 pt-2">
-                            <ResponsiveNavLink href={route('create_doc')} active={route().current('create_doc')}>
+                            <ResponsiveNavLink href={route('doc.create')} active={route().current('doc.create')}>
                                 CreateDoc
                             </ResponsiveNavLink>
                         </div>

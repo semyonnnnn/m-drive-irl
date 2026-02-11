@@ -20,3 +20,18 @@ export type PageProps<
     };
     ziggy: Config & { location: string };
 };
+export type Permissions = {
+    manageAdmins: string;
+    manageUsers: string;
+    assignTasks: string;
+    completeTasks: string;
+};
+
+export type Role = {
+  id: number;
+  name: string;
+  guard_name: string;
+  created_at: string;
+  updated_at: string;
+};
+

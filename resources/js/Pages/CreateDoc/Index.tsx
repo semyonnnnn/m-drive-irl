@@ -9,7 +9,7 @@ export default function CreateDoc() {
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        router.post('/create_doc', formData);
+        router.post('/doc.create', formData);
     }
 
     return (

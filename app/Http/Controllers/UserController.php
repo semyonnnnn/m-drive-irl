@@ -3,22 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Enum\RolesEnum;
-use App\Http\Resources\AuthUserResource;
+use App\Enum\PermissionsEnum;
+//////////////////////////////////
+use Inertia\Inertia;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
-use App\Enum\PermissionsEnum;
+use App\Http\Resources\AuthUserResource;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(User $user)
     {
         return Inertia::render('User/Index', [
-            'users' => AuthUserResource::collection(User::all())->collection->toArray()
+            'users' => AuthUserResource::collection(User::all())->collection->toArray(),
         ]);
     }
 
@@ -27,16 +28,13 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
+        if ($user->id == 1) {
+            return abort(403);
+        }
+
         return Inertia::render('User/Edit', [
             'user' => new AuthUserResource($user),
-            'roles' => Role::all(),
-            'roleLabels' => RolesEnum::labels(),
-            'can' => [
-                'manageAdmins' => $user->can(PermissionsEnum::ManageAdmins->value),
-                'manageUsers' => $user->can(PermissionsEnum::ManageUsers->value),
-                'assignTasks' => $user->can(PermissionsEnum::AssignTasks->value),
-                'completeTasks' => $user->can(PermissionsEnum::CompleteTasks->value),
-            ]
+            'roleLabels' => RolesEnum::labels()
         ]);
     }
 
@@ -51,10 +49,10 @@ class UserController extends Controller
 
 
         $data = $request->validate([
-            'roles' => ['required', 'array'],
+            'role' => ['required', 'string'],
         ]);
 
-        $user->syncRoles($data['roles']);
+        $user->syncRoles($data['role']);
 
         return back()->with('success', 'Roles updated successfully.');
     }

@@ -83,6 +83,9 @@ export default function Login({
                 </div>
 
                 <div className="mt-4 flex items-center justify-end">
+                    <Button className="ms-4" disabled={processing} variant="default">
+                        Log in
+                    </Button>
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
@@ -91,10 +94,6 @@ export default function Login({
                             Forgot your password?
                         </Link>
                     )}
-
-                    <Button className="ms-4" disabled={processing} variant="default">
-                        Log in
-                    </Button>
                 </div>
             </form>
         </GuestLayout >

@@ -38,6 +38,6 @@ class ConfirmablePasswordController extends Controller
 
         $request->session()->put('auth.password_confirmed_at', time());
 
-        return redirect()->intended(route('create_doc', absolute: false));
+        return redirect()->intended(route('doc.create', absolute: false));
     }
 }
