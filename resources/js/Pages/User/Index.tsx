@@ -4,15 +4,25 @@ import { User, PageProps } from "@/types";
 import { can } from "@/helpers";
 
 
-export default function Index({ auth, users }: PageProps<{ users: User[] }>) {
+export default function Index(
+  {
+    auth,
+    users,
+    roleLabels
+  }:
+    {
+      auth: PageProps['auth'];
+      users: User[];
+      roleLabels: Record<string, string>;
+    }) {
 
-  const canEdit = (auth.user.roles[0].toLocaleLowerCase() === 'root' ||
-    auth.user.roles[0].toLocaleLowerCase() === 'admin')
+  const canEdit = (auth.user?.roles[0]?.toLocaleLowerCase() === 'root' ||
+    auth.user?.roles[0]?.toLocaleLowerCase() === 'admin')
 
   // const user_root = users.find(user => user.name.toLowerCase() === 'root')!;
   const visible_users = users.filter(user => {
-    const user_role = user.roles[0].toLocaleLowerCase();
-    const auth_role = auth.user.roles[0].toLocaleLowerCase();
+    const user_role = user?.roles[0]?.toLocaleLowerCase();
+    const auth_role = auth.user?.roles[0]?.toLocaleLowerCase();
 
     switch (auth_role) {
       case 'root': {
@@ -69,11 +79,11 @@ export default function Index({ auth, users }: PageProps<{ users: User[] }>) {
           </thead>
           <tbody>
             {visible_users.map(user => {
-              const user_role = user.roles[0].toLocaleLowerCase();
-              const auth_role = auth.user.roles[0].toLocaleLowerCase();
+              const user_role = user?.roles[0]?.toLocaleLowerCase();
+              const auth_role = auth.user?.roles[0]?.toLocaleLowerCase();
 
               const canEdit = user_role !== 'root' && (auth_role === 'root' || auth_role === 'admin');
-              return <Row user={user} key={user.id} auth_user={auth.user} canEdit={canEdit} />
+              return <Row user={user} key={user.id} auth_user={auth.user} canEdit={canEdit} roleLabels={roleLabels} />
             })}
           </tbody>
         </table>
@@ -82,7 +92,16 @@ export default function Index({ auth, users }: PageProps<{ users: User[] }>) {
   );
 }
 
-const Row = ({ user, auth_user, canEdit }: { user: User, auth_user: User, canEdit: boolean }) => {
+const Row = ({ user, auth_user, canEdit, roleLabels }: {
+  user: User;
+  auth_user: User;
+  canEdit: boolean;
+  roleLabels: Record<string, string>;
+}) => {
+  const user_role = user?.roles[0]?.toLocaleLowerCase();
+  const auth_role = auth_user?.roles[0]?.toLocaleLowerCase();
+
+  const admins_do_not_edit_admins = (auth_role == 'admin' && user_role === 'admin') ? false : true;
 
   return (
     <tr
@@ -97,11 +116,11 @@ const Row = ({ user, auth_user, canEdit }: { user: User, auth_user: User, canEdi
       <td className="px-6 py-4 text-[#bebebe]">{user.email}</td>
       <td className="px-6 py-4 text-[#bebebe]">{user.created_at}</td>
       <td className="px-6 py-4 text-[#bebebe]">
-        {user.roles.join(", ")}
+        {roleLabels[user?.roles[0]]}
       </td>
 
       <td className="px-6 py-4 text-[#bebebe]">
-        {canEdit && user.roles[0].toLocaleLowerCase() !== 'admin' &&
+        {canEdit && admins_do_not_edit_admins &&
           <Link
             href={route("user.edit", user.id)}
             className="text-accent-main"

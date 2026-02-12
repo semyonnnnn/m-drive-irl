@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('doc.create', absolute: false));
+        return redirect()->intended(route('user.index', absolute: false));
     }
 
     /**

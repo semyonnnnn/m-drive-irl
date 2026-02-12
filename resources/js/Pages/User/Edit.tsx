@@ -1,6 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
-import { User } from "@/types";
+import { PageProps, User } from "@/types";
 import InputLabel from "@/components/custom/InputLabel";
 import TextInput from "@/components/custom/TextInput";
 import InputError from "@/components/custom/InputError";
@@ -14,18 +14,23 @@ export default function Edit({
   roles,
   user,
   roleLabels,
+  auth
 }: {
   roles: Role[];
   user: User;
   roleLabels: Record<string, string>;
+  auth: PageProps['auth'];
 }) {
+  const isAdmin = auth.user.roles[0].toLocaleLowerCase() === 'admin';
   const { data, setData, processing, errors, put } = useForm({
     name: user.name,
     email: user.email,
     roles: user.roles,
   });
 
-  const roles_no_root = roles.filter(role => role.name.toLowerCase() !== 'root');
+  const roles_no_root = isAdmin ?
+    roles.filter(role => role.name.toLocaleLowerCase() !== 'root' && role.name.toLocaleLowerCase() !== 'admin') :
+    roles.filter(role => role.name.toLowerCase() !== 'root');
 
   const updateUser: FormEventHandler = (ev) => {
     ev.preventDefault();
