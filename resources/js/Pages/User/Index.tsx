@@ -17,7 +17,11 @@ export default function Index(
     }) {
 
   const canEdit = (auth.user?.roles[0]?.toLocaleLowerCase() === 'root' ||
-    auth.user?.roles[0]?.toLocaleLowerCase() === 'admin')
+    auth.user?.roles[0]?.toLocaleLowerCase() === 'admin');
+
+  const isAdmin = auth.user.roles[0].toLocaleLowerCase() === 'admin';
+  const isRoot = auth.user.roles[0].toLocaleLowerCase() === 'root';
+  const isCommon = !isAdmin && !isRoot;
 
   // const user_root = users.find(user => user.name.toLowerCase() === 'root')!;
   const visible_users = users.filter(user => {
@@ -63,9 +67,9 @@ export default function Index(
               <th scope="col" className="px-6 py-3">
                 Почта
               </th>
-              <th scope="col" className="px-6 py-3">
+              {!isCommon && <th scope="col" className="px-6 py-3">
                 Создан
-              </th>
+              </th>}
               <th scope="col" className="px-6 py-3">
                 Роли
               </th>
@@ -83,7 +87,7 @@ export default function Index(
               const auth_role = auth.user?.roles[0]?.toLocaleLowerCase();
 
               const canEdit = user_role !== 'root' && (auth_role === 'root' || auth_role === 'admin');
-              return <Row user={user} key={user.id} auth_user={auth.user} canEdit={canEdit} roleLabels={roleLabels} />
+              return <Row user={user} key={user.id} auth_user={auth.user} canEdit={canEdit} roleLabels={roleLabels} isCommon={isCommon} />
             })}
           </tbody>
         </table>
@@ -92,11 +96,12 @@ export default function Index(
   );
 }
 
-const Row = ({ user, auth_user, canEdit, roleLabels }: {
+const Row = ({ user, auth_user, canEdit, roleLabels, isCommon }: {
   user: User;
   auth_user: User;
   canEdit: boolean;
   roleLabels: Record<string, string>;
+  isCommon: boolean;
 }) => {
   const user_role = user?.roles[0]?.toLocaleLowerCase();
   const auth_role = auth_user?.roles[0]?.toLocaleLowerCase();
@@ -114,7 +119,7 @@ const Row = ({ user, auth_user, canEdit, roleLabels }: {
         {user.name}
       </th>
       <td className="px-6 py-4 text-[#bebebe]">{user.email}</td>
-      <td className="px-6 py-4 text-[#bebebe]">{user.created_at}</td>
+      {!isCommon && <td className="px-6 py-4 text-[#bebebe]">{user.created_at}</td>}
       <td className="px-6 py-4 text-[#bebebe]">
         {roleLabels[user?.roles[0]]}
       </td>
