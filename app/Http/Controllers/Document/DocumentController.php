@@ -16,6 +16,7 @@ class DocumentController extends Controller
     }
     public function generate(DocCreateRequest $request)
     {
-        return (new DocumentService)->generate($request);
+        [$pdf, $data] = (new DocumentService)->generate($request);
+        return $pdf->download($data . '.pdf');
     }
 }

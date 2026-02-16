@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Resources\AuthUserResource;
+use App\Services\UserListService;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -26,15 +28,22 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
 
         $this->authorize('editAccess', [$user]);
 
-        return Inertia::render('User/Edit', [
+        $data = [
             'user' => new AuthUserResource($user),
-            'users' => AuthUserResource::collection(User::all())->collection->toArray(),
             'roles' => Role::all(),
-            'roleLabels' => RolesEnum::labels()
-        ]);
+            'roleLabels' => RolesEnum::labels(),
+        ];
+
+        if (!$isAdminPage) {
+            $data['listOf'] = (new UserListService)->filter($user);
+        }
+
+        return Inertia::render('User/Edit', $data);
+
     }
 
     public function update(Request $request, User $user)

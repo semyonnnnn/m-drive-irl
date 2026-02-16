@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Services;
-use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 
 
 
@@ -22,8 +21,6 @@ class FileService
         foreach ($attributes->file('files') as $file) {
             $file->store('uploads', 'public');
         }
-
-        return redirect()->back()->with('success', 'Files uploaded successfully');
     }
 
 }

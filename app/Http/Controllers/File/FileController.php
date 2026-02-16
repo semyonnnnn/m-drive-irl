@@ -18,6 +18,8 @@ class FileController extends Controller
 
     public function store(FileCreateRequest $request)
     {
-        return (new FileService)->upload($request);
+        (new FileService)->upload($request);
+
+        return redirect()->back()->with('success', 'Files uploaded successfully');
     }
 }

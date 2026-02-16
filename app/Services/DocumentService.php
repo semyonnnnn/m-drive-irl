@@ -18,7 +18,9 @@ class DocumentService
         $attributes = $request->validated();
         $data = $attributes['description'];
         $pdf = PDF::loadView('pdf.template', ['data' => $data]);
-        return $pdf->download($data['doc_name'] . '.pdf');
+
+        return [$pdf, $data['doc_name']];
+        // return $pdf->download($data['doc_name'] . '.pdf');
 
         // // dd($_GET);
         // //new lines are recognized as \r\n
