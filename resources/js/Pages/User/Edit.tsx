@@ -14,12 +14,14 @@ export default function Edit({
   roles,
   user,
   roleLabels,
-  auth
+  auth,
+  users
 }: {
   roles: Role[];
   user: User;
   roleLabels: Record<string, string>;
   auth: PageProps['auth'];
+  users: User[]
 }) {
   const isAdmin = auth.user.roles[0].toLocaleLowerCase() === 'admin';
   const { data, setData, processing, errors, put } = useForm({
@@ -45,6 +47,8 @@ export default function Edit({
       setData("roles", [ev.target.value]);
     }
   };
+
+  console.log(users);
 
   return (
     <AuthenticatedLayout

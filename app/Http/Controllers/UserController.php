@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enum\RolesEnum;
-use App\Enum\PermissionsEnum;
 //////////////////////////////////
 use Inertia\Inertia;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Resources\AuthUserResource;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -28,10 +26,12 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+
         $this->authorize('editAccess', [$user]);
 
         return Inertia::render('User/Edit', [
             'user' => new AuthUserResource($user),
+            'users' => AuthUserResource::collection(User::all())->collection->toArray(),
             'roles' => Role::all(),
             'roleLabels' => RolesEnum::labels()
         ]);
@@ -48,6 +48,8 @@ class UserController extends Controller
         $this->authorize('assignRoles', [$user, $data['roles']]);
 
         $user->syncRoles($data['roles']);
+
+
 
         return back()->with('success', 'Roles updated successfully.');
     }
