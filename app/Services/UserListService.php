@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 ///////////////////////////////////////
 use App\Models\User;
@@ -14,18 +15,36 @@ class UserListService
     {
         $users = AuthUserResource::collection(User::all())->collection->toArray();
 
-
-        if ($user->hasRole(RolesEnum::Sensei->value)) {
-            return array_filter($users, function ($user) {
-                return $user->hasRole(RolesEnum::Gakusei->value);
-            });
-        }
-
-
-        //default for gakusei
-        return array_filter($users, function ($user) {
+        $gakuseis = array_filter($users, function ($user) {
+            return $user->hasRole(RolesEnum::Gakusei->value);
+        });
+        $senseis = array_filter($users, function ($user) {
             return $user->hasRole(RolesEnum::Sensei->value);
         });
+
+        if ($user->hasRole(RolesEnum::Sensei->value)) {
+            return $gakuseis;
+        }
+
+        //default for gakusei
+        return $senseis;
+    }
+
+    public function distribute(array $related_users, User $user)
+    {
+        //check if this already exists in db 
+        // 4 - 8
+        // 4 - 8
+        if (!$related_users)
+            return;
+        // User::find(2)->gakusei()->attach($user);
+        if ($user->hasRole(RolesEnum::Sensei->value)) {
+            foreach ($related_users as $related) {
+                $user->gakusei()->attach($related['id']);
+            }
+            return;
+        }
+        return $user->sensei()->attach($related_users[0]['id']);
     }
 
 }

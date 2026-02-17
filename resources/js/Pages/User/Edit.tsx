@@ -8,6 +8,7 @@ import { FormEventHandler } from "react";
 import PrimaryButton from "@/components/custom/PrimaryButton";
 import Radio from "@/components/custom/Radio";
 import { Role } from '@/types';
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 export default function Edit({
@@ -15,19 +16,20 @@ export default function Edit({
   user,
   roleLabels,
   auth,
-  listOf
+  related_users,
 }: {
   roles: Role[];
   user: User;
   roleLabels: Record<string, string>;
   auth: PageProps['auth'];
-  listOf: User[]
+  related_users: User[],
 }) {
   const isAdmin = auth.user.roles[0].toLocaleLowerCase() === 'admin';
   const { data, setData, processing, errors, put } = useForm({
     name: user.name,
     email: user.email,
     roles: user.roles,
+    related_users: [] as User[],
   });
 
   const roles_no_root = isAdmin ?
@@ -48,7 +50,18 @@ export default function Edit({
     }
   };
 
-  console.log(listOf);
+  const handleCheckboxes = (checked: boolean, user: User) => {
+    if (checked) {
+      setData("related_users", [...data.related_users, user]);
+    } else {
+      setData(
+        "related_users",
+        data.related_users.filter(u => u.id !== user.id)
+      );
+    }
+  }
+
+  console.log(related_users);
 
   return (
     <AuthenticatedLayout
@@ -95,7 +108,7 @@ export default function Edit({
 
             <div className="mb-8">
               <InputLabel value="Роль" />
-              {roles_no_root.map((role: any) => (
+              {roles_no_root.map((role: Role) => (
                 <label className="flex items-center mb-1" key={role.id}>
                   <Radio
                     name="roles"
@@ -108,6 +121,20 @@ export default function Edit({
                   </span>
                 </label>
               ))}
+            </div>
+            <div className="mb-8">
+              {Object.values(related_users).map((user: User) => (
+                <label key={user.id} className="flex items-center mb-1">
+                  <Checkbox
+                    checked={data.related_users.some(u => u.id === user.id)}
+                    onCheckedChange={(checked: boolean) => {
+                      handleCheckboxes(checked as boolean, user)
+                    }}
+                  />
+                  <span className="ms-2 text-sm text-gray-400">{user.name}</span>
+                </label>
+              ))}
+
             </div>
 
             <div className="flex items-center gap-4">

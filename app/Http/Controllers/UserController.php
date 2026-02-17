@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Resources\AuthUserResource;
 use App\Services\UserListService;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -28,9 +27,9 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
-
         $this->authorize('editAccess', [$user]);
+
+        $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
 
         $data = [
             'user' => new AuthUserResource($user),
@@ -39,7 +38,7 @@ class UserController extends Controller
         ];
 
         if (!$isAdminPage) {
-            $data['listOf'] = (new UserListService)->filter($user);
+            $data['related_users'] = (new UserListService)->filter($user);
         }
 
         return Inertia::render('User/Edit', $data);
@@ -48,6 +47,12 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
+        if ($isAdminPage) {
+            return back();
+        }
+
+        $related_users = $request->get('related_users');
         $data = $request->validate([
             'roles' => ['required', 'array'],
             'roles.*' => ['string'],
@@ -56,8 +61,10 @@ class UserController extends Controller
         $this->authorize('updateAccess', [$user]);
         $this->authorize('assignRoles', [$user, $data['roles']]);
 
-        $user->syncRoles($data['roles']);
 
+
+        $user->syncRoles($data['roles']);
+        (new UserListService)->distribute($related_users, $user);
 
 
         return back()->with('success', 'Roles updated successfully.');

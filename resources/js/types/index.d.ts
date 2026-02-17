@@ -34,4 +34,3 @@ export type Role = {
   created_at: string;
   updated_at: string;
 };
-
