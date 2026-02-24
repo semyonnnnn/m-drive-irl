@@ -22,7 +22,7 @@ export default function Edit({
   user: User;
   roleLabels: Record<string, string>;
   auth: PageProps['auth'];
-  related_users: User[],
+  related_users?: User[];
 }) {
   const isAdmin = auth.user.roles[0].toLocaleLowerCase() === 'admin';
   const { data, setData, processing, errors, put } = useForm({
@@ -123,7 +123,7 @@ export default function Edit({
               ))}
             </div>
             <div className="mb-8">
-              {Object.values(related_users).map((user: User) => (
+              {Object.values(related_users ?? []).map((user: User) => (
                 <label key={user.id} className="flex items-center mb-1">
                   <Checkbox
                     checked={data.related_users.some(u => u.id === user.id)}

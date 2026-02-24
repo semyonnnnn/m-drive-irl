@@ -29,7 +29,6 @@ class UserController extends Controller
     {
         $this->authorize('editAccess', [$user]);
 
-        $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
 
         $data = [
             'user' => new AuthUserResource($user),
@@ -37,6 +36,7 @@ class UserController extends Controller
             'roleLabels' => RolesEnum::labels(),
         ];
 
+        $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
         if (!$isAdminPage) {
             $data['related_users'] = (new UserListService)->filter($user);
         }
@@ -47,10 +47,8 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        // dd($request->all);
         $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
-        if ($isAdminPage) {
-            return back();
-        }
 
         $related_users = $request->get('related_users');
         $data = $request->validate([
@@ -64,7 +62,9 @@ class UserController extends Controller
 
 
         $user->syncRoles($data['roles']);
-        (new UserListService)->distribute($related_users, $user);
+        if (!$isAdminPage) {
+            (new UserListService)->distribute($related_users, $user);
+        }
 
 
         return back()->with('success', 'Roles updated successfully.');
