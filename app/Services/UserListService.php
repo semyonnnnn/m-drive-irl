@@ -11,45 +11,83 @@ use App\Http\Resources\AuthUserResource;
 
 class UserListService
 {
-    public function filter(User $user)
+    public function edit(User $user)
     {
-        $users = AuthUserResource::collection(User::all())->collection->toArray();
+        $isSensei = $user->hasRole(RolesEnum::Sensei->value);
+        $users = User::all();
 
-        $gakuseis = array_filter($users, function ($user) {
-            return $user->hasRole(RolesEnum::Gakusei->value);
-        });
-        $senseis = array_filter($users, function ($user) {
-            return $user->hasRole(RolesEnum::Sensei->value);
-        });
+        $gakuseis = $users->filter(
+            fn($u) =>
+            $u->hasRole(RolesEnum::Gakusei->value)
+        );
 
-        if ($user->hasRole(RolesEnum::Sensei->value)) {
-            return $gakuseis;
+        $senseis = $users->filter(
+            fn($u) =>
+            $u->hasRole(RolesEnum::Sensei->value)
+        );
+
+        if ($isSensei) {
+
+            $ours = $user->gakusei()->get();
+
+            $theirs = $gakuseis->filter(function ($gakusei) use ($user) {
+
+                $senseiIds = $gakusei->sensei()->allRelatedIds();
+
+                return $senseiIds->isNotEmpty()
+                    && !$senseiIds->contains($user->id);
+            });
+
+            return [
+                'related_users' => $gakuseis,
+                'ours' => $ours,
+                'theirs' => $theirs,
+            ];
         }
 
-        //default for gakusei
-        return $senseis;
+        return AuthUserResource::collection($senseis);
     }
 
-    public function distribute(array $related_users, User $user)
+    public function update(array $related_users, User $user)
     {
-        //check if this already exists in db 
-        // 4 - 8
-        // 4 - 8
-        if (!$related_users) {
+        $isSensei = $user->hasRole(RolesEnum::Sensei->value);
+        $isGakusei = $user->hasRole(RolesEnum::Gakusei->value);
+
+        if (!$isSensei && !$isGakusei) {
             return;
         }
 
-        dd($related_users);
+        $requestedIds = collect($related_users)->pluck('id')->filter()->values();
 
-        // User::find(2)->gakusei()->attach($user);
-        if ($user->hasRole(RolesEnum::Sensei->value)) {
-            foreach ($related_users as $related) {
-                // dd($related);
-                $user && $user->gakusei()->syncWithoutDetaching($related['id']);
+        if ($isSensei) {
+            // Find students that already belong to another sensei
+            $forbidden = User::whereIn('id', $requestedIds)
+                ->whereHas('sensei', fn($q) => $q->where('users.id', '!=', $user->id))
+                ->pluck('id');
+
+            // Keep only allowed students
+            $allowedIds = $requestedIds->diff($forbidden);
+
+            // Detach all current students
+            $user->gakusei()->detach();
+
+            // Attach allowed students
+            if ($allowedIds->isNotEmpty()) {
+                $user->gakusei()->attach($allowedIds);
             }
-            return;
+
+            // Optionally, warn about forbidden students
+            if ($forbidden->isNotEmpty()) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'related_users' => 'Some students already belong to another Sensei and were not added.'
+                ]);
+            }
         }
-        return $user->sensei()->attach($related_users[0]['id']);
+
+        if ($isGakusei) {
+            // Just sync all requested senseis for the student
+            $user->sensei()->sync($requestedIds);
+        }
     }
 
 }

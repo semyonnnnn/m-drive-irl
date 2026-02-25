@@ -38,7 +38,11 @@ class UserController extends Controller
 
         $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
         if (!$isAdminPage) {
-            $data['related_users'] = (new UserListService)->filter($user);
+            $relations = (new UserListService)->edit($user);
+
+            $data['related_users'] = $relations['related_users'];
+            $data['ours'] = $relations['ours'];
+            $data['theirs'] = $relations['theirs'];
         }
 
         return Inertia::render('User/Edit', $data);
@@ -63,7 +67,7 @@ class UserController extends Controller
 
         $user->syncRoles($data['roles']);
         if (!$isAdminPage) {
-            (new UserListService)->distribute($related_users, $user);
+            (new UserListService)->update($related_users, $user);
         }
 
 

@@ -17,19 +17,23 @@ export default function Edit({
   roleLabels,
   auth,
   related_users,
+  ours,
+  theirs
 }: {
   roles: Role[];
   user: User;
   roleLabels: Record<string, string>;
   auth: PageProps['auth'];
   related_users?: User[];
+  ours?: User[];
+  theirs?: User[]
 }) {
   const isAdmin = auth.user.roles[0].toLocaleLowerCase() === 'admin';
   const { data, setData, processing, errors, put } = useForm({
     name: user.name,
     email: user.email,
     roles: user.roles,
-    related_users: [] as User[],
+    related_users: ours ?? [],
   });
 
   const roles_no_root = isAdmin ?
@@ -61,7 +65,7 @@ export default function Edit({
     }
   }
 
-  console.log(related_users);
+  console.log({ related_users, ours, theirs });
 
   return (
     <AuthenticatedLayout
