@@ -35,12 +35,17 @@ class UserListService
         //check if this already exists in db 
         // 4 - 8
         // 4 - 8
-        if (!$related_users)
+        if (!$related_users) {
             return;
+        }
+
+        dd($related_users);
+
         // User::find(2)->gakusei()->attach($user);
         if ($user->hasRole(RolesEnum::Sensei->value)) {
             foreach ($related_users as $related) {
-                $user->gakusei()->attach($related['id']);
+                // dd($related);
+                $user && $user->gakusei()->syncWithoutDetaching($related['id']);
             }
             return;
         }

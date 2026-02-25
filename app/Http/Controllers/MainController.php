@@ -13,8 +13,11 @@ use Inertia\Response;
 
 class MainController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Main/Index');
+        if (!Auth::user()) {
+            return Inertia::render('Main/Guest');
+        }
+        return Inertia::render('Main/Auth');
     }
 }
