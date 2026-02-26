@@ -45,13 +45,13 @@ class UserController extends Controller
             $data['theirs'] = $relations['theirs'];
         }
 
+
         return Inertia::render('User/Edit', $data);
 
     }
 
     public function update(Request $request, User $user)
     {
-        // dd($request->all);
         $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
 
         $related_users = $request->get('related_users');

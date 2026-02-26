@@ -10,6 +10,12 @@ import Radio from "@/components/custom/Radio";
 import { Role } from '@/types';
 import { Checkbox } from "@/components/ui/checkbox";
 
+type UltraUser = User & {
+  sensei?: {
+    id: number
+    name: string
+  } | null
+}
 
 export default function Edit({
   roles,
@@ -26,7 +32,7 @@ export default function Edit({
   auth: PageProps['auth'];
   related_users?: User[];
   ours?: User[];
-  theirs?: User[]
+  theirs?: UltraUser[]
 }) {
   const isAdmin = auth.user.roles[0].toLocaleLowerCase() === 'admin';
   const { data, setData, processing, errors, put } = useForm({
@@ -65,7 +71,6 @@ export default function Edit({
     }
   }
 
-  console.log({ related_users, ours, theirs });
 
   return (
     <AuthenticatedLayout
@@ -113,7 +118,7 @@ export default function Edit({
             <div className="mb-8">
               <InputLabel value="Роль" />
               {roles_no_root.map((role: Role) => (
-                <label className="flex items-center mb-1" key={role.id}>
+                <label className="flex select-none items-center mb-1" key={role.id}>
                   <Radio
                     name="roles"
                     checked={data.roles.includes(role.name)}
@@ -127,18 +132,28 @@ export default function Edit({
               ))}
             </div>
             <div className="mb-8">
-              {Object.values(related_users ?? []).map((user: User) => (
-                <label key={user.id} className="flex items-center mb-1">
-                  <Checkbox
-                    checked={data.related_users.some(u => u.id === user.id)}
-                    onCheckedChange={(checked: boolean) => {
-                      handleCheckboxes(checked as boolean, user)
-                    }}
-                  />
-                  <span className="ms-2 text-sm text-gray-400">{user.name}</span>
-                </label>
-              ))}
+              {Object.values(related_users ?? []).map((user: User) => {
+                // Make sure theirs is an array
+                theirs = Array.from(Object.values(theirs ?? []));
 
+                const takenArray = theirs ?? [];
+                const isTaken = takenArray.some(u => u.id === user.id);
+                const byWhom = theirs?.find(u => u.id === user.id)?.sensei?.name;
+
+                return (
+                  <label key={user.id} className="flex select-none items-center mb-1 opacity-80">
+                    <Checkbox
+                      checked={data.related_users.some(u => u.id === user.id)}
+                      onCheckedChange={(checked: boolean) => handleCheckboxes(checked as boolean, user)}
+                      disabled={isTaken} // prevent selection
+                    />
+                    <span className={`ms-2 text-sm ${isTaken ? 'text-gray-500' : 'text-gray-400'}`}>
+                      {user.name} {isTaken ? 'в группе ' + byWhom : ''}
+                    </span>
+                  </label>
+                );
+              })}
+              <span className="text-red-500">{errors.related_users}</span>
             </div>
 
             <div className="flex items-center gap-4">

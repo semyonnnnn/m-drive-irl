@@ -28,24 +28,42 @@ class UserListService
 
         if ($isSensei) {
 
-            $ours = $user->gakusei()->get();
+            $ours_g = $user->gakusei()->get();
+            $theirs = $gakuseis
+                ->filter(function ($gakusei) use ($user) {
+                    $senseiIds = $gakusei->sensei()->allRelatedIds();
 
-            $theirs = $gakuseis->filter(function ($gakusei) use ($user) {
-
-                $senseiIds = $gakusei->sensei()->allRelatedIds();
-
-                return $senseiIds->isNotEmpty()
-                    && !$senseiIds->contains($user->id);
-            });
+                    return $senseiIds->isNotEmpty()
+                        && !$senseiIds->contains($user->id);
+                })
+                ->map(function ($gakusei) {
+                    $sensei = $gakusei->sensei()->first(); // assuming 1 sensei per gakusei
+    
+                    return [
+                        'id' => $gakusei->id,
+                        'name' => $gakusei->name,
+                        'sensei' => $sensei ? [
+                            'id' => $sensei->id,
+                            'name' => $sensei->name,
+                        ] : null,
+                    ];
+                })
+                ->values(); // important: reindex
 
             return [
                 'related_users' => $gakuseis,
-                'ours' => $ours,
+                'ours' => $ours_g,
                 'theirs' => $theirs,
             ];
         }
 
-        return AuthUserResource::collection($senseis);
+        $ours_s = $user->sensei()->get();
+
+        return [
+            'related_users' => $senseis,
+            'ours' => $ours_s,
+            'theirs' => []
+        ];
     }
 
     public function update(array $related_users, User $user)
@@ -60,31 +78,24 @@ class UserListService
         $requestedIds = collect($related_users)->pluck('id')->filter()->values();
 
         if ($isSensei) {
-            // Find students that already belong to another sensei
             $forbidden = User::whereIn('id', $requestedIds)
                 ->whereHas('sensei', fn($q) => $q->where('users.id', '!=', $user->id))
+                ->whereNotIn('id', $user->gakusei()->pluck('users.id'))
                 ->pluck('id');
 
-            // Keep only allowed students
-            $allowedIds = $requestedIds->diff($forbidden);
-
-            // Detach all current students
-            $user->gakusei()->detach();
-
-            // Attach allowed students
-            if ($allowedIds->isNotEmpty()) {
-                $user->gakusei()->attach($allowedIds);
-            }
-
-            // Optionally, warn about forbidden students
             if ($forbidden->isNotEmpty()) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
-                    'related_users' => 'Some students already belong to another Sensei and were not added.'
+                    'related_users' => 'У некоторых учеников уже есть наставники'
                 ]);
             }
-        }
 
-        if ($isGakusei) {
+            $user->gakusei()->detach();
+
+            if ($requestedIds->isNotEmpty()) {
+                $user->gakusei()->attach($requestedIds);
+            }
+
+        } else if ($isGakusei) {
             // Just sync all requested senseis for the student
             $user->sensei()->sync($requestedIds);
         }
