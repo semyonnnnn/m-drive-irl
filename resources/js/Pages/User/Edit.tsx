@@ -42,6 +42,8 @@ export default function Edit({
     related_users: ours ?? [],
   });
 
+  console.log(user);
+
   const roles_no_root = isAdmin ?
     roles.filter(role => role.name.toLocaleLowerCase() !== 'root' && role.name.toLocaleLowerCase() !== 'admin') :
     roles.filter(role => role.name.toLowerCase() !== 'root');
@@ -145,7 +147,7 @@ export default function Edit({
                     <Checkbox
                       checked={data.related_users.some(u => u.id === user.id)}
                       onCheckedChange={(checked: boolean) => handleCheckboxes(checked as boolean, user)}
-                      disabled={isTaken} // prevent selection
+                      disabled={isTaken}
                     />
                     <span className={`ms-2 text-sm ${isTaken ? 'text-gray-500' : 'text-gray-400'}`}>
                       {user.name} {isTaken ? 'в группе ' + byWhom : ''}

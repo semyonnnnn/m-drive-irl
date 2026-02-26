@@ -96,8 +96,9 @@ class UserListService
             }
 
         } else if ($isGakusei) {
-            // Just sync all requested senseis for the student
-            $user->sensei()->sync($requestedIds);
+            $user->sensei()->detach();
+            $user->sensei()->attach($requestedIds[0]);
+            $user->sensei()->sync($requestedIds[0]);
         }
     }
 
