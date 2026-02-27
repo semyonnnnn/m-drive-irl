@@ -51,8 +51,8 @@ class UserListService
                 ->values(); // important: reindex
 
             return [
-                'related_users' => $gakuseis,
-                'ours' => $ours_g,
+                'related_users' => AuthUserResource::collection($gakuseis)->resolve(),
+                'ours' => AuthUserResource::collection($ours_g)->resolve(),
                 'theirs' => $theirs,
             ];
         }
@@ -60,8 +60,8 @@ class UserListService
         $ours_s = $user->sensei()->get();
 
         return [
-            'related_users' => $senseis,
-            'ours' => $ours_s,
+            'related_users' => AuthUserResource::collection($senseis)->resolve(),
+            'ours' => AuthUserResource::collection($ours_s)->resolve(),
             'theirs' => []
         ];
     }

@@ -63,4 +63,20 @@ export type RelatedUsersType = {
     data: DataType;
     handleCheckboxes: (checked: boolean, user: User) => void;
     errors: Error;
+    whoAmI: User;
+    handleRadio: (user: User) => void;
 };
+
+export interface MultipleListProps {
+    user: User;
+    checked: boolean;
+    disabled: boolean;
+    byWhom?: string;
+    onChange: (checked: boolean, user: User) => void;
+}
+
+export interface RadioListProps {
+    data: DataType;
+    user: User;
+    onChange: (user: User) => void;
+}

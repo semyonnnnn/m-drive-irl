@@ -35,8 +35,6 @@ export default function Edit({
     related_users: ours ?? [],
   });
 
-  console.log(user);
-
   const roles_no_root = isAdmin ?
     roles.filter(role => role.name.toLocaleLowerCase() !== 'root' && role.name.toLocaleLowerCase() !== 'admin') :
     roles.filter(role => role.name.toLowerCase() !== 'root');
@@ -65,6 +63,10 @@ export default function Edit({
       );
     }
   }
+
+  const handleRadio = (user: User) => {
+    setData("related_users", [user]);
+  };
 
 
   return (
@@ -126,7 +128,7 @@ export default function Edit({
                 </label>
               ))}
             </div>
-            <RelatedUsers related_users={related_users} theirs={theirs} data={data} handleCheckboxes={handleCheckboxes} errors={errors} />
+            <RelatedUsers related_users={related_users} theirs={theirs} data={data} handleCheckboxes={handleCheckboxes} handleRadio={handleRadio} errors={errors} whoAmI={user} />
 
             <div className="flex items-center gap-4">
               <PrimaryButton disabled={processing} className="w-full">
