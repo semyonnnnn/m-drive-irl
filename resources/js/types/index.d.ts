@@ -1,13 +1,14 @@
+import type { FormDataErrors } from '@inertiajs/core';
 import { Config } from 'ziggy-js';
 
 export interface User {
-  id: number;
-  name: string;
-  email: string;
-  email_verified_at?: string;
-  created_at: string;
-  permissions: string[];
-  roles: string[];
+    id: number;
+    name: string;
+    email: string;
+    email_verified_at?: string;
+    created_at: string;
+    permissions: string[];
+    roles: string[];
 }
 
 export type registerOrLoginType = 'register' | 'login' | null;
@@ -28,9 +29,38 @@ export type Permissions = {
 };
 
 export type Role = {
-  id: number;
-  name: string;
-  guard_name: string;
-  created_at: string;
-  updated_at: string;
+    id: number;
+    name: string;
+    guard_name: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type UltraUser = User & {
+    sensei?: {
+        id: number;
+        name: string;
+    } | null;
+};
+
+export type Error = FormDataErrors<{
+    name: string;
+    email: string;
+    roles: string[];
+    related_users: User[];
+}>;
+
+export type DataType = {
+    name: string;
+    email: string;
+    roles: string[];
+    related_users?: User[];
+};
+
+export type RelatedUsersType = {
+    related_users: User[] | undefined;
+    theirs: UltraUser[] | undefined;
+    data: DataType;
+    handleCheckboxes: (checked: boolean, user: User) => void;
+    errors: Error;
 };

@@ -1,18 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
-import { User } from "@/types";
+import { User, RelatedUsersType } from "@/types";
 
-type UltraUser = User & {
-    sensei?: {
-        id: number
-        name: string
-    } | null
-}
-
-type RelatedUsers = {
-    related_users: User[]
-};
-
-export const RelatedUsers = ({ related_users }: RelatedUsers) => {
+export const RelatedUsers = ({ related_users, theirs, data, handleCheckboxes, errors }: RelatedUsersType) => {
     return (
         <div className="mb-8">
             {Object.values(related_users ?? []).map((user: User) => {
@@ -26,7 +15,7 @@ export const RelatedUsers = ({ related_users }: RelatedUsers) => {
                 return (
                     <label key={user.id} className="flex select-none items-center mb-1 opacity-80">
                         <Checkbox
-                            checked={data.related_users.some(u => u.id === user.id)}
+                            checked={data && data?.related_users?.some(u => u.id === user.id)}
                             onCheckedChange={(checked: boolean) => handleCheckboxes(checked as boolean, user)}
                             disabled={isTaken}
                         />

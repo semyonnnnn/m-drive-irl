@@ -7,15 +7,8 @@ import InputError from "@/components/custom/InputError";
 import { FormEventHandler } from "react";
 import PrimaryButton from "@/components/custom/PrimaryButton";
 import Radio from "@/components/custom/Radio";
-import { Role } from '@/types';
-import { Checkbox } from "@/components/ui/checkbox";
-
-type UltraUser = User & {
-  sensei?: {
-    id: number
-    name: string
-  } | null
-}
+import { Role, UltraUser } from '@/types';
+import { RelatedUsers } from "./RelatedUsers";
 
 export default function Edit({
   roles,
@@ -133,30 +126,7 @@ export default function Edit({
                 </label>
               ))}
             </div>
-            <div className="mb-8">
-              {Object.values(related_users ?? []).map((user: User) => {
-                // Make sure theirs is an array
-                theirs = Array.from(Object.values(theirs ?? []));
-
-                const takenArray = theirs ?? [];
-                const isTaken = takenArray.some(u => u.id === user.id);
-                const byWhom = theirs?.find(u => u.id === user.id)?.sensei?.name;
-
-                return (
-                  <label key={user.id} className="flex select-none items-center mb-1 opacity-80">
-                    <Checkbox
-                      checked={data.related_users.some(u => u.id === user.id)}
-                      onCheckedChange={(checked: boolean) => handleCheckboxes(checked as boolean, user)}
-                      disabled={isTaken}
-                    />
-                    <span className={`ms-2 text-sm ${isTaken ? 'text-gray-500' : 'text-gray-400'}`}>
-                      {user.name} {isTaken ? 'в группе ' + byWhom : ''}
-                    </span>
-                  </label>
-                );
-              })}
-              <span className="text-red-500">{errors.related_users}</span>
-            </div>
+            <RelatedUsers related_users={related_users} theirs={theirs} data={data} handleCheckboxes={handleCheckboxes} errors={errors} />
 
             <div className="flex items-center gap-4">
               <PrimaryButton disabled={processing} className="w-full">
