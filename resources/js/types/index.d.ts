@@ -11,8 +11,6 @@ export interface User {
     roles: string[];
 }
 
-export type registerOrLoginType = 'register' | 'login' | null;
-
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
@@ -20,12 +18,6 @@ export type PageProps<
         user: User;
     };
     ziggy: Config & { location: string };
-};
-export type Permissions = {
-    manageAdmins: string;
-    manageUsers: string;
-    assignTasks: string;
-    completeTasks: string;
 };
 
 export type Role = {
@@ -36,47 +28,39 @@ export type Role = {
     updated_at: string;
 };
 
-export type UltraUser = User & {
-    sensei?: {
-        id: number;
-        name: string;
-    } | null;
+export type RelatedUsersPayload = {
+    gakuseis: User[];
+    senseis: User[];
 };
-
-export type Error = FormDataErrors<{
-    name: string;
-    email: string;
-    roles: string[];
-    related_users: User[];
-}>;
 
 export type DataType = {
     name: string;
     email: string;
     roles: string[];
-    related_users?: User[];
+    related_users: User[];
 };
 
 export type RelatedUsersType = {
-    related_users: User[] | undefined;
-    theirs: UltraUser[] | undefined;
+    related_users?: RelatedUsersPayload;
+    ours?: User[];
     data: DataType;
     handleCheckboxes: (checked: boolean, user: User) => void;
-    errors: Error;
-    whoAmI: User;
     handleRadio: (user: User) => void;
+    errors: FormDataErrors<{
+        related_users: User[];
+    }>;
+    selectedRole: string;
 };
 
 export interface MultipleListProps {
     user: User;
     checked: boolean;
-    disabled: boolean;
-    byWhom?: string;
+    disabled?: boolean;
     onChange: (checked: boolean, user: User) => void;
 }
 
 export interface RadioListProps {
-    data: DataType;
     user: User;
+    checked: boolean;
     onChange: (user: User) => void;
 }

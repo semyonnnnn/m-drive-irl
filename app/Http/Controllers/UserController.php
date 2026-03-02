@@ -42,7 +42,6 @@ class UserController extends Controller
 
             $data['related_users'] = $relations['related_users'];
             $data['ours'] = $relations['ours'];
-            $data['theirs'] = $relations['theirs'];
         }
 
 
