@@ -51,6 +51,11 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        // dd($user->hasRole(RolesEnum::Gakusei->value));
+        if ($user->hasRole(RolesEnum::Root->value)) {
+            return;
+        }
+
         $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
 
         $related_users = $request->get('related_users');
@@ -64,10 +69,10 @@ class UserController extends Controller
 
 
 
-        $user->syncRoles($data['roles']);
         if (!$isAdminPage) {
-            (new UserListService)->update($related_users, $user);
+            (new UserListService)->update($related_users, $user, $request['roles'][0]);
         }
+        $user->syncRoles($data['roles']);
 
 
         return back()->with('success', 'Roles updated successfully.');

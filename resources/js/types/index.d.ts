@@ -1,3 +1,4 @@
+// types.ts
 import type { FormDataErrors } from '@inertiajs/core';
 import { Config } from 'ziggy-js';
 
@@ -29,8 +30,8 @@ export type Role = {
 };
 
 export type RelatedUsersPayload = {
-    gakuseis: User[];
-    senseis: User[];
+    gakuseis: (User & { sensei?: User })[];
+    senseis: (User & { gakuseis?: User[] })[];
 };
 
 export type DataType = {
@@ -53,14 +54,14 @@ export type RelatedUsersType = {
 };
 
 export interface MultipleListProps {
-    user: User;
+    user: User & { sensei?: User };
     checked: boolean;
     disabled?: boolean;
     onChange: (checked: boolean, user: User) => void;
 }
 
 export interface RadioListProps {
-    user: User;
+    user: User & { gakuseis?: User[] };
     checked: boolean;
     onChange: (user: User) => void;
 }

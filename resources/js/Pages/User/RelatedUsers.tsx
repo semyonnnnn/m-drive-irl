@@ -1,3 +1,4 @@
+// RelatedUsers.tsx
 import { User, RelatedUsersType, MultipleListProps, RadioListProps } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import Radio from "@/components/custom/Radio";
@@ -12,12 +13,10 @@ export const RelatedUsers = ({
     selectedRole
 }: RelatedUsersType) => {
     const role = selectedRole.toLowerCase();
-    const gakuseis: User[] = related_users?.gakuseis ?? [];
-    const senseis: User[] = related_users?.senseis ?? [];
+
+    const gakuseis: (User & { sensei?: User })[] = related_users?.gakuseis ?? [];
+    const senseis: (User & { gakuseis?: User[] })[] = related_users?.senseis ?? [];
     const oursArray: User[] = ours ?? [];
-
-
-    console.log(related_users);
 
     if (role === "admin") return null;
 
@@ -25,12 +24,16 @@ export const RelatedUsers = ({
         <div className="mb-8">
             {role === "sensei" &&
                 gakuseis.map(user => {
+                    const disabled =
+                        !ours?.some(a => a.id === user.id) && user.sensei !== null;
+
                     const isChecked =
                         data.related_users.some(u => u.id === user.id) ||
                         oursArray.some(u => u.id === user.id);
 
                     return (
                         <MultipleList
+                            disabled={disabled}
                             key={user.id}
                             user={user}
                             checked={isChecked}
@@ -61,26 +64,34 @@ export const RelatedUsers = ({
 
 const MultipleList = ({ user, checked, disabled, onChange }: MultipleListProps) => {
     return (
-        <label className="flex select-none items-center mb-1 opacity-80">
+        <label className={`flex select-none items-center mb-1 opacity-80 ${disabled ? 'text-gray-600 line-through' : ''}`}>
             <Checkbox
-                checked={!!checked} // force boolean
-                onCheckedChange={(value) => onChange(!!value, user)} // force boolean
+                checked={!!checked}
+                onCheckedChange={(value) => onChange(!!value, user)}
                 disabled={disabled}
             />
-            <span className="ms-2 text-sm text-gray-400">{user.name}</span>
+            <span className="ms-2 text-sm">{user.name}</span>
+            {user.sensei && <span className="ml-5">{' в группе ' + user.sensei.name}</span>}
         </label>
     );
 };
 
 const RadioList = ({ user, checked, onChange }: RadioListProps) => {
     return (
-        <label className="flex select-none items-center mb-1 cursor-pointer">
+        <label className="select-none items-center mb-1 cursor-pointer">
             <Radio
                 checked={!!checked}
                 onChange={() => onChange(user)}
                 className="self-start"
             />
             <span className="ms-2 text-sm text-gray-400">{user.name}</span>
+            {user.gakuseis && user.gakuseis.length > 0 && (
+                <ul className="ml-5 text-sm text-gray-500 list-disc">
+                    {user.gakuseis.map(g => (
+                        <li key={g.id}>{g.name}</li>
+                    ))}
+                </ul>
+            )}
         </label>
     );
 };

@@ -66,7 +66,7 @@ class UserListService
         ];
     }
 
-    public function update(array $related_users, User $user)
+    public function update(array $related_users, User $user, string $requestedRole)
     {
         $isSensei = $user->hasRole(RolesEnum::Sensei->value);
         $isGakusei = $user->hasRole(RolesEnum::Gakusei->value);
@@ -78,6 +78,12 @@ class UserListService
         $requestedIds = collect($related_users)->pluck('id')->filter()->values();
 
         if ($isSensei) {
+            if (!$user->hasRole($requestedRole)) {
+                $user->gakusei()->detach();
+                return;
+            }
+
+
             $forbidden = User::whereIn('id', $requestedIds)
                 ->whereHas('sensei', fn($q) => $q->where('users.id', '!=', $user->id))
                 ->whereNotIn('id', $user->gakusei()->pluck('users.id'))
@@ -96,6 +102,10 @@ class UserListService
             }
 
         } else if ($isGakusei) {
+            if (!$user->hasRole($requestedRole)) {
+                $user->sensei()->detach();
+                return;
+            }
             $user->sensei()->detach();
             $user->sensei()->attach($requestedIds[0] ?? null);
             $user->sensei()->sync($requestedIds[0] ?? null);
