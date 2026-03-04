@@ -16,8 +16,11 @@ class UserListService
         $users = User::all();
 
         $gakuseis = $users->filter(
-            fn($u) => $u->hasRole(RolesEnum::Gakusei->value)
+            function ($u) {
+                return $u->hasRole(RolesEnum::Gakusei->value);
+            }
         )->map(function ($gakusei) {
+
             return [
                 'id' => $gakusei->id,
                 'name' => $gakusei->name,
@@ -28,8 +31,11 @@ class UserListService
         })->values();
 
         $senseis = $users->filter(
-            fn($u) => $u->hasRole(RolesEnum::Sensei->value)
+            function ($u) {
+                return $u->hasRole(RolesEnum::Sensei->value);
+            }
         )->map(function ($sensei) {
+
             return [
                 'id' => $sensei->id,
                 'name' => $sensei->name,

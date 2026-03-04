@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Radio from "@/components/custom/Radio";
 
 export const RelatedUsers = ({
+    whoAmI,
     related_users,
     ours,
     data,
@@ -19,17 +20,18 @@ export const RelatedUsers = ({
     const oursArray: User[] = ours ?? [];
 
     if (role === "admin") return null;
-
     return (
         <div className="mb-8">
             {role === "sensei" &&
                 gakuseis.map(user => {
+                    if (user.id == whoAmI.id) {
+                        return;
+                    }
+                    // if (user)
                     const disabled =
                         !ours?.some(a => a.id === user.id) && user.sensei !== null;
 
-                    const isChecked =
-                        data.related_users.some(u => u.id === user.id) ||
-                        oursArray.some(u => u.id === user.id);
+                    const isChecked = data.related_users.some(u => u.id === user.id);
 
                     return (
                         <MultipleList
@@ -44,6 +46,9 @@ export const RelatedUsers = ({
 
             {role === "gakusei" &&
                 senseis.map(user => {
+                    if (user.id == whoAmI.id) {
+                        return;
+                    }
                     const selectedUserId = data.related_users[0]?.id ?? oursArray[0]?.id ?? null;
                     const isChecked = user.id === selectedUserId;
 

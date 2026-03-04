@@ -52,16 +52,13 @@ export default function Edit({
       setSelectedRole(ev.target.value);
     }
   };
-
   const handleCheckboxes = (checked: boolean, user: User) => {
-    if (checked) {
-      setData("related_users", [...data.related_users, user]);
-    } else {
-      setData(
-        "related_users",
-        data.related_users.filter(u => u.id !== user.id)
-      );
-    }
+    setData(prev => ({
+      ...prev,
+      related_users: checked
+        ? [...prev.related_users, user]
+        : prev.related_users.filter(u => u.id !== user.id)
+    }));
   };
 
   const handleRadio = (user: User) => {
@@ -124,6 +121,7 @@ export default function Edit({
             </div>
 
             <RelatedUsers
+              whoAmI={user}
               related_users={related_users}
               ours={ours}
               data={data}

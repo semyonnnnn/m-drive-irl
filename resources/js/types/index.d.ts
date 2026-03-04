@@ -51,6 +51,7 @@ export type RelatedUsersType = {
         related_users: User[];
     }>;
     selectedRole: string;
+    whoAmI: User;
 };
 
 export interface MultipleListProps {

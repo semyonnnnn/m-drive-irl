@@ -16,12 +16,9 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): JsonResponse
+    public function create(): RedirectResponse
     {
-        return response()->json([
-            'status' => session('status'),
-            'canResetPassword' => Route::has('password.request'),
-        ]);
+        return redirect('/');
     }
 
     /**
