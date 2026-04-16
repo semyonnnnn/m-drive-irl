@@ -18,7 +18,7 @@ createInertiaApp({
         ),
     setup({ el, App, props }) {
         const WrappedApp = (
-            <ThemeProvider defaultTheme="dark" storageKey='vite-ui-theme'>
+            <ThemeProvider defaultTheme="light" storageKey='vite-ui-theme'>
                 <App {...props} />
             </ThemeProvider>
         );
@@ -34,4 +34,3 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
-

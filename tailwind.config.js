@@ -15,6 +15,9 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            boxShadow: {
+                'my-purple': '0px 20px 60px rgba(106, 55, 212, 0.08)',
+            }
         },
     },
 

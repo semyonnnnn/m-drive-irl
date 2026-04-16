@@ -2,6 +2,7 @@ import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
 import { NavButtonsMenu } from '@/components/custom/NavButtonsMenu';
 import Guest from '@/Layouts/GuestLayout';
+import Login from '../Auth/Login';
 
 export default function Welcome({ }: PageProps<{}>) {
   // const { theme, setTheme } = useTheme();
@@ -21,7 +22,7 @@ export default function Welcome({ }: PageProps<{}>) {
   return (
     <>
       <Head title="Main" />
-      <Guest />
+      <Login canResetPassword={false} />
     </>
   );
 }
