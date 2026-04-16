@@ -4,7 +4,8 @@ import InputLabel from '@/components/custom/InputLabel';
 import { Button } from '@/components/ui/button';
 import TextInput from '@/components/custom/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
+import { AtSign, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function Login({
     status,
@@ -13,6 +14,7 @@ export default function Login({
     status?: string;
     canResetPassword: boolean;
 }) {
+    const [showPassword, setShowPassword] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -21,84 +23,120 @@ export default function Login({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-
         post(route('login'), {
             onFinish: () => reset('password'),
         });
     };
 
     return (
-        <>
-            <main className="flex flex-col gap-5 justify-center items-center mt-10 sm:mt-20">
-                <div>test</div>
-                <div className="w-full max-w-md bg-white px-6 py-4 rounded-lg dark:bg-gray-800">
-                    <Head title="Log in" />
+        <div className="ethereal-bg font-body text-on-surface min-h-screen flex flex-col items-center justify-center overflow-hidden relative">
+            <Head title="Log in" />
 
-                    <form onSubmit={submit} className='z-50 bg-red-500 relative border-2 px-6 py-10 border-gray-800'>
-                        <div className='rounded-none'>
-                            <InputLabel htmlFor="email" value="Email" />
+            {/* Ambient Glow Decorations */}
+            <div className="fixed top-1/4 -left-64 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+            <div className="fixed bottom-1/4 -right-64 w-96 h-96 bg-secondary-container/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-                            <TextInput
-                                id="email"
-                                type="email"
-                                name="email"
-                                value={data.email}
-                                className="mt-1 block w-full"
-                                autoComplete="username"
-                                isFocused={true}
-                                onChange={(e) => setData('email', e.target.value)}
-                            />
+            <main className="relative z-10 w-full max-w-md px-6">
+                {/* Brand Header */}
+                <div className="mb-12 text-center">
+                    <h1 className="font-headline text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-secondary-container bg-clip-text text-transparent">
+                        наставничество
+                    </h1>
+                </div>
 
-                            <InputError message={errors.email} className="mt-2" />
+                {/* Login Card */}
+                <div className="glass-card rounded-[2.5rem] p-10 shadow-[0px_20px_60px_rgba(106,55,212,0.08)] relative overflow-hidden border border-white/20">
+                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+
+                    <div className="space-y-8">
+                        <div className="space-y-2">
+                            <h2 className="font-headline text-2xl font-bold text-on-surface tracking-tight">с возвращением</h2>
+                            <p className="text-on-surface-variant/80 text-sm leading-relaxed">ваши тесты вас заждались</p>
                         </div>
 
-                        <div className="mt-4">
-                            <InputLabel htmlFor="password" value="Password" />
+                        <form onSubmit={submit} className="space-y-6">
+                            <div className="space-y-4">
+                                {/* Email Field */}
+                                <div className="space-y-2">
+                                    <InputLabel
+                                        htmlFor="email"
+                                        value="email"
+                                        className="font-label text-lg font-bold lowercase tracking-[0.15em] text-primary ml-1"
+                                    />
+                                    <div className="relative group">
+                                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant/50 transition-colors group-focus-within:text-primary" />
+                                        <TextInput
+                                            id="email"
+                                            type="email"
+                                            name="email"
+                                            value={data.email}
+                                            className="w-full pl-12 pr-4 py-4 bg-surface-container-low/50 border-none rounded-2xl focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline/40 outline-none text-sm font-medium"
+                                            placeholder="00.фамилияио@rosstat.gov.ru"
+                                            onChange={(e) => setData('email', e.target.value)}
+                                        />
+                                    </div>
+                                    <InputError message={errors.email} className="mt-2" />
+                                </div>
 
-                            <TextInput
-                                id="password"
-                                type="password"
-                                name="password"
-                                value={data.password}
-                                className="mt-1 block w-full"
-                                autoComplete="current-password"
-                                onChange={(e) => setData('password', e.target.value)}
-                            />
+                                {/* Password Field */}
+                                <div className="space-y-2">
+                                    <InputLabel
+                                        htmlFor="password"
+                                        value="пароль"
+                                        className="font-label text-lg font-bold lowercase tracking-[0.15em] text-primary ml-1"
+                                    />
+                                    <div className="relative group">
+                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant/50 transition-colors group-focus-within:text-primary" />
 
-                            <InputError message={errors.password} className="mt-2" />
+                                        <TextInput
+                                            id="password"
+                                            // 2. Change type dynamically
+                                            type={showPassword ? 'text' : 'password'}
+                                            name="password"
+                                            value={data.password}
+                                            className="w-full pl-12 pr-12 py-4 bg-surface-container-low/50 border-none rounded-2xl focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline/40 outline-none text-sm font-medium"
+                                            placeholder="••••••••"
+                                            onChange={(e) => setData('password', e.target.value)}
+                                        />
+
+                                        {/* 3. Toggle Button */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer p-1"
+                                        >
+                                            {showPassword ? (
+                                                <EyeOff className="w-5 h-5 animate-in fade-in zoom-in duration-200" />
+                                            ) : (
+                                                <Eye className="w-5 h-5 animate-in fade-in zoom-in duration-200" />
+                                            )}
+                                        </button>
+                                    </div>
+                                    <InputError message={errors.password} className="mt-2" />
+                                </div>
+                            </div>
+
+
+
+                            <button
+                                disabled={processing}
+                                className="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-white font-headline font-bold text-base rounded-2xl shadow-[0px_10px_20px_rgba(106,55,212,0.2)] hover:shadow-[0px_15px_35px_rgba(106,55,212,0.3)] hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                            >
+                                <span>{processing ? 'Загрузка...' : 'Войти'}</span>
+                                {!processing && (
+                                    <ArrowRight className="w-5 h-5" />
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="flex items-center justify-center gap-4 pt-4">
+                            <div className="h-[1px] flex-1 bg-surface-container-high/50"></div>
+                            <span className="font-label text-[9px] text-on-surface-variant/40 font-bold uppercase tracking-[0.2em] whitespace-nowrap">портал `наставничество</span>
+                            <div className="h-[1px] flex-1 bg-surface-container-high/50"></div>
                         </div>
-
-                        <div className="mt-4 block">
-                            <label className="flex items-center">
-                                <Checkbox
-                                    checked={data.remember}
-                                    onCheckedChange={(checked) =>
-                                        setData('remember', Boolean(checked))
-                                    }
-                                />
-
-                                <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">
-                                    Remember me
-                                </span>
-                            </label>
-                        </div>
-
-                        <div className="mt-4 flex items-center justify-end">
-                            <Button className="ms-4" disabled={processing} variant="default">
-                                Log in
-                            </Button>
-                            {canResetPassword && (
-                                <Link
-                                    href={route('password.request')}
-                                    className="text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                                >
-                                    Forgot your password?
-                                </Link>
-                            )}
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </main>
-        </ >
+        </div>
     );
 }
