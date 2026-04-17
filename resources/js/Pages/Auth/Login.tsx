@@ -11,7 +11,7 @@ export default function Login({
     status,
     canResetPassword,
 }: {
-    status?: string;
+    status?: string
     canResetPassword: boolean;
 }) {
     const [showPassword, setShowPassword] = useState(false);

@@ -1,8 +1,9 @@
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
 import { NavButtonsMenu } from '@/components/custom/NavButtonsMenu';
-import Guest from '@/Layouts/GuestLayout';
-import Authenticated from '@/Layouts/AuthenticatedLayout';
+// import Guest from '@/Layouts/GuestLayout';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Dashboard } from '../Dashboard/Index';
 
 export default function Welcome({ }: PageProps<{}>) {
   const handleImageError = () => {
@@ -21,7 +22,9 @@ export default function Welcome({ }: PageProps<{}>) {
   return (
     <>
       <Head title="Main" />
-      <Authenticated />
+      <AuthenticatedLayout >
+        <Dashboard />
+      </AuthenticatedLayout>
     </>
   );
 }
