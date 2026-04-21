@@ -22,7 +22,7 @@ const GroupSection = () => (
                     <div className="relative">
                         <div className="absolute inset-0 bg-primary/20 rounded-full blur-md group-hover:scale-110 transition-transform"></div>
                         <img
-                            src="/storage/app/public/mockup/woman.png"
+                            src="/storage/mockup/woman.png"
                             alt="Sarah"
                             className="w-24 h-24 rounded-full object-cover relative z-10 border-4 border-white shadow-md"
                         />
@@ -35,7 +35,7 @@ const GroupSection = () => (
                         </div>
                         <p className="text-sm text-slate-500 mb-3 font-medium">Изучает логику и этику</p>
                         <button className="flex items-center gap-2 px-4 py-1.5 bg-primary text-white rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95 font-headline">
-                            <span className="material-symbols-outlined text-sm">chat_bubble</span>
+                            <i className="fa-solid fa-comment text-sm"></i>
                             Direct Message
                         </button>
                     </div>
@@ -45,9 +45,9 @@ const GroupSection = () => (
                 <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/40 backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-lg transition-all group">
                     <div className="relative">
                         <img
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl-zUVdW4rdNJGMq14uM6Vm-qMJ9hDlO0CyOjekbuAertXoH6rFnZKoCXOSFlLi5ZZPOyD-fZEjaXJaTrEFM7_3ElKTkwbk989oGjJ9XxL9_fxuja3dmuALnO4JTYdGoIQm3VDmpLA55L20hoLuXtP9QOZgTdZXbVlC5r4vEb8bdHq0VkPI-BGu4Sm74Qc4AUNyg6C_6QvSvbgAZ6YNIgUXZ_XMmxZc5pVB1bUKPUyRELFm6NRexXmkYdGM8uGh6wYDwyHrPoVsl5L"
-                            alt="Marcus"
-                            className="w-20 h-20 rounded-full object-cover relative z-10 border-4 border-white shadow-sm"
+                            src="/storage/mockup/man.png"
+                            alt="Sarah"
+                            className="w-24 h-24 rounded-full object-cover relative z-10 border-4 border-white shadow-md"
                         />
                         <div className="absolute bottom-1 right-1 w-5 h-5 bg-slate-300 border-4 border-white rounded-full z-20"></div>
                     </div>
@@ -55,7 +55,7 @@ const GroupSection = () => (
                         <p className="text-xl font-extrabold mb-1 font-headline">Маркус В.</p>
                         <p className="text-sm text-slate-500 mb-3 font-medium">Был(а) в сети 2 часа назад</p>
                         <button className="flex items-center gap-2 px-4 py-1.5 bg-surface-container text-on-surface-variant rounded-xl text-xs font-bold transition-all hover:bg-surface-container-high font-headline">
-                            <span className="material-symbols-outlined text-sm">chat_bubble</span>
+                            <i className="fa-solid fa-comment text-sm"></i>
                             Leave Note
                         </button>
                     </div>
@@ -65,7 +65,7 @@ const GroupSection = () => (
                 <div className="flex items-center justify-center p-6 rounded-3xl border-2 border-dashed border-surface-container-highest bg-white/20 hover:bg-white/40 transition-colors cursor-pointer">
                     <div className="text-center">
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-2">
-                            <span className="material-symbols-outlined text-primary">add</span>
+                            <i className="fa-solid fa-plus text-primary"></i>
                         </div>
                         <p className="text-sm font-bold font-headline">Приглашить коллегу</p>
                         <p className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest font-headline">3 СВОБОДНЫХ МЕСТА</p>
@@ -80,7 +80,7 @@ const TaskCard = ({ title, desc, progress, icon, colorClass, gradientClass }) =>
     <div className="p-6 rounded-3xl bg-surface-container-lowest shadow-[0px_10px_30px_rgba(0,0,0,0.02)] group hover:shadow-xl hover:shadow-primary/5 transition-all border border-transparent hover:border-primary/5">
         <div className="flex justify-between items-start mb-4">
             <div className={`w-12 h-12 rounded-2xl ${colorClass} flex items-center justify-center`}>
-                <span className="material-symbols-outlined">{icon}</span>
+                <i className={`fa-solid fa-${icon} text-lg`}></i>
             </div>
             <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary" />
         </div>
@@ -124,7 +124,7 @@ const Dashboard = () => {
                             title="Основы квантовых вычислений"
                             desc="Module 4: Superposition states and entanglement principles."
                             progress={75}
-                            icon="data_object"
+                            icon="code"
                             colorClass="bg-secondary/10 text-secondary"
                             gradientClass="from-secondary to-secondary-fixed"
                         />
@@ -132,7 +132,7 @@ const Dashboard = () => {
                             title="Этичный дизайн ИИ"
                             desc="Submit final case study on algorithmic bias mitigation."
                             progress={42}
-                            icon="brush"
+                            icon="paintbrush"
                             colorClass="bg-primary/10 text-primary"
                             gradientClass="from-primary to-primary-container"
                         />
@@ -140,7 +140,7 @@ const Dashboard = () => {
                             title="Анализ глобального рынка"
                             desc="Review economic trends in decentralized finance sectors."
                             progress={90}
-                            icon="public"
+                            icon="globe"
                             colorClass="bg-tertiary/10 text-tertiary"
                             gradientClass="from-tertiary to-tertiary-fixed"
                         />
@@ -154,10 +154,10 @@ const Dashboard = () => {
                         <div className="flex items-center gap-4">
                             <div className="flex gap-2">
                                 <button className="p-2 bg-surface-container rounded-lg hover:bg-surface-container-high transition-colors">
-                                    <span className="material-symbols-outlined text-sm">grid_view</span>
+                                    <i className="fa-solid fa-table-cells-large text-sm text-slate-600"></i>
                                 </button>
                                 <button className="p-2 bg-transparent text-slate-400 rounded-lg hover:bg-surface-container-high transition-colors">
-                                    <span className="material-symbols-outlined text-sm">view_list</span>
+                                    <i className="fa-solid fa-list text-sm"></i>
                                 </button>
                             </div>
                             <span className="text-primary text-xs font-bold cursor-pointer font-headline uppercase tracking-wider">Посмотреть все</span>
@@ -165,11 +165,11 @@ const Dashboard = () => {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                         {[
-                            { title: "Intro to AI Ethics", img: "3", icon: "play_circle", type: "Video Course", typeIcon: "video_library" },
-                            { title: "Quantum Logic v2", img: "4", icon: "description", type: "PDF Document", typeIcon: "picture_as_pdf", iconColor: "text-red-500" },
+                            { title: "Intro to AI Ethics", img: "3", icon: "circle-play", type: "Video Course", typeIcon: "circle-play" },
+                            { title: "Quantum Logic v2", img: "4", icon: "file-lines", type: "PDF Document", typeIcon: "file-lines", iconColor: "text-red-500" },
                             { title: "Network Security", img: "5", icon: "terminal", type: "LAB Guide", typeIcon: "code", iconColor: "text-blue-500" },
-                            { title: "Calculus IV Recap", img: "6", icon: "play_circle", type: "Video Course", typeIcon: "video_library" },
-                            { title: "Hardware Arch.", img: "7", icon: "audio_file", type: "Podcast", typeIcon: "audio_file", iconColor: "text-purple-500" },
+                            { title: "Calculus IV Recap", img: "6", icon: "circle-play", type: "Video Course", typeIcon: "circle-play" },
+                            { title: "Hardware Arch.", img: "7", icon: "file-audio", type: "Podcast", typeIcon: "file-audio", iconColor: "text-purple-500" },
                         ].map((item, idx) => (
                             <div key={idx} className="group cursor-pointer">
                                 <div className="aspect-square rounded-3xl overflow-hidden mb-3 relative">
@@ -179,19 +179,19 @@ const Dashboard = () => {
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
                                     <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center shadow-sm">
-                                        <span className={`material-symbols-outlined ${item.iconColor || 'text-primary'} text-lg`}>{item.icon}</span>
+                                        <i className={`fa-solid fa-${item.icon} ${item.iconColor || 'text-primary'} text-base`}></i>
                                     </div>
                                 </div>
                                 <h5 className="text-sm font-bold font-headline truncate">{item.title}</h5>
                                 <p className="text-[10px] text-slate-500 flex items-center gap-1 font-semibold">
-                                    <span className="material-symbols-outlined text-[12px]">{item.typeIcon}</span> {item.type}
+                                    <i className={`fa-solid fa-${item.typeIcon} text-[10px]`}></i> {item.type}
                                 </p>
                             </div>
                         ))}
                         <div className="group cursor-pointer">
                             <div className="aspect-square rounded-3xl overflow-hidden mb-3 relative">
                                 <div className="w-full h-full bg-surface-container-high flex flex-col items-center justify-center text-slate-400 group-hover:bg-primary/5 transition-colors">
-                                    <span className="material-symbols-outlined text-4xl mb-2">add_circle</span>
+                                    <i className="fa-solid fa-circle-plus text-4xl mb-2"></i>
                                     <span className="text-[9px] font-black uppercase tracking-widest font-headline">Библиотека</span>
                                 </div>
                             </div>
@@ -223,7 +223,7 @@ const Dashboard = () => {
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-sm">history_edu</span>
+                                                <i className="fa-solid fa-pen-nib text-sm"></i>
                                             </div>
                                             <span className="font-bold text-sm font-headline">History of AI Exam</span>
                                         </div>
@@ -237,7 +237,6 @@ const Dashboard = () => {
                                         <span className="flex items-center gap-2 text-sm text-slate-500 font-medium"><span className="w-2 h-2 rounded-full bg-slate-300"></span> Не начато</span>
                                     </td>
                                 </tr>
-                                {/* ... Add other rows similarly */}
                             </tbody>
                         </table>
                     </div>
@@ -245,7 +244,7 @@ const Dashboard = () => {
 
                 {/* FAB */}
                 <button className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-container text-white shadow-2xl shadow-primary/40 flex items-center justify-center hover:scale-110 transition-transform z-50">
-                    <span className="material-symbols-outlined text-3xl">add</span>
+                    <i className="fa-solid fa-plus text-3xl"></i>
                 </button>
             </div>
         </main>

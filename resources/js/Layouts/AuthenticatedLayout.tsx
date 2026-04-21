@@ -61,7 +61,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                                 </div>
                             </div>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 mt-4 rounded-2xl border-white/20 glass-panel shadow-2xl">
+                        <DropdownMenuContent align="end" className="w-56 mt-4 rounded-2xl border-white/20 shadow-2xl">
                             <DropdownMenuItem
                                 onClick={() => router.post(route('logout'))}
                                 className="font-headline hover:bg-secondary-container hover:text-white rounded-xl font-bold text-md lowercase p-3 cursor-pointer text-error"
