@@ -1,115 +1,12 @@
-import React from 'react';
+import { GroupSection } from "./GroupSection";
+import { TaskCard } from "./TaskCard";
 
-const GroupSection = () => (
-    <section>
-        <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-[#eef1f3] via-white to-[#eef1f3] shadow-[0px_40px_80px_rgba(106,55,212,0.08)] border border-white relative overflow-hidden">
-            <div className="absolute -right-20 -top-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
-            <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
-
-            <div className="flex justify-between items-center mb-10 relative z-10">
-                <div>
-                    <h2 className="font-headline font-extrabold text-3xl text-on-surface mb-1">Команда совместной работы</h2>
-                    <p className="text-slate-500 text-sm font-semibold">Активные участники вашей когнитивной сети</p>
-                </div>
-                <button className="px-6 py-2 bg-white border border-surface-container-high rounded-full text-primary text-xs font-bold hover:shadow-lg transition-all font-headline">
-                    Карта сети
-                </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
-                {/* Lead Member */}
-                <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:shadow-xl transition-all group">
-                    <div className="relative">
-                        <div className="absolute inset-0 bg-primary/20 rounded-full blur-md group-hover:scale-110 transition-transform"></div>
-                        <img
-                            src="/storage/mockup/woman.png"
-                            alt="Sarah"
-                            className="w-24 h-24 rounded-full object-cover relative z-10 border-4 border-white shadow-md"
-                        />
-                        <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 border-4 border-white rounded-full z-20"></div>
-                    </div>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-black uppercase rounded font-headline">ЛИДЕР</span>
-                            <p className="text-xl font-extrabold font-headline">Сара Чен</p>
-                        </div>
-                        <p className="text-sm text-slate-500 mb-3 font-medium">Изучает логику и этику</p>
-                        <button className="flex items-center gap-2 px-4 py-1.5 bg-primary text-white rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95 font-headline">
-                            <i className="fa-solid fa-comment text-sm"></i>
-                            Direct Message
-                        </button>
-                    </div>
-                </div>
-
-                {/* Secondary Member */}
-                <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/40 backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-lg transition-all group">
-                    <div className="relative">
-                        <img
-                            src="/storage/mockup/man.png"
-                            alt="Sarah"
-                            className="w-24 h-24 rounded-full object-cover relative z-10 border-4 border-white shadow-md"
-                        />
-                        <div className="absolute bottom-1 right-1 w-5 h-5 bg-slate-300 border-4 border-white rounded-full z-20"></div>
-                    </div>
-                    <div className="flex-1">
-                        <p className="text-xl font-extrabold mb-1 font-headline">Маркус В.</p>
-                        <p className="text-sm text-slate-500 mb-3 font-medium">Был(а) в сети 2 часа назад</p>
-                        <button className="flex items-center gap-2 px-4 py-1.5 bg-surface-container text-on-surface-variant rounded-xl text-xs font-bold transition-all hover:bg-surface-container-high font-headline">
-                            <i className="fa-solid fa-comment text-sm"></i>
-                            Leave Note
-                        </button>
-                    </div>
-                </div>
-
-                {/* Extra Slot */}
-                <div className="flex items-center justify-center p-6 rounded-3xl border-2 border-dashed border-surface-container-highest bg-white/20 hover:bg-white/40 transition-colors cursor-pointer">
-                    <div className="text-center">
-                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-2">
-                            <i className="fa-solid fa-plus text-primary"></i>
-                        </div>
-                        <p className="text-sm font-bold font-headline">Приглашить коллегу</p>
-                        <p className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest font-headline">3 СВОБОДНЫХ МЕСТА</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-);
-
-const TaskCard = ({ title, desc, progress, icon, colorClass, gradientClass }) => (
-    <div className="p-6 rounded-3xl bg-surface-container-lowest shadow-[0px_10px_30px_rgba(0,0,0,0.02)] group hover:shadow-xl hover:shadow-primary/5 transition-all border border-transparent hover:border-primary/5">
-        <div className="flex justify-between items-start mb-4">
-            <div className={`w-12 h-12 rounded-2xl ${colorClass} flex items-center justify-center`}>
-                <i className={`fa-solid fa-${icon} text-lg`}></i>
-            </div>
-            <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary" />
-        </div>
-        <h4 className="font-extrabold font-headline text-lg mb-1">{title}</h4>
-        <p className="text-sm text-slate-500 mb-6 font-medium">{desc}</p>
-        <div className="space-y-2">
-            <div className="flex justify-between text-[11px] font-black uppercase text-slate-700 font-headline">
-                <span>Прогресс</span>
-                <span>{progress}%</span>
-            </div>
-            <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
-                <div
-                    className={`h-full bg-gradient-to-r ${gradientClass} rounded-full relative`}
-                    style={{ width: `${progress}%` }}
-                >
-                    <div className="absolute right-0 top-0 h-full w-2 bg-white/30 blur-sm"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-);
-
-const Dashboard = () => {
+export default function Index() {
     return (
         <main>
-            <div className="max-w-[1400px] mx-auto p-8 flex flex-col gap-10">
+            <div className="max-w-350 mx-auto p-8 flex flex-col gap-10">
 
                 <GroupSection />
-
                 {/* Current Tasks */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
@@ -243,12 +140,10 @@ const Dashboard = () => {
                 </section>
 
                 {/* FAB */}
-                <button className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-container text-white shadow-2xl shadow-primary/40 flex items-center justify-center hover:scale-110 transition-transform z-50">
+                <button className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-linear-to-br from-primary to-primary-container text-white shadow-2xl shadow-primary/40 flex items-center justify-center hover:scale-110 transition-transform z-50">
                     <i className="fa-solid fa-plus text-3xl"></i>
                 </button>
             </div>
         </main>
     );
 }
-
-export { Dashboard };

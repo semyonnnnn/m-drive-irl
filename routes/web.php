@@ -35,6 +35,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function(){
         return Inertia::render('Main/Auth');
     })->name('dashboard');
+    // Route::get('/', function(){
+    //     redirect('Location: /dashboard');
+    // });
 });
 
 // Route::get('/test', function(){

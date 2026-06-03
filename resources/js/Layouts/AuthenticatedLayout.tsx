@@ -22,7 +22,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
 
                 <div className="flex items-center gap-4 sm:gap-8">
                     {/* Logo Area */}
-                    <Link href="/" className="flex items-center gap-2 group">
+                    <Link href="/dashboard" className="flex items-center gap-2 group">
                         <ApplicationLogo />
 
                     </Link>
@@ -40,10 +40,9 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                     <div className="hidden sm:flex items-center gap-2">
                         {/* <ToggleDarkMode /> */}
                     </div>
-
                     <DropdownMenu>
                         <DropdownMenuTrigger className="focus:outline-none">
-                            <div className="group flex items-center gap-4 p-1 rounded-tl-4xl rounded-bl-4xl rounded-tr-md rounded-br-md   hover:bg-secondary-container cursor-pointer pr-8 transition-colors border border-transparent hover:border-white/40">
+                            <div className="group flex items-center gap-4 p-1 rounded-tl-4xl rounded-bl-4xl rounded-tr-md rounded-br-md   hover:bg-primary cursor-pointer pr-8 transition-colors border border-transparent hover:border-white/40">
                                 <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container shadow-sm">
                                     <img
                                         src={"https://lh3.googleusercontent.com/aida-public/AB6AXuCjMtRq3WvjElWL0jcAkICvSx71wBX_Yakrq_-bjnTqpa6M6b0U5WM7Hs4d6F9vdeahqHDkByDO5nEEOeo60Azh_EoYbNTRAyzglFQ9u1pApuQq6Dy9AStG7KzDEzb4TTig15nUmKTv5-esspX2ywN5jlyb1qIkmrf7WDyiumoGIli27aBioLPS5jUy-wCrj9N-nlNbuCqEdDDk-EV54n7OLitel_FQ9reMD-vVnMFpw7ZmhBh72NMJeCzPQmawJTqMiKK1d59Kk1pP"}
@@ -55,7 +54,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                                     <p className="group-hover:text-white text-xs font-black font-headline capitalize tracking-tighter text-on-surface leading-none mb-1">
                                         {user.name}
                                     </p>
-                                    <p className="group-hover:text-blue-700 text-[0.875rem] font-bold text-slate-400 lowercase tracking-widest leading-none">
+                                    <p className="group-hover:text-yellow-400 text-[0.875rem] font-bold text-slate-400 lowercase tracking-widest leading-none">
                                         {user.roles[0]}
                                     </p>
                                 </div>
@@ -64,7 +63,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                         <DropdownMenuContent align="end" className="w-56 mt-4 rounded-2xl border-white/20 shadow-2xl">
                             <DropdownMenuItem
                                 onClick={() => router.post(route('logout'))}
-                                className="font-headline hover:bg-secondary-container hover:text-white rounded-xl font-bold text-md lowercase p-3 cursor-pointer text-error"
+                                className="font-headline hover:bg-primary bg-white hover:text-white rounded-xl font-bold text-md lowercase p-3 cursor-pointer text-error"
                             >
                                 Выйти
                             </DropdownMenuItem>

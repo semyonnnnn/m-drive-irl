@@ -66,3 +66,19 @@ export interface RadioListProps {
     checked: boolean;
     onChange: (user: User) => void;
 }
+
+export interface TaskCardProps {
+    title: string;
+    desc: string;
+    progress: number;
+    icon: string;
+    colorClass: string;
+    gradientClass: string;
+}
+
+export interface PersonCardProps {
+    url: string;
+    name: string;
+    alt: string;
+    info: string;
+}

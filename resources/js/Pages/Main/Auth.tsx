@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 import { NavButtonsMenu } from '@/components/custom/NavButtonsMenu';
 // import Guest from '@/Layouts/GuestLayout';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Dashboard } from '../Dashboard/Index';
+import Dashboard from '../Dashboard/Index';
 
 export default function Welcome({ }: PageProps<{}>) {
   const handleImageError = () => {
