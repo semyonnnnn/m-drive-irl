@@ -29,110 +29,124 @@ export default function Login({
     };
 
     return (
-        <div className="ethereal-bg font-body text-on-surface min-h-screen flex flex-col items-center justify-center overflow-hidden relative">
-            <Head title="Log in" />
+        <div className="min-h-screen bg-zinc-100 text-zinc-900 font-mono flex flex-col items-center justify-center overflow-hidden relative select-none">
+            <Head title="Авторизация // SYS_AUTH" />
 
-            {/* Ambient Glow Decorations */}
-            <div className="fixed top-1/4 -left-64 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
-            <div className="fixed bottom-1/4 -right-64 w-96 h-96 bg-secondary-container/10 rounded-full blur-[120px] pointer-events-none"></div>
+            {/* Background Blueprint Matrix Grid Pattern */}
+            <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:14px_14px] pointer-events-none z-0"></div>
 
-            <main className="relative z-10 w-full max-w-md px-6">
+            {/* Giant Background Watermarks */}
+            <div className="absolute top-10 left-[5%] text-9xl font-black text-zinc-900/[0.01] pointer-events-none transform -rotate-6 z-0 uppercase select-none">
+                вход
+            </div>
+            <div className="absolute bottom-10 right-[5%] text-9xl font-black text-zinc-900/[0.01] pointer-events-none transform -rotate-6 z-0 uppercase select-none">
+                auth
+            </div>
+
+            <main className="relative z-10 w-full max-w-md px-4">
                 {/* Brand Header */}
-                <div className="mb-12 text-center">
-                    <h1 className="font-headline text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-secondary-container bg-clip-text text-transparent">
+                <div className="mb-8 text-center">
+                    <h1 className="text-3xl font-black text-zinc-900 uppercase tracking-widest">
                         наставничество
                     </h1>
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest mt-1">
+                        // тесты и материалы
+                    </p>
                 </div>
 
-                {/* Login Card */}
-                <div className="glass-card rounded-[2.5rem] p-10 shadow-[0px_20px_60px_rgba(106,55,212,0.08)] relative overflow-hidden border border-white/20">
-                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+                {/* Login Card - Core Tactical Terminal Chassis */}
+                <div className="relative p-8 bg-zinc-50 border border-zinc-300 clip-corner shadow-xs">
 
+                    {/* Inner Content Module */}
                     <div className="space-y-8">
-                        <div className="space-y-2">
-                            <h2 className="font-headline text-2xl font-bold text-on-surface tracking-tight">с возвращением</h2>
-                            <p className="text-on-surface-variant/80 text-sm leading-relaxed">ваши тесты вас заждались</p>
+                        <div className="space-y-1 p-3 bg-zinc-100 border border-zinc-300 clip-corner">
+                            <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider border-l-4 border-l-black pl-2 py-0.5">
+                                с возвращением
+                            </h2>
+                            {/* <p className="text-zinc-500 text-xs uppercase tracking-wide pl-3">
+                                [ тесты и материалы ]
+                            </p> */}
                         </div>
 
                         <form onSubmit={submit} className="space-y-6">
                             <div className="space-y-4">
                                 {/* Email Field */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <InputLabel
                                         htmlFor="email"
-                                        value="email"
-                                        className="font-label text-lg font-bold lowercase tracking-[0.15em] text-primary ml-1"
+                                        value="[ email_address ]"
+                                        className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1"
                                     />
                                     <div className="relative group">
-                                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant/50 transition-colors group-focus-within:text-primary" />
+                                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
                                         <TextInput
                                             id="email"
                                             type="email"
                                             name="email"
                                             value={data.email}
-                                            className="w-full pl-12 pr-4 py-4 bg-surface-container-low/50 border-none rounded-2xl focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline/40 outline-none text-sm font-medium"
+                                            className="w-full pl-11 pr-4 py-3.5 bg-zinc-100 border border-zinc-300 rounded-none clip-corner focus:bg-zinc-200/50 focus:border-zinc-500 transition-all placeholder:text-zinc-400 outline-none text-xs font-bold font-mono tracking-wide text-zinc-800"
                                             placeholder="00.фамилияио@rosstat.gov.ru"
                                             onChange={(e) => setData('email', e.target.value)}
                                         />
                                     </div>
-                                    <InputError message={errors.email} className="mt-2" />
+                                    <InputError message={errors.email} className="mt-1 text-[10px] font-bold uppercase tracking-wider text-red-600" />
                                 </div>
 
                                 {/* Password Field */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <InputLabel
                                         htmlFor="password"
-                                        value="пароль"
-                                        className="font-label text-lg font-bold lowercase tracking-[0.15em] text-primary ml-1"
+                                        value="[ password_key ]"
+                                        className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1"
                                     />
                                     <div className="relative group">
-                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant/50 transition-colors group-focus-within:text-primary" />
-
+                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
                                         <TextInput
                                             id="password"
-                                            // 2. Change type dynamically
                                             type={showPassword ? 'text' : 'password'}
                                             name="password"
                                             value={data.password}
-                                            className="w-full pl-12 pr-12 py-4 bg-surface-container-low/50 border-none rounded-2xl focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline/40 outline-none text-sm font-medium"
+                                            className="w-full pl-11 pr-11 py-3.5 bg-zinc-100 border border-zinc-300 rounded-none clip-corner focus:bg-zinc-200/50 focus:border-zinc-500 transition-all placeholder:text-zinc-400 outline-none text-xs font-bold font-mono tracking-widest text-zinc-800"
                                             placeholder="••••••••"
                                             onChange={(e) => setData('password', e.target.value)}
                                         />
 
-                                        {/* 3. Toggle Button */}
+                                        {/* Password Toggle Button */}
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer p-1"
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-900 transition-colors cursor-pointer p-1"
                                         >
                                             {showPassword ? (
-                                                <EyeOff className="w-5 h-5 animate-in fade-in zoom-in duration-200" />
+                                                <EyeOff className="w-4 h-4" />
                                             ) : (
-                                                <Eye className="w-5 h-5 animate-in fade-in zoom-in duration-200" />
+                                                <Eye className="w-4 h-4" />
                                             )}
                                         </button>
                                     </div>
-                                    <InputError message={errors.password} className="mt-2" />
+                                    <InputError message={errors.password} className="mt-1 text-[10px] font-bold uppercase tracking-wider text-red-600" />
                                 </div>
                             </div>
 
-
-
+                            {/* Submit Tactical Action Node */}
                             <button
                                 disabled={processing}
-                                className="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-white font-headline font-bold text-base rounded-2xl shadow-[0px_10px_20px_rgba(106,55,212,0.2)] hover:shadow-[0px_15px_35px_rgba(106,55,212,0.3)] hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                                className="w-full py-3.5 bg-zinc-950 border border-zinc-900 text-zinc-100 text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 hover:text-zinc-950 hover:border-zinc-300 transition-all duration-150 clip-corner shadow-xs flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
                             >
-                                <span>{processing ? 'Загрузка...' : 'Войти'}</span>
+                                <span>{processing ? '[ СИНХРОНИЗАЦИЯ... ]' : 'Войти'}</span>
                                 {!processing && (
-                                    <ArrowRight className="w-5 h-5" />
+                                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                                 )}
                             </button>
                         </form>
 
-                        <div className="flex items-center justify-center gap-4 pt-4">
-                            <div className="h-[1px] flex-1 bg-surface-container-high/50"></div>
-                            <span className="font-label text-[9px] text-on-surface-variant/40 font-bold uppercase tracking-[0.2em] whitespace-nowrap">портал `наставничество</span>
-                            <div className="h-[1px] flex-1 bg-surface-container-high/50"></div>
+                        {/* Footer Matrix Stamp */}
+                        <div className="flex items-center justify-center gap-4 pt-2">
+                            <div className="h-[1px] flex-1 bg-zinc-300"></div>
+                            <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest whitespace-nowrap">
+                                портал наставничество
+                            </span>
+                            <div className="h-[1px] flex-1 bg-zinc-300"></div>
                         </div>
                     </div>
                 </div>

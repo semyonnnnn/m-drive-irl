@@ -6,7 +6,7 @@ import { UpButton } from "./UpButton";
 
 export default function Index() {
     return (
-        <main className="max-w-350 mx-auto p-8 flex flex-col gap-10">
+        <main className="mx-auto bg-linear-to-r from-gray-100 via-gray-100/50 to-gray-500/20 p-8 flex flex-col gap-14">
             <GroupSection />
             <TaskSection />
             <StudyMaterialsSection />

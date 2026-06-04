@@ -82,3 +82,9 @@ export interface PersonCardProps {
     alt: string;
     info: string;
 }
+
+export interface UnderLinkProps {
+    children: string;
+    href: string;
+    active: boolean;
+}
