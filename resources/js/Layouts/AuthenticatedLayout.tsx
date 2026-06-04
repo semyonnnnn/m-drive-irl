@@ -28,7 +28,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden lg:flex items-center gap-2">
+                    <nav className="hidden lg:flex items-center gap-2 select-none">
                         <UnderLink href="#" active={false}>тесты</UnderLink>
                         <UnderLink href="#" active={false}>материалы</UnderLink>
                         <UnderLink href="#" active={false}>группа</UnderLink>
@@ -47,7 +47,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                                     <img
                                         src={"https://lh3.googleusercontent.com/aida-public/AB6AXuCjMtRq3WvjElWL0jcAkICvSx71wBX_Yakrq_-bjnTqpa6M6b0U5WM7Hs4d6F9vdeahqHDkByDO5nEEOeo60Azh_EoYbNTRAyzglFQ9u1pApuQq6Dy9AStG7KzDEzb4TTig15nUmKTv5-esspX2ywN5jlyb1qIkmrf7WDyiumoGIli27aBioLPS5jUy-wCrj9N-nlNbuCqEdDDk-EV54n7OLitel_FQ9reMD-vVnMFpw7ZmhBh72NMJeCzPQmawJTqMiKK1d59Kk1pP"}
                                         alt={user.name}
-                                        className="w-full h-full object-cover"
+                                        className="select-none w-full h-full object-cover"
                                     />
                                 </div>
                                 <div className="hidden md:block text-left">

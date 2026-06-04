@@ -23,11 +23,11 @@ const GroupSection = () => (
             <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
 
             <div className="flex justify-between items-center mb-10 relative z-10">
-                <div>
+                <div className="select-none">
                     <h2 className="font-headline font-extrabold text-3xl text-on-surface mb-1">Команда совместной работы</h2>
                     <p className="text-slate-500 text-sm font-semibold">Активные участники вашей когнитивной сети</p>
                 </div>
-                <button className="px-6 py-2 bg-white border border-surface-container-high rounded-full text-primary text-xs font-bold hover:shadow-lg transition-all font-headline">
+                <button className="select-none px-6 py-2 bg-white border border-surface-container-high rounded-full text-primary text-xs font-bold hover:shadow-lg transition-all font-headline">
                     Карта сети
                 </button>
             </div>

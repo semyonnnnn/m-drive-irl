@@ -11,7 +11,7 @@ const TaskCard = ({ title, desc, progress, icon, colorClass, gradientClass }: Ta
         <h4 className="font-extrabold font-headline text-lg mb-1">{title}</h4>
         <p className="text-sm text-slate-500 mb-6 font-medium">{desc}</p>
         <div className="space-y-2">
-            <div className="flex justify-between text-[11px] font-black uppercase text-slate-700 font-headline">
+            <div className="select-none flex justify-between text-[11px] font-black uppercase text-slate-700 font-headline">
                 <span>Прогресс</span>
                 <span>{progress}%</span>
             </div>
