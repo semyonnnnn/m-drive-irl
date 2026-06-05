@@ -8,7 +8,6 @@ import {
 import { router, Link, usePage } from '@inertiajs/react';
 import ResponsiveNavLink from '@/components/custom/ResponsiveNavLink';
 import { PropsWithChildren, ReactNode, useState } from 'react';
-import { UnderLink } from '@/components/custom/Underlink';
 
 export default function Authenticated({ header, children }: PropsWithChildren<{ header?: ReactNode }>) {
     // @ts-ignore
@@ -17,7 +16,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
-        <div className="min-h-screen bg-linear-to-b from-blue-100/70 to-blue-100 text-zinc-900 font-mono selection:bg-zinc-900 selection:text-zinc-100">
+        <div className="min-h-screen  bg-[#121110]/70 text-zinc-900 font-mono selection:bg-zinc-900 selection:text-zinc-100">
             {/* TopAppBar - Core Tactical Header Chassis */}
             <header className="fixed top-0 w-full z-40 bg-zinc-50 border-b border-zinc-300 h-20 flex justify-between items-center px-4 sm:px-8 select-none">
 
@@ -26,26 +25,26 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
 
                 <div className="flex items-center gap-6 relative z-10">
                     {/* Logo Area inside Tactical Frame */}
-                    <Link href="/dashboard" className="flex items-center gap-2 group p-1 border border-transparent hover:border-zinc-400 clip-corner transition-all">
+                    <Link href="/" className="flex items-center gap-2 group p-1 border border-transparent hover:border-zinc-400 clip-corner transition-all">
                         <ApplicationLogo />
                     </Link>
 
                     {/* Desktop Navigation - System Links */}
                     <nav className="hidden lg:flex items-center gap-1">
                         <Link
-                            href="#"
+                            href={route('upload.index')}
                             className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
                         >
                             [ тесты ]
                         </Link>
                         <Link
-                            href="#"
+                            href={route('upload.index')}
                             className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
                         >
                             [ материалы ]
                         </Link>
                         <Link
-                            href="#"
+                            href={route('upload.index')}
                             className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
                         >
                             [ группа ]

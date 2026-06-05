@@ -33,13 +33,17 @@ export default function Modal({
     }[maxWidth];
 
     return (
-        <Transition show={show} leave="duration-200">
+        <Transition show={show}>
+            {/* CRITICAL: Changed z-50 to z-[100] to explicitly slice above your 
+              AuthenticatedLayout and primary container cards. Added item centering mechanics.
+            */}
             <Dialog
                 as="div"
                 id="modal"
-                className="fixed backdrop-blur-sm inset-0 flex transform items-center overflow-y-auto px-4 py-6 transition-all sm:px-0"
+                className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-4 transition-all sm:p-0 backdrop-blur-xs"
                 onClose={close}
             >
+                {/* Backdrop Layer Fade */}
                 <TransitionChild
                     enter="ease-out duration-300"
                     enterFrom="opacity-0"
@@ -48,20 +52,26 @@ export default function Modal({
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="absolute inset-0 bg-gray-500/75 dark:bg-gray-900/75 z-0"
-                        onClick={close} />
+                    <div
+                        className="fixed inset-0 bg-zinc-950/60 transition-opacity"
+                        onClick={close}
+                    />
                 </TransitionChild>
 
+                {/* Content Frame Elevation */}
                 <TransitionChild
-                    enter="ease-out duration-300"
+                    enter="ease-out duration-200"
                     enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     enterTo="opacity-100 translate-y-0 sm:scale-100"
-                    leave="ease-in duration-200"
+                    leave="ease-in duration-150"
                     leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                     leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
+                    {/* Wipe the background/borders here dynamically so your custom 
+                      armored chassis layout inside the children handles the layout edge
+                    */}
                     <DialogPanel
-                        className={`mb-6 z-50 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full dark:bg-gray-800 ${maxWidthClass}`}
+                        className={`w-full transform transition-all sm:mx-auto bg-transparent shadow-none border-none overflow-visible ${maxWidthClass}`}
                     >
                         {children}
                     </DialogPanel>

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/Contexts/AuthContext";
-import { LoginForm } from "./LoginForm";
+// import { LoginForm } from "./LoginForm";
 import { RegisterForm } from "./RegisterForm";
 import {
     Dialog,
@@ -55,7 +55,7 @@ export function AuthDropdown() {
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogContent className="sm:max-w-106.25 dark:bg-gray-800 dark:text-white">
-                    {registerOrLogin === 'login' && <LoginForm />}
+                    {/* {registerOrLogin === 'login' && <LoginForm />} */}
                     {registerOrLogin === 'register' && <RegisterForm />}
                 </DialogContent>
             </Dialog>

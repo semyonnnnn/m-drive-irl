@@ -128,3 +128,127 @@
         display: none;
     }
 }
+
+@keyframes mechJitter {
+    0% {
+        transform: translate(0, 0);
+    }
+    20% {
+        transform: translate(-1px, 1px);
+    }
+    40% {
+        transform: translate(-1px, -1px);
+    }
+    60% {
+        transform: translate(1px, 1px);
+    }
+    80% {
+        transform: translate(1px, -1px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+@keyframes corePowerLeak {
+    0%,
+    100% {
+        opacity: 1;
+        color: #f97316; /* orange-500 */
+    }
+    20% {
+        opacity: 0.2;
+        color: #7c2d12; /* orange-900 (dead tube look) */
+    }
+    23% {
+        opacity: 1;
+    }
+    60% {
+        opacity: 0.4;
+    }
+    64% {
+        opacity: 0.9;
+    }
+    80% {
+        opacity: 0.1;
+    }
+    82% {
+        opacity: 1;
+    }
+}
+
+/* Stays locked down smoothly, but the line voltage inside is fried */
+.animate-core-malfunction:hover .ac-text {
+    animation: corePowerLeak 1s steps(10) infinite;
+}
+
+@keyframes cockpitSyncGlitch {
+    0%,
+    100% {
+        clip-path: inset(0 0 0 0);
+        filter: hue-rotate(0deg) saturate(1);
+    }
+    92% {
+        clip-path: inset(0 0 0 0);
+        filter: hue-rotate(0deg);
+    }
+    /* Short-circuit frame 1: Slice the top third slightly right */
+    93% {
+        clip-path: inset(0 0 70% 0);
+        transform: translateX(3px) skewX(1deg);
+        filter: hue-rotate(15deg) saturate(1.2);
+    }
+    94% {
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0) skewX(0deg);
+    }
+    /* Short-circuit frame 2: Slice the bottom half left with a voltage spike */
+    96% {
+        clip-path: inset(45% 0 0 0);
+        transform: translateX(-4px) scaleY(1.02);
+        filter: brightness(1.3) contrast(1.2);
+    }
+    97% {
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0) scaleY(1);
+    }
+}
+
+/* Simulated CRT static tracking lines overlaying the component */
+@keyframes staticScanline {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(100%);
+    }
+}
+
+/* The master utility class to hook onto the modal panel */
+.animate-signal-glitch {
+    animation: cockpitSyncGlitch 0.7s linear infinite;
+}
+
+.ac-scanline::after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background:
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%),
+        linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.03),
+            rgba(0, 255, 0, 0.01),
+            rgba(0, 0, 255, 0.03)
+        );
+    background-size:
+        100% 3px,
+        3px 100%;
+    pointer-events: none;
+    z-index: 60;
+    opacity: 0.4;
+}

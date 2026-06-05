@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from '@inertiajs/react';
 
 // Types for the materials data structure
 interface LearningMaterial {
@@ -15,7 +16,7 @@ interface LearningMaterial {
 const MATERIALS_DATA: LearningMaterial[] = [
     { id: "m1", title: "Intro to AI Ethics", img: "3", icon: "circle-play", type: "Video Course", typeIcon: "circle-play" },
     { id: "m2", title: "Quantum Logic v2", icon: "file-lines", type: "PDF Document", typeIcon: "file-lines", iconColor: "text-red-500" },
-    { id: "m3", title: "Network Security", img: "5", icon: "terminal", type: "LAB Guide", typeIcon: "code", iconColor: "text-blue-500" },
+    { id: "m3", title: "Network Security", img: "5", icon: "terminal", type: "LAB Guide", typeIcon: "code", iconColor: "text-amber-500" },
     { id: "m4", title: "Calculus IV Recap", icon: "circle-play", type: "Video Course", typeIcon: "circle-play" },
     { id: "m5", title: "Hardware Arch.", img: "7", icon: "file-audio", type: "Podcast", typeIcon: "file-audio", iconColor: "text-purple-500" },
 ];
@@ -64,7 +65,7 @@ const MaterialCover: React.FC<CoverProps> = ({ item }) => {
 
                     {/* Mid-card Abstract Tech Stamp */}
                     <div className="z-10 my-auto pt-2">
-                        <div className="text-sm font-mono group-hover:text-blue-600 text-zinc-900 font-black tracking-wide uppercase line-clamp-3">
+                        <div className="text-sm font-mono group-hover:text-amber-600 text-zinc-900 font-black tracking-wide uppercase line-clamp-3">
                             {item.title}
                         </div>
                     </div>
@@ -117,9 +118,11 @@ const StudyMaterialsSection = () => {
                     </div>
 
                     {/* Tactical Navigation Action Node */}
-                    <button className="px-4 py-1.5 bg-zinc-950 border border-zinc-900 text-zinc-100 text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 hover:text-zinc-950 hover:border-zinc-300 transition-all duration-150 clip-corner shadow-xs shrink-0 cursor-pointer">
+                    <Link
+                        href={route('upload.index')}
+                        className="px-4 py-1.5 bg-zinc-950 border border-zinc-900 text-zinc-100 text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 hover:text-zinc-950 hover:border-zinc-300 transition-all duration-150 clip-corner shadow-xs shrink-0 cursor-pointer">
                         [ Посмотреть все ]
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Grid Layout Framework Deployment */}
@@ -132,7 +135,7 @@ const StudyMaterialsSection = () => {
                             </div>
                             <div className="px-1">
                                 {/* Retained original hover effects and typography styles, adapted to tech-palette */}
-                                <h5 className="text-sm font-bold font-mono truncate text-zinc-900 transition-all duration-150 underline underline-offset-4 decoration-2 decoration-transparent group-hover:text-blue-600 group-hover:decoration-blue-400">
+                                <h5 className="text-sm font-bold font-mono truncate text-zinc-900 transition-all duration-150 underline underline-offset-4 decoration-2 decoration-transparent group-hover:text-amber-600 group-hover:decoration-amber-400">
                                     {item.title}
                                 </h5>
                                 <p className="text-xs text-zinc-500 flex items-center gap-0 font-semibold mt-1 font-mono uppercase tracking-wider">

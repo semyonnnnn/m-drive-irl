@@ -1,10 +1,10 @@
-import { registerOrLoginType } from "@/types";
+// import { registerOrLoginType } from "@/types";
 import { createContext, useContext, useState, ReactNode } from "react";
 
 // 1️⃣ Define the shape of your context
 type ContextType = {
-    registerOrLogin: registerOrLoginType;
-    setRegisterOrLogin: (val: registerOrLoginType) => void;
+    registerOrLogin: any;
+    setRegisterOrLogin: (val: any) => void;
 };
 
 // 2️⃣ Create context with default value (or undefined)
@@ -16,7 +16,7 @@ type ProviderProps = {
 };
 
 export const AuthProvider = ({ children }: ProviderProps) => {
-    const [registerOrLogin, setRegisterOrLogin] = useState<registerOrLoginType>(null);
+    const [registerOrLogin, setRegisterOrLogin] = useState<any>(null);
 
     return (
         <MyContext.Provider value={{ registerOrLogin, setRegisterOrLogin }}>

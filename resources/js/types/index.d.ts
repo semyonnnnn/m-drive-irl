@@ -88,3 +88,51 @@ export interface UnderLinkProps {
     href: string;
     active: boolean;
 }
+
+export type UploadType = {
+    materials: PaginatedMaterials;
+};
+
+// 1. Define what a SINGLE raw material node looks like
+export interface LearningMaterial {
+    id: string;
+    title: string;
+    img?: string;
+    type:
+        | 'Видеокурс'
+        | 'Документ PDF'
+        | 'Лаб. руководство'
+        | 'Подкаст'
+        | 'Системная матрица'
+        | 'Аппаратная схема';
+    typeIcon: string;
+    iconColor?: string;
+}
+
+// 2. Define the structural matrix wrapper for Laravel's LengthAwarePaginator payload
+export interface PaginatedMaterials {
+    current_page: number;
+    data: LearningMaterial[]; // The backend sends the array here
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+    total: number;
+}
+export interface CoverProps {
+    item: LearningMaterial;
+}
+export interface ModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
