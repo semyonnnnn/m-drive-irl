@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { router } from "@inertiajs/react";
+import { useForm, usePage } from '@inertiajs/react';
+///////////////////////////////////////////////////
 import Modal from "@/components/custom/Modal";
 
 interface DeploymentModalProps {
@@ -10,6 +13,10 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
     const [isDragOver, setIsDragOver] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isGlitching, setIsGlitching] = useState(false);
+    const fileRef = useRef<HTMLInputElement>(null);
+    const { data, setData, post, processing, errors, reset } = useForm<{ uploadedFile: File | null }>({
+        uploadedFile: null,
+    });
 
     useEffect(() => {
         let glitchTimer: ReturnType<typeof setTimeout> | undefined = undefined;
@@ -48,7 +55,14 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
             maxWidth="xl"
             closeable={true}
         >
-            <div className={`relative block w-full bg-zinc-100 border-2 border-zinc-400 p-6 shadow-2xl clip-corner font-mono text-left z-50 ac-scanline overflow-hidden transition-colors duration-200 ${isGlitching ? "animate-signal-glitch" : ""}`}>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    post(route('upload.post'), {
+                        forceFormData: true,
+                    })
+                }}
+                className={`relative block w-full bg-zinc-100 border-2 border-zinc-400 p-6 shadow-2xl clip-corner font-mono text-left z-50 ac-scanline overflow-hidden transition-colors duration-200 ${isGlitching ? "animate-signal-glitch" : ""}`}>
 
                 <div className="absolute inset-0 pointer-events-none overflow-hidden z-40 opacity-20">
                     <div
@@ -65,11 +79,14 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                     <div className="flex items-center gap-3">
                         <div className="w-1.5 h-1.5 bg-amber-500 animate-pulse"></div>
                         <span className="text-xs font-bold text-zinc-800 uppercase tracking-widest">
-                            СИСТ_УЗЕЛ_ВВОДА_01 // **{selectedFile ? "ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"}
+                            СИСТ_УЗЕЛ_ВВОДА_01 // {"**"}{selectedFile ? "ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"}
                         </span>
                     </div>
                     <button
-                        onClick={onClose}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            onClose();
+                        }}
                         className="text-zinc-500 hover:text-zinc-950 text-xs transition-colors cursor-pointer"
                     >
                         [ ПРЕРВАТЬ_ESC ]
@@ -83,15 +100,25 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                     onDrop={(e) => {
                         e.preventDefault();
                         setIsDragOver(false);
-                        if (e.dataTransfer.files?.[0]) setSelectedFile(e.dataTransfer.files[0]);
+                        if (e.dataTransfer.files?.[0]) {
+                            setSelectedFile(e.dataTransfer.files[0]);
+                            setData('uploadedFile', e.dataTransfer.files[0]);
+                            if (fileRef.current) fileRef.current.files = e.dataTransfer.files;
+                        }
                     }}
                     className={`border-2 border-dashed pt-10 px-10 pb-7 flex flex-col items-center justify-center text-center transition-all duration-150 clip-corner relative z-50 cursor-pointer ${isDragOver ? "border-amber-500 bg-amber-500/10" : "border-zinc-300 bg-zinc-200/50 hover:border-zinc-400"}`}
                 >
                     <input
+                        ref={fileRef}
                         type="file"
                         id="fileInput"
                         className="hidden"
-                        onChange={(e) => e.target.files?.[0] && setSelectedFile(e.target.files[0])}
+                        onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                                setSelectedFile(e.target.files[0])
+                                setData('uploadedFile', e.target.files[0]);
+                            }
+                        }}
                     />
 
                     <div className="absolute top-2 right-2 text-[8px] text-zinc-400 tracking-wider select-none">
@@ -127,20 +154,30 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                     <div className="flex gap-3">
                         {selectedFile && (
                             <button
-                                onClick={() => setSelectedFile(null)}
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    setSelectedFile(null);
+                                    setData('uploadedFile', null);
+                                    if (fileRef.current) fileRef.current.value = "";
+                                }}
                                 className="px-4 py-1.5 border border-red-500 bg-red-500/10 text-red-600 text-xs font-bold uppercase hover:bg-red-500 hover:text-white transition-colors clip-corner cursor-pointer"
                             >
                                 Сброс
                             </button>
                         )}
                         <button
-                            onClick={onClose}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onClose()
+                            }}
                             className="px-4 py-1.5 border border-zinc-300 bg-zinc-200/60 text-zinc-600 text-xs font-bold uppercase hover:bg-zinc-300 hover:text-zinc-900 transition-colors clip-corner cursor-pointer"
                         >
                             Отмена
                         </button>
                         <button
+                            type="submit"
                             disabled={!selectedFile}
+
                             className={`px-5 py-1.5 text-xs font-bold uppercase tracking-widest clip-corner transition-all duration-150 ${selectedFile
                                 ? "bg-amber-500 text-zinc-950 hover:bg-amber-600 shadow-xs cursor-pointer border border-amber-600"
                                 : "bg-zinc-200 text-zinc-400 cursor-not-allowed border border-zinc-300"
@@ -150,7 +187,7 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                         </button>
                     </div>
                 </div>
-            </div>
+            </form>
         </Modal>
     );
 };

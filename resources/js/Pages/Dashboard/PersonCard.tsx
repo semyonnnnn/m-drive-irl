@@ -21,7 +21,7 @@ const PersonCard = ({ url, name, alt, info }: PersonCardProps) => {
                             <img
                                 src={url}
                                 alt={alt}
-                                className="w-full h-full object-cover filter grayscale contrast-115 group-hover:grayscale-0 transition-all duration-300"
+                                className="w-full h-full object-cover filter sepia contrast-115 group-hover:sepia-0 transition-all duration-300"
                             />
                         </div>
                         {/* FCS Lock / Node Status Indicator */}

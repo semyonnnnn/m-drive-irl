@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
 
     Route::get('/upload', [UploadController::class, 'index'])->name('upload.index');
+    Route::post('/upload', [UploadController::class, 'store'])->name('upload.post');
 });
 
 // Route::get('/test', function(){
