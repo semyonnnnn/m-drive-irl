@@ -1,15 +1,11 @@
-import {
-    Dialog,
-    DialogPanel,
-    Transition,
-    TransitionChild,
-} from '@headlessui/react';
+import { DistortionLine } from '@/Pages/Upload/DistortionLine';
+import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 
 export default function Modal({
     children,
     show = false,
-    maxWidth = '2xl',
+    maxWidth = 'xl',
     closeable = true,
     onClose = () => { },
 }: PropsWithChildren<{
@@ -18,11 +14,6 @@ export default function Modal({
     closeable?: boolean;
     onClose: CallableFunction;
 }>) {
-    const close = () => {
-        if (closeable) {
-            onClose();
-        }
-    };
 
     const maxWidthClass = {
         sm: 'sm:max-w-sm',
@@ -34,45 +25,38 @@ export default function Modal({
 
     return (
         <Transition show={show}>
-            {/* CRITICAL: Changed z-50 to z-[100] to explicitly slice above your 
-              AuthenticatedLayout and primary container cards. Added item centering mechanics.
-            */}
             <Dialog
                 as="div"
-                id="modal"
-                className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-4 transition-all sm:p-0 backdrop-blur-xs"
-                onClose={close}
+                className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden p-4 backdrop-blur-xs"
+                onClose={() => closeable && onClose()}
             >
-                {/* Backdrop Layer Fade */}
+                <DistortionLine />
+
+                {/* Instant exit: duration-0, no animation classes on leave */}
                 <TransitionChild
-                    enter="ease-out duration-300"
+                    enter="duration-100"
                     enterFrom="opacity-0"
                     enterTo="opacity-100"
-                    leave="ease-in duration-200"
+                    leave="duration-0"
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
                     <div
-                        className="fixed inset-0 bg-zinc-950/60 transition-opacity"
-                        onClick={close}
+                        className="fixed inset-0 bg-zinc-950/80"
+                        onClick={() => closeable && onClose()}
                     />
                 </TransitionChild>
 
-                {/* Content Frame Elevation */}
+                {/* Mechanical entry, Instant exit */}
                 <TransitionChild
-                    enter="ease-out duration-200"
-                    enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    enterTo="opacity-100 translate-y-0 sm:scale-100"
-                    leave="ease-in duration-150"
-                    leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                    leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    enter="duration-[400ms] transition-all ease-out"
+                    enterFrom="opacity-0 scale-y-90 [clip-path:inset(0%_50%_0%_50%)]"
+                    enterTo="opacity-100 scale-y-100 [clip-path:inset(0%_0%_0%_0%)]"
+                    leave="duration-0"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
                 >
-                    {/* Wipe the background/borders here dynamically so your custom 
-                      armored chassis layout inside the children handles the layout edge
-                    */}
-                    <DialogPanel
-                        className={`w-full transform transition-all sm:mx-auto bg-transparent shadow-none border-none overflow-visible ${maxWidthClass}`}
-                    >
+                    <DialogPanel className={`w-full relative transform transition-all sm:mx-auto bg-transparent shadow-none border-none overflow-visible glitch-layer ${maxWidthClass}`}>
                         {children}
                     </DialogPanel>
                 </TransitionChild>

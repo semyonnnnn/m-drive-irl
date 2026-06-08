@@ -1,5 +1,5 @@
 import { GroupSection } from "./GroupSection";
-import { TaskSection } from "./TaskSection";
+import { TaskSection } from "./TaskSection"
 import { StudyMaterialsSection } from "./StudyMaterialsSection";
 import { ScheduleSection } from "./ScheduleSection";
 import { UpButton } from "./UpButton";

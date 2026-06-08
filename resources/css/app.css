@@ -7,16 +7,13 @@
 @variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @theme {
-    /* Fonts matching your extended config exactly */
     --font-sans: 'Figtree', sans-serif;
     --font-headline: 'Montserrat', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-label: 'Inter', sans-serif;
 
-    /* Custom Box Shadows */
     --shadow-my-purple: 0px 20px 60px rgba(106, 55, 212, 0.08);
 
-    /* Cleaned up V4 Design Tokens linked directly to CSS Variables */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-primary: var(--primary);
@@ -28,19 +25,14 @@
     --color-surface-container-low: var(--surface-container-low);
     --color-surface-container-high: var(--surface-container-high);
 
-    /* Missing values from your JS config added cleanly here */
     --color-on-primary: #f8f0ff;
     --color-outline: #747779;
-
-    /* YOUR BRAND NEW ACCENT GREEN MAPPING */
     --color-accent: #10b981;
 
-    /* Framework mappings for standard border styling utilities */
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
 
-    /* Radii Framework Scales */
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
@@ -52,8 +44,6 @@
 
 :root {
     --radius: 0.625rem;
-
-    /* Ethereal Academy Light-Theme System Values */
     --background: #f5f7f9;
     --foreground: #2c2f31;
     --primary: #6a37d4;
@@ -64,14 +54,11 @@
     --on-surface-variant: #595c5e;
     --surface-container-low: #eef1f3;
     --surface-container-high: #dfe3e6;
-
-    /* Essential Structural Infrastructure Colors */
     --border: #dfe3e6;
     --input: #eef1f3;
     --ring: #6a37d4;
 }
 
-/* Dark mode overrides mapping matching your custom dataset attribute */
 [data-theme='dark'] {
     --background: #0b0f10;
     --foreground: #f5f7f9;
@@ -115,7 +102,6 @@
         );
 }
 
-/* Custom Base Layer Adjustments */
 @layer base {
     * {
         @apply border-border outline-ring/50;
@@ -129,8 +115,11 @@
     }
 }
 
+/* --- CRT & GLITCH ANIMATIONS --- */
+
 @keyframes mechJitter {
-    0% {
+    0%,
+    100% {
         transform: translate(0, 0);
     }
     20% {
@@ -145,41 +134,29 @@
     80% {
         transform: translate(1px, -1px);
     }
-    100% {
-        transform: translate(0, 0);
-    }
 }
 
 @keyframes corePowerLeak {
     0%,
     100% {
         opacity: 1;
-        color: #f97316; /* orange-500 */
+        color: #f97316;
     }
     20% {
         opacity: 0.2;
-        color: #7c2d12; /* orange-900 (dead tube look) */
+        color: #7c2d12;
     }
-    23% {
+    23%,
+    64%,
+    82% {
         opacity: 1;
     }
     60% {
         opacity: 0.4;
     }
-    64% {
-        opacity: 0.9;
-    }
     80% {
         opacity: 0.1;
     }
-    82% {
-        opacity: 1;
-    }
-}
-
-/* Stays locked down smoothly, but the line voltage inside is fried */
-.animate-core-malfunction:hover .ac-text {
-    animation: corePowerLeak 1s steps(10) infinite;
 }
 
 @keyframes cockpitSyncGlitch {
@@ -192,7 +169,6 @@
         clip-path: inset(0 0 0 0);
         filter: hue-rotate(0deg);
     }
-    /* Short-circuit frame 1: Slice the top third slightly right */
     93% {
         clip-path: inset(0 0 70% 0);
         transform: translateX(3px) skewX(1deg);
@@ -202,7 +178,6 @@
         clip-path: inset(0 0 0 0);
         transform: translateX(0) skewX(0deg);
     }
-    /* Short-circuit frame 2: Slice the bottom half left with a voltage spike */
     96% {
         clip-path: inset(45% 0 0 0);
         transform: translateX(-4px) scaleY(1.02);
@@ -214,7 +189,6 @@
     }
 }
 
-/* Simulated CRT static tracking lines overlaying the component */
 @keyframes staticScanline {
     0% {
         transform: translateY(-100%);
@@ -224,11 +198,72 @@
     }
 }
 
-/* The master utility class to hook onto the modal panel */
+@keyframes analogTear {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateY(50vh) translateX(-10px);
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) translateX(10px);
+        opacity: 0;
+    }
+}
+
+/* NEW: Malfunctioning CRT Effect */
+@keyframes crt-jitter {
+    0%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.2;
+    }
+    20% {
+        transform: translateY(-2px);
+        opacity: 0.4;
+    }
+    40% {
+        transform: translateY(2px);
+        opacity: 0.1;
+    }
+    60% {
+        transform: translateY(-5px);
+        opacity: 0.5;
+    }
+}
+
+@keyframes crt-flash {
+    0%,
+    95%,
+    100% {
+        opacity: 0.1;
+    }
+    96%,
+    98% {
+        opacity: 0.6;
+    }
+}
+
+/* --- UTILITY CLASSES --- */
+
+.animate-core-malfunction:hover .ac-text {
+    animation: corePowerLeak 1s steps(10) infinite;
+}
 .animate-signal-glitch {
     animation: cockpitSyncGlitch 0.7s linear infinite;
 }
+.animate-analog-tear {
+    animation: analogTear 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
 
+/* The CRT Overlay */
 .ac-scanline::after {
     content: ' ';
     display: block;
@@ -251,4 +286,57 @@
     pointer-events: none;
     z-index: 60;
     opacity: 0.4;
+}
+@keyframes crt-tracking-glitch {
+    0% {
+        transform: translateX(40vw);
+        opacity: 0.3;
+    }
+    15% {
+        transform: translateX(95vw);
+        opacity: 0.6;
+    }
+    22% {
+        transform: translateX(45vw);
+        opacity: 0.2;
+    }
+    40% {
+        transform: translateX(80vw);
+        opacity: 0.4;
+    }
+    55% {
+        transform: translateX(60vw);
+        opacity: 0.1;
+    }
+    70% {
+        transform: translateX(100vw);
+        opacity: 0.5;
+    }
+    85% {
+        transform: translateX(50vw);
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateX(40vw);
+        opacity: 0.2;
+    }
+}
+
+@keyframes crt-slow-vertical-drift {
+    0%,
+    100% {
+        transform: translateY(-100%);
+    }
+    50% {
+        transform: translateY(100%);
+    }
+}
+
+.animate-crt-tracking-glitch {
+    animation: crt-tracking-glitch 7s steps(1) infinite;
+}
+
+.animate-crt-slow-vertical-drift {
+    /* Slow, smooth Y-axis oscillation */
+    animation: crt-slow-vertical-drift 0.5s ease-in-out infinite;
 }
