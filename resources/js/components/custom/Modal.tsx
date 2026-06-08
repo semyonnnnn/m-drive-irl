@@ -27,7 +27,7 @@ export default function Modal({
         <Transition show={show}>
             <Dialog
                 as="div"
-                className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden p-4 backdrop-blur-xs"
+                className="fixed inset-0 z-100 flex items-center justify-center overflow-hidden p-4 backdrop-blur-xs"
                 onClose={() => closeable && onClose()}
             >
                 <DistortionLine />
