@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 //////////////////////////////////////
 use App\Services\UploadService;
+use App\Services\UploadValidationService;
 
 class UploadController extends Controller
 {
@@ -21,13 +22,9 @@ class UploadController extends Controller
 
    public function store(Request $request)
     {
-        $request->validate([
-            'uploadedFile' => 'required|file|max:65536', // 64MB limit
-        ]);
-
-        $request->file('uploadedFile')->store('uploads', 'public');
-
-        // 3. (Optional) Return to user
-        return back()->with('message', 'File uploaded successfully!');
+        (new UploadValidationService)->storeValidate($request);
+        (new UploadService)->uploadFile($request);
+        
+        return redirect()->back()->with('success', '[ОБРАБОТКА ЗАВЕРШЕНА] ПАКЕТ ИНТЕГРИРОВАН В СЕКТОР');
     }
 }

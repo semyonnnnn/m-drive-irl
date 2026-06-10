@@ -1,24 +1,40 @@
-import { useState } from "react";
-import { Link } from '@inertiajs/react'; // Imported for native SPA navigation
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { PageProps, UploadType } from '@/types';
+import { useState, useEffect } from "react";
+import { Link } from '@inertiajs/react';
+import { usePage } from "@inertiajs/react";
+////////////////////////////////////////////////
 import { MaterialCover } from "./MaterialCover";
+import { PageProps, UploadType } from '@/types';
 import { DeploymentModal } from "./DeploymentModal";
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { PopUp } from "./PopUp";
 
 export default function Index({ materials }: PageProps<UploadType>) {
     const REPLICATED_WATERMARK_TEXT = "материалы";
     const WATERMARK_LAYOUT_MAP = ["left-[3%]", "left-[62%]"];
     const mdata = materials.data;
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+    const flash = (usePage().props as any).flash.success as string;
+
+    useEffect(() => {
+        if (!flash) return;
+
+        setMessage(flash)
+        setTimeout(() => {
+            setMessage(null)
+        }, 7000);
+    }, [flash]);
 
     // Total count must read from the metadata layer, otherwise it resets to 10 on every slice
     const totalCount = materials.total;
 
     console.log(materials);
+    console.log('MESSAGE:', flash);
 
     return (
         <AuthenticatedLayout>
             <main className="min-h-screen bg-linear-to-r from-zinc-200/70 via-zinc-200/40 to-zinc-300/30 p-4 md:p-8 flex flex-col gap-8 relative select-none">
+                {message && <PopUp message={message} />}
                 <div className="relative p-4 md:p-6 bg-zinc-50 border border-zinc-300/90 overflow-hidden rounded-xs z-10 clip-corner shadow-xs">
                     <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[12px_12px] pointer-events-none z-0"></div>
                     {WATERMARK_LAYOUT_MAP.map((position, idx) => (
@@ -109,8 +125,8 @@ export default function Index({ materials }: PageProps<UploadType>) {
                                             href={link.url}
                                             preserveScroll
                                             className={`px-3 py-1.5 border text-[10px] font-mono font-black uppercase tracking-widest select-none cursor-pointer transition-all duration-75 active:scale-98 ${link.active
-                                                    ? "bg-orange-700 border-orange-950 text-orange-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] translate-y-[2px]"
-                                                    : "bg-zinc-800 border-zinc-950 text-zinc-400 hover:text-orange-500 hover:border-orange-900 shadow-[0_2px_0_#09090b] hover:shadow-none hover:translate-y-[2px] animate-core-malfunction"
+                                                ? "bg-orange-700 border-orange-950 text-orange-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] translate-y-[2px]"
+                                                : "bg-zinc-800 border-zinc-950 text-zinc-400 hover:text-orange-500 hover:border-orange-900 shadow-[0_2px_0_#09090b] hover:shadow-none hover:translate-y-[2px] animate-core-malfunction"
                                                 }`}
                                         >
                                             <span className="ac-text block">

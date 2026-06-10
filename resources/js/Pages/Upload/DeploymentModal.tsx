@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { router } from "@inertiajs/react";
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 ///////////////////////////////////////////////////
 import Modal from "@/components/custom/Modal";
 
@@ -14,8 +13,9 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isGlitching, setIsGlitching] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
-    const { data, setData, post, processing, errors, reset } = useForm<{ uploadedFile: File | null }>({
+    const { data, setData, post, reset, errors, clearErrors } = useForm<{ uploadedFile: File | null; description: string }>({
         uploadedFile: null,
+        description: '',
     });
 
     useEffect(() => {
@@ -60,7 +60,15 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                     e.preventDefault();
                     post(route('upload.post'), {
                         forceFormData: true,
-                    })
+                        onSuccess: () => {
+                            onClose();
+                            reset();
+                            setSelectedFile(null);
+                            if (fileRef.current) {
+                                fileRef.current.value = "";
+                            }
+                        },
+                    });
                 }}
                 className={`relative block w-full bg-zinc-100 border-2 border-zinc-400 p-6 shadow-2xl clip-corner font-mono text-left z-50 ac-scanline overflow-hidden transition-colors duration-200 ${isGlitching ? "animate-signal-glitch" : ""}`}>
 
@@ -79,7 +87,7 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                     <div className="flex items-center gap-3">
                         <div className="w-1.5 h-1.5 bg-amber-500 animate-pulse"></div>
                         <span className="text-xs font-bold text-zinc-800 uppercase tracking-widest">
-                            СИСТ_УЗЕЛ_ВВОДА_01 // {"**"}{selectedFile ? "ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"}
+                            СИСТ_УЗЕЛ_ВВОДА_01 // {selectedFile ? "ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"}
                         </span>
                     </div>
                     <button
@@ -91,6 +99,31 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                     >
                         [ ПРЕРВАТЬ_ESC ]
                     </button>
+                </div>
+
+                <div className="mb-6 relative z-50">
+                    <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                        Идентификатор_Описания_Объекта
+                    </label>
+                    <div className="relative flex items-center">
+                        <input
+                            type="text"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                            className={`w-full bg-zinc-200 border border-zinc-400 p-2 pr-10 text-sm font-mono text-zinc-900 focus:outline-none focus:border-amber-500 transition-colors clip-corner ${errors.description && "border-red-500!"}`}
+                            placeholder="ВВЕДИТЕ_ТЕКСТОВОЕ_ПОЯСНЕНИЕ..."
+                        />
+                        {data.description.length > 0 && (
+                            <button
+                                type="button"
+                                onClick={() => setData('description', '')}
+                                className="absolute right-2 w-6 h-6 flex items-center justify-center border border-red-500 bg-red-100 text-red-600 hover:bg-red-500 hover:text-white transition-all clip-corner cursor-pointer text-[10px] font-bold"
+                            >
+                                X
+                            </button>
+                        )}
+                    </div>
+                    {errors.description && <div className="text-red-900 text-xs mt-2 bg-red-500/10">{errors.description}</div>}
                 </div>
 
                 <label
@@ -106,7 +139,7 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                             if (fileRef.current) fileRef.current.files = e.dataTransfer.files;
                         }
                     }}
-                    className={`border-2 border-dashed pt-10 px-10 pb-7 flex flex-col items-center justify-center text-center transition-all duration-150 clip-corner relative z-50 cursor-pointer ${isDragOver ? "border-amber-500 bg-amber-500/10" : "border-zinc-300 bg-zinc-200/50 hover:border-zinc-400"}`}
+                    className={`border-2 border-dashed pt-8 px-10 pb-6 flex flex-col items-center justify-center text-center transition-all duration-150 clip-corner relative z-50 cursor-pointer ${isDragOver ? "border-amber-500 bg-amber-500/10" : "border-zinc-300 bg-zinc-200/50 hover:border-zinc-400"} ${errors.uploadedFile && "border-red-500!"}`}
                 >
                     <input
                         ref={fileRef}
@@ -125,7 +158,7 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                         МАКС_ОБЪЕМ // 64MB
                     </div>
 
-                    <i className={`fa-solid ${selectedFile ? 'fa-file-zipper text-amber-600 animate-bounce' : 'fa-network-wired text-zinc-400'} text-3xl mb-4`}></i>
+                    <i className={`fa-solid ${selectedFile ? 'fa-file-zipper text-amber-600 animate-bounce' : 'fa-network-wired text-zinc-400'} text-2xl mb-3`}></i>
 
                     {selectedFile ? (
                         <div className="space-y-1">
@@ -134,18 +167,19 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                         </div>
                     ) : (
                         <div className="text-xs text-zinc-600 font-bold uppercase tracking-wider max-w-xs leading-relaxed select-none">
-                            <ul className="list-none flex flex-col gap-2">
+                            <ul className="list-none flex flex-col gap-1">
                                 <li>[&gt] ПЕРЕТАЩИТЕ ДАННЫЕ В УЗЕЛ</li>
                                 <li className="w-full flex justify-center py-1">
                                     <span className="bg-[rgb(75,75,75)] text-white px-3 py-0.5 text-[10px]">ИЛИ НАЖМИТЕ</span>
                                 </li>
-                                <li className="border-t border-zinc-300 pt-2 mt-1 text-[10px] tracking-[0.2em] text-amber-700">
+                                <li className="border-t border-zinc-300 pt-1 mt-0.5 text-[10px] tracking-[0.2em] text-amber-700">
                                     ФОРМАТЫ: .XLSX | .PDF | .DOCX
                                 </li>
                             </ul>
                         </div>
                     )}
                 </label>
+                {errors.uploadedFile && <div className="text-red-900 text-xs mt-2 bg-red-500/10">{errors.uploadedFile}</div>}
 
                 <div className="flex justify-between items-center mt-6 pt-4 border-t border-zinc-300 select-none relative z-50">
                     <span className="text-[9px] text-zinc-400 uppercase tracking-tight">
@@ -158,6 +192,7 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                                     e.preventDefault()
                                     setSelectedFile(null);
                                     setData('uploadedFile', null);
+                                    clearErrors()
                                     if (fileRef.current) fileRef.current.value = "";
                                 }}
                                 className="px-4 py-1.5 border border-red-500 bg-red-500/10 text-red-600 text-xs font-bold uppercase hover:bg-red-500 hover:text-white transition-colors clip-corner cursor-pointer"
@@ -177,7 +212,6 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                         <button
                             type="submit"
                             disabled={!selectedFile}
-
                             className={`px-5 py-1.5 text-xs font-bold uppercase tracking-widest clip-corner transition-all duration-150 ${selectedFile
                                 ? "bg-amber-500 text-zinc-950 hover:bg-amber-600 shadow-xs cursor-pointer border border-amber-600"
                                 : "bg-zinc-200 text-zinc-400 cursor-not-allowed border border-zinc-300"
