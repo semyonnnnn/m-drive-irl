@@ -1,0 +1,32 @@
+# Core Aliases
+alias docker='sudo docker'
+
+# Compose definitions
+export DEV_COMPOSE="docker compose -f compose.dev.yaml"
+export PROD_COMPOSE="docker compose -f compose.prod.yaml"
+export CONTAINER="m-drive-irl-laravel.test-1"
+
+# Helper Function: Ensures a clean state regardless of environment
+clean_up() {
+    sudo $DEV_COMPOSE down --remove-orphans
+    sudo $PROD_COMPOSE down --remove-orphans
+}
+
+# Standardized Aliases
+alias sailup='sudo $DEV_COMPOSE up -d'
+alias saildown='sudo $DEV_COMPOSE down --remove-orphans'
+alias sailnpm='docker exec -it $CONTAINER npm'
+
+# Workflow Aliases
+alias saildev='sailup && sailnpm run dev'
+alias resaildev='clean_up && saildev'
+alias resail='clean_up && sailup'
+alias sailprod='clean_up && sudo $PROD_COMPOSE up -d && docker exec -it $CONTAINER npm run build'
+
+# Docker Monitoring
+alias dockerps="docker ps --format 'table {{.ID}}\t{{.Names}}\t{{.Ports}}'"
+alias dockerpsa="docker ps -a --format 'table {{.ID}}\t{{.Names}}\t{{.Ports}}'"
+
+# Clean Rebuilds
+alias redocker="clean_up && sudo $DEV_COMPOSE up -d"
+alias redockerbuild="clean_up && sudo $DEV_COMPOSE up -d --build"

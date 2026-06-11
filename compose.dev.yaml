@@ -24,6 +24,10 @@ services:
             - sail
         depends_on:
             - mariadb
+        entrypoint:
+            - sh
+            - -c
+            - 'chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache && /usr/local/bin/start-container'
     mariadb:
         image: 'mariadb:11'
         ports:
