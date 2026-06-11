@@ -15,6 +15,7 @@ export default function Index({ materials }: PageProps<UploadType>) {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
     const flash = (usePage().props as any).flash.success as string;
+    const [editMode, setEditMode] = useState<boolean>(false);
 
     useEffect(() => {
         if (!flash) return;
@@ -27,9 +28,6 @@ export default function Index({ materials }: PageProps<UploadType>) {
 
     // Total count must read from the metadata layer, otherwise it resets to 10 on every slice
     const totalCount = materials.total;
-
-    console.log(materials);
-    console.log('MESSAGE:', flash);
 
     return (
         <AuthenticatedLayout>
@@ -60,12 +58,30 @@ export default function Index({ materials }: PageProps<UploadType>) {
                                 // Архивы спецификаций системных узлов и ресурсов
                             </p>
                         </div>
-                        <button
-                            onClick={() => setIsUploadModalOpen(true)}
-                            className="px-4 py-2 bg-zinc-900 border border-zinc-950 text-zinc-100 text-xs font-bold uppercase tracking-widest hover:bg-amber-500 hover:text-zinc-950 hover:border-amber-600 transition-all duration-150 clip-corner shadow-sm shrink-0 cursor-pointer"
-                        >
-                            [ + Загрузить пакет ]
-                        </button>
+                        <div className="flex gap-5">
+                            {/* Edit Mode Button */}
+                            <button
+                                onClick={() => {
+                                    setEditMode(!editMode);
+                                }}
+                                className="group relative px-6 py-2 bg-zinc-950/80 border border-amber-500/50 text-amber-500 text-xs font-mono font-bold uppercase tracking-[0.2em] 
+    hover:bg-amber-500 hover:text-zinc-950 transition-all duration-200 
+    before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:bg-amber-500 
+    hover:before:bg-zinc-950 cursor-pointer"
+                            >
+                                [ 01_РЕЖИМ_РЕДАКТИРОВАНИЯ ]
+                            </button>
+
+                            {/* Upload Button */}
+                            <button
+                                onClick={() => setIsUploadModalOpen(true)}
+                                className="group relative px-6 py-2 bg-amber-500/10 border border-amber-500 text-amber-500 text-xs font-mono font-bold uppercase tracking-[0.2em] 
+    hover:bg-amber-500 hover:text-zinc-950 transition-all duration-200 
+    clip-path-hazard cursor-pointer"
+                            >
+                                [ 02_ЗАГРУЗИТЬ_ПАКЕТ ]
+                            </button>
+                        </div>
                     </div>
 
                     {/* Data Matrix Grid */}
@@ -91,11 +107,32 @@ export default function Index({ materials }: PageProps<UploadType>) {
                                         <span className="text-zinc-400 font-mono text-[8px] font-bold tracking-tighter">{item.id}</span>
                                     </div>
                                 </div>
+                                {editMode && (
+                                    <div className="bottom-6 right-6 z-50 flex gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                        {/* CANCEL BUTTON */}
+                                        <button
+                                            onClick={() => setEditMode(false)}
+                                            className="px-6 py-3 bg-zinc-200 border border-zinc-400 text-zinc-600 text-[10px] font-mono font-bold uppercase tracking-[0.2em] 
+      hover:bg-zinc-300 hover:text-zinc-900 transition-all cursor-pointer shadow-[2px_2px_0px_rgba(0,0,0,0.1)]"
+                                        >
+                                            [ ОТМЕНА ]
+                                        </button>
+
+                                        {/* COMMIT BUTTON */}
+                                        <button
+                                            onClick={() => { /* Add your commit logic */ }}
+                                            className="px-6 py-3 bg-zinc-950 border border-amber-600 text-amber-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] 
+      hover:bg-amber-600 hover:text-white transition-all cursor-pointer shadow-[2px_2px_0px_rgba(217,119,6,0.3)]"
+                                        >
+                                            [ УСТРАНИТЬ ]
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
 
-                    {/* Industrial Matrix Pagination Panel */}
+                    {/* Pagination */}
                     {materials.links && materials.links.length > 3 && (
                         <div className="mt-8 p-3 bg-zinc-100 border border-zinc-300/80 flex justify-between items-center font-mono text-xs clip-corner relative z-10 shadow-xs">
                             <div className="text-zinc-500 uppercase text-[9px] font-bold">
