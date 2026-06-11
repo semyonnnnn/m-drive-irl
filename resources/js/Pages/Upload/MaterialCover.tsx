@@ -25,10 +25,10 @@ const MaterialCover: React.FC<CoverProps> = ({ item }) => {
                     <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[8px_8px] z-0"></div>
                     <div className="absolute top-1/2 left-0 right-0 h-px bg-zinc-400/20 border-dashed border-t z-0"></div>
                     <div className="absolute -bottom-8 -right-8 text-8xl font-black text-zinc-950/3 transform -rotate-12 transition-transform duration-700 group-hover:scale-105 pointer-events-none z-0">
-                        <i className={`fa-solid fa-${item.typeIcon}`}></i>
+                        {/* <i className={`fa-solid fa-${item.typeIcon}`}></i> */}
                     </div>
                     <div className="flex justify-between items-start z-10 w-full font-mono">
-                        <span className="text-[8px] tracking-wider text-zinc-500 font-bold">{item.id} // SEC_DATA</span>
+                        <span className="text-[8px] tracking-wider text-zinc-500 font-bold">МТРЛ-{item.id} // ДАННЫЕ_ДЛЯ_ОТРАБОТКИ</span>
                         <span className="text-[9px] px-1.5 py-0.5 bg-zinc-800 text-zinc-200 font-bold uppercase tracking-wider clip-corner">
                             {item.type.split(' ')[0]}
                         </span>

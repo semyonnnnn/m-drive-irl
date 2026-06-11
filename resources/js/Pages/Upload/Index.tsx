@@ -85,10 +85,10 @@ export default function Index({ materials }: PageProps<UploadType>) {
                                     </h5>
                                     <div className="flex justify-between items-center mt-2 pt-2 border-t border-zinc-300/50 font-mono text-[9px]">
                                         <p className="text-zinc-500 flex items-center gap-1.5 font-bold uppercase tracking-wider">
-                                            <i className={`fa-solid fa-${item.typeIcon} ${item.iconColor || 'text-zinc-400'} text-[9px]`}></i>
+                                            <i className={`fa-solid || 'text-zinc-400'} text-[9px]`}></i>
                                             {item.type}
                                         </p>
-                                        <span className="text-zinc-400 font-mono text-[8px] font-bold tracking-tighter">{item.id.split('-')[1]}</span>
+                                        <span className="text-zinc-400 font-mono text-[8px] font-bold tracking-tighter">{item.id}</span>
                                     </div>
                                 </div>
                             </div>
@@ -125,8 +125,8 @@ export default function Index({ materials }: PageProps<UploadType>) {
                                             href={link.url}
                                             preserveScroll
                                             className={`px-3 py-1.5 border text-[10px] font-mono font-black uppercase tracking-widest select-none cursor-pointer transition-all duration-75 active:scale-98 ${link.active
-                                                ? "bg-orange-700 border-orange-950 text-orange-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] translate-y-[2px]"
-                                                : "bg-zinc-800 border-zinc-950 text-zinc-400 hover:text-orange-500 hover:border-orange-900 shadow-[0_2px_0_#09090b] hover:shadow-none hover:translate-y-[2px] animate-core-malfunction"
+                                                ? "bg-orange-700 border-orange-950 text-orange-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] translate-y-0.5"
+                                                : "bg-zinc-800 border-zinc-950 text-zinc-400 hover:text-orange-500 hover:border-orange-900 shadow-[0_2px_0_#09090b] hover:shadow-none hover:translate-y-0.5 animate-core-malfunction"
                                                 }`}
                                         >
                                             <span className="ac-text block">

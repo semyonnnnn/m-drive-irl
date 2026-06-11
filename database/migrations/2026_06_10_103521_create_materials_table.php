@@ -10,11 +10,12 @@ return new class extends Migration
     {
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
-            $table->string('display_name'); 
+            $table->string('title'); 
             $table->string('stored_name')->unique();
             $table->string('file_path');
             $table->bigInteger('file_size');
-            $table->string('mime_type');
+            $table->string('type');
+            $table->string('img');
             
             $table->timestamps();
         });

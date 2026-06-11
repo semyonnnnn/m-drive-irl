@@ -10,10 +10,11 @@ class Material extends Model
     use HasFactory;
 
     protected $fillable = [
-        'display_name',
+        'title',
         'stored_name',
         'file_path',
         'file_size',
-        'mime_type',
+        'type',
+        'img',
     ];
 }

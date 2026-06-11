@@ -34,6 +34,7 @@ class UploadValidationService
             'uploadedFile.mimes'    => '[ОШИБКА] ФОРМАТ ДАННЫХ НЕ ПОДДЕРЖИВАЕТСЯ (ДОПУСТИМЫ: PDF, DOCX, XLSX)',
             'description.required'  => '[ОШИБКА] ИДЕНТИФИКАТОР_ОПИСАНИЯ НЕ ЗАПОЛНЕН',
             'description.max'       => '[ОШИБКА] СЛИШКОМ ДЛИННОЕ ОПИСАНИЕ',
+            'description.string'    => '[ОШИБКА] ТРЕБУЕТСЯ ТЕКСТОВОЕ ПОЛЕ',
         ];
     }
 }
