@@ -44,7 +44,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                             [ материалы ]
                         </Link>
                         <Link
-                            href={route('upload.index')}
+                            href={route('user.index')}
                             className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
                         >
                             [ группа ]

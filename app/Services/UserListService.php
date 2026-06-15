@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\AuthUserResource;
 ///////////////////////////////////////
 use App\Models\User;
 use App\Enum\RolesEnum;
-use App\Http\Resources\AuthUserResource;
 
 class UserListService
 {
@@ -118,4 +116,7 @@ class UserListService
         }
     }
 
+    public function paginate(){
+       return AuthUserResource::collection(User::paginate(10))->collection->toArray();
+    }
 }

@@ -112,23 +112,23 @@ export interface LearningMaterial {
 
 // 2. Define the structural matrix wrapper for Laravel's LengthAwarePaginator payload
 export interface PaginatedMaterials {
-    current_page: number;
     data: LearningMaterial[]; // The backend sends the array here
     first_page_url: string;
     from: number;
-    last_page: number;
     last_page_url: string;
+    current_page: number;
+    last_page: number;
     links: {
         url: string | null;
         label: string;
         active: boolean;
     }[];
+    total: number;
     next_page_url: string | null;
     path: string;
     per_page: number;
     prev_page_url: string | null;
     to: number;
-    total: number;
 }
 export interface CoverProps {
     item: LearningMaterial;
@@ -136,4 +136,28 @@ export interface CoverProps {
 export interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
+}
+
+// types/index.d.ts (or wherever your types are stored)
+
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+export interface PaginatedData<T> {
+    current_page: number;
+    data: T[]; // The actual array of models
+    first_page_url: string;
+    from: number | null;
+    last_page: number;
+    last_page_url: string;
+    links: PaginationLink[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
 }
