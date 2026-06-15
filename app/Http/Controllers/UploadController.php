@@ -32,4 +32,12 @@ class UploadController extends Controller
     {
         \App\Models\Material::destroy($id);
     }
+
+    public function edit(int $id){
+        $material = \App\Models\Material::findOrFail($id);
+
+        return Inertia::render('Upload/SingleItem', [
+            'material' => $material
+        ]);
+    }
 }

@@ -21,7 +21,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
             <header className="fixed top-0 w-full z-40 bg-zinc-50 border-b border-zinc-300 h-20 flex justify-between items-center px-4 sm:px-8 select-none">
 
                 {/* Background Blueprint Matrix Grid Pattern for Top Bar */}
-                <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:14px_14px] pointer-events-none z-0"></div>
+                <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[14px_14px] pointer-events-none z-0"></div>
 
                 <div className="flex items-center gap-6 relative z-10">
                     {/* Logo Area inside Tactical Frame */}
@@ -116,7 +116,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                     <div className="mx-auto px-4 sm:px-8 mb-6">
                         {/* Dynamic Subheader Module Frame */}
                         <div className="p-4 bg-zinc-50 border border-zinc-300 clip-corner relative overflow-hidden">
-                            <div className="absolute inset-0 opacity-[0.01] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none"></div>
+                            <div className="absolute inset-0 opacity-[0.01] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[10px_10px] pointer-events-none"></div>
                             <div className="relative z-10 text-zinc-900 font-bold uppercase tracking-wider text-sm">
                                 {header}
                             </div>

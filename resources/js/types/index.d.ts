@@ -107,6 +107,7 @@ export interface LearningMaterial {
         | 'Аппаратная схема';
     typeIcon: string;
     iconColor?: string;
+    file_path: string;
 }
 
 // 2. Define the structural matrix wrapper for Laravel's LengthAwarePaginator payload

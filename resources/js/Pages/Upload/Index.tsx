@@ -9,18 +9,25 @@ import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 import { PopUp } from "./PopUp";
 
 export default function Index({ materials }: PageProps<UploadType>) {
-    const REPLICATED_WATERMARK_TEXT = "материалы";
-    const WATERMARK_LAYOUT_MAP = ["left-[3%]", "left-[62%]"];
-    const mdata = materials.data;
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
-    const flash = (usePage().props as any).flash.success as string;
     const [editMode, setEditMode] = useState<boolean>(false);
     const [delModConf, setDelModConf] = useState<{
         isOpen: boolean,
         title: string,
         id: string,
     }>({ isOpen: false, title: "", id: '' });
+    const [item, setItem] = useState<string>('');
+
+    useEffect(() => {
+        console.log(item)
+    }, [item]);
+
+
+    const flash = (usePage().props as any).flash.success as string;
+    const REPLICATED_WATERMARK_TEXT = "материалы";
+    const WATERMARK_LAYOUT_MAP = ["left-[3%]", "left-[62%]"];
+    const mdata = materials.data;
 
     useEffect(() => {
         if (!flash) return;
@@ -97,7 +104,9 @@ export default function Index({ materials }: PageProps<UploadType>) {
                                 className="group cursor-pointer flex flex-col bg-zinc-100/30 border border-zinc-300/60 p-2 clip-corner hover:border-zinc-400 hover:bg-zinc-100/70 transition-all duration-150 shadow-xs relative"
                             >
                                 <div className="absolute top-0 right-0 w-1 h-1 bg-zinc-400/30 group-hover:bg-amber-500 m-1 transition-colors"></div>
-                                <div className="w-full mb-3">
+                                <div className="w-full mb-3" onClick={() => {
+                                    router.get(route('upload.edit', { id: item.id }));
+                                }}>
                                     <MaterialCover item={item} />
                                 </div>
                                 <div className="px-1">

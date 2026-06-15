@@ -21,7 +21,7 @@ alias sailnpm='docker exec -it $CONTAINER npm'
 alias saildev='sailup && sailnpm run dev'
 alias resaildev='clean_up && saildev'
 alias resail='clean_up && sailup'
-alias sailprod='clean_up && sudo $PROD_COMPOSE up -d && docker exec -it $CONTAINER npm run build'
+alias sailprod='clean_up && sudo $PROD_COMPOSE up -d && rm -f public/hot && docker exec -it $CONTAINER npm run build'
 
 # Docker Monitoring
 alias dockerps="docker ps --format 'table {{.ID}}\t{{.Names}}\t{{.Ports}}'"
