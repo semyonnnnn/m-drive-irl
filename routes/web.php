@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/upload', [UploadController::class, 'index'])->name('upload.index');
     Route::post('/upload', [UploadController::class, 'store'])->name('upload.post');
+    Route::delete('/upload/{id}', [UploadController::class, 'destroy'])->name('upload.destroy');
 });
 
 // Route::get('/test', function(){

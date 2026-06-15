@@ -27,4 +27,9 @@ class UploadController extends Controller
         
         return redirect()->back()->with('success', '[ОБРАБОТКА ЗАВЕРШЕНА] ПАКЕТ ИНТЕГРИРОВАН В СЕКТОР');
     }
+    
+    public function destroy(int $id)
+    {
+        \App\Models\Material::destroy($id);
+    }
 }

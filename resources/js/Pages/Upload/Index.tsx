@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from '@inertiajs/react';
-import { usePage } from "@inertiajs/react";
+import { usePage, router, Link } from "@inertiajs/react";
 ////////////////////////////////////////////////
 import { MaterialCover } from "./MaterialCover";
 import { PageProps, UploadType } from '@/types';
-import { DeploymentModal } from "./DeploymentModal";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { DeploymentModal } from "./DeploymentModal";
+import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 import { PopUp } from "./PopUp";
 
 export default function Index({ materials }: PageProps<UploadType>) {
@@ -16,6 +16,11 @@ export default function Index({ materials }: PageProps<UploadType>) {
     const [message, setMessage] = useState<string | null>(null);
     const flash = (usePage().props as any).flash.success as string;
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [delModConf, setDelModConf] = useState<{
+        isOpen: boolean,
+        title: string,
+        id: string,
+    }>({ isOpen: false, title: "", id: '' });
 
     useEffect(() => {
         if (!flash) return;
@@ -120,7 +125,13 @@ export default function Index({ materials }: PageProps<UploadType>) {
 
                                         {/* COMMIT BUTTON */}
                                         <button
-                                            onClick={() => { /* Add your commit logic */ }}
+                                            onClick={() => {
+                                                setDelModConf({
+                                                    isOpen: true,
+                                                    title: item.title + " [" + item.type + "]",
+                                                    id: item.id
+                                                });
+                                            }}
                                             className="px-6 py-3 bg-zinc-950 border border-amber-600 text-amber-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] 
       hover:bg-amber-600 hover:text-white transition-all cursor-pointer shadow-[2px_2px_0px_rgba(217,119,6,0.3)]"
                                         >
@@ -180,6 +191,18 @@ export default function Index({ materials }: PageProps<UploadType>) {
                 <DeploymentModal
                     isOpen={isUploadModalOpen}
                     onClose={() => setIsUploadModalOpen(false)}
+                />
+                <DeleteConfirmationModal
+                    isOpen={delModConf.isOpen}
+                    onClose={() => setDelModConf({
+                        isOpen: false,
+                        title: '',
+                        id: ''
+                    })}
+                    itemName={delModConf.title}
+                    onConfirm={() => {
+                        router.delete(route('upload.destroy', { id: delModConf.id }));
+                    }}
                 />
             </main>
         </AuthenticatedLayout>

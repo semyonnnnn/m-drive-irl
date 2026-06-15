@@ -15,20 +15,17 @@ class UploadService
         $baseName = pathinfo($originalFullName, PATHINFO_FILENAME);
         $extension = $file->getClientOriginalExtension();
 
-        $time = time();
-        $date = date("m_d_Y", $time);
-        $hour = date("H", $time) . "h";
-        $minute = date("i", $time) . "m";
-        $timeStamp = $date . "_" . $hour . "_" . $minute;
+        $shownName = $request->description;
 
         // Build the initial name
-        $customName = $baseName . "___" . $timeStamp . '.' . $extension;
+        $customBase = $shownName . "___" . $baseName;
+        $customName = $customBase  . '.' . $extension;
         $counter = 1;
 
         // Loop: Check database until we find a name that doesn't exist
         while (\App\Models\Material::query()->where('stored_name', $customName)->exists()) {
             // Append (counter) before the extension
-            $customName = $baseName . "___" . $timeStamp . "({$counter})." . $extension;
+            $customName = $customBase . "___" . "({$counter})." . $extension;
             $counter++;
         }
 
