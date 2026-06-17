@@ -1,28 +1,30 @@
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
-import { NavButtonsMenu } from '@/components/custom/NavButtonsMenu';
-// import Guest from '@/Layouts/GuestLayout';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Dashboard from '../Dashboard/Index';
 import Login from '../Auth/Login';
 
-export default function Welcome({ }: PageProps<{}>) {
-  // const { theme, setTheme } = useTheme();
-  const handleImageError = () => {
-    document
-      .getElementById('screenshot-container')
-      ?.classList.add('!hidden');
-    document.getElementById('docs-card')?.classList.add('!row-span-1');
-    document
-      .getElementById('docs-card-content')
-      ?.classList.add('!flex-row');
-    document.getElementById('background')?.classList.add('!hidden');
+// Define the type to capture the global auth data payload passed by Laravel
+interface Props extends PageProps {
+  auth: {
+    user: any;
   };
+}
 
-
-
+export default function Welcome({ auth }: Props) {
   return (
     <>
-      <Head title="Main" />
-      <Login canResetPassword={false} />
+      <Head title="Main // SYSTEM" />
+
+      {auth.user ? (
+        /* Target View Frame for Active Sessions */
+        <AuthenticatedLayout>
+          <Dashboard />
+        </AuthenticatedLayout>
+      ) : (
+        /* Fallback Module for Anonymous Guest Terminals */
+        <Login canResetPassword={false} />
+      )}
     </>
   );
 }

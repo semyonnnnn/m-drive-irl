@@ -43,7 +43,7 @@ const UploadUsersPanel = () => {
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('upload.post'), {
+        post(route('user.upload'), {
             forceFormData: true,
             onSuccess: () => {
                 reset();
@@ -150,8 +150,8 @@ const UploadUsersPanel = () => {
 
                             {selectedFile ? (
                                 <div className="w-full flex flex-col items-center gap-1">
-                                    <div className="w-7 h-7 flex items-center justify-center bg-emerald-100 border border-emerald-300 text-emerald-700 text-xs font-bold animate-pulse">
-                                        DAT
+                                    <div className="w-fit px-1 h-7 flex items-center justify-center bg-emerald-100 border border-emerald-300 text-emerald-700 text-xs font-bold">
+                                        ГОТОВ
                                     </div>
                                     <p className="text-xs font-black text-zinc-800 truncate max-w-sm uppercase tracking-wide">
                                         [{selectedFile.name}]
@@ -167,7 +167,7 @@ const UploadUsersPanel = () => {
                                         ИЛИ НАЖМИТЕ ДЛЯ ОБЗОРНОГО ПОИСКА
                                     </div>
                                     <div className="text-[9px] text-amber-700/80 font-medium tracking-normal pt-1">
-                                        ДОПУСТИМЫЕ СТРУКТУРЫ: .XLSX | .PDF | .DOCX
+                                        ДОПУСТИМЫЕ ФОРМАТЫ: .XLSX
                                     </div>
                                 </div>
                             )}

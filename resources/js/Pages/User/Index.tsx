@@ -3,6 +3,7 @@ import { Head, Link } from "@inertiajs/react";
 import { User, PageProps } from "@/types";
 import { Pagination } from "@/components/custom/Pagination";
 import { UploadUsersPanel } from "./UploadUsersPanel";
+import * as XLSX from 'xlsx';
 
 // Define a type that matches Laravel's paginated response structure
 interface PaginatedData<T> {
@@ -29,6 +30,8 @@ export default function Index({ auth, users, roleLabels }: IndexProps) {
   const userRole = auth.user?.roles?.[0]?.toLowerCase();
   const canEdit = userRole === 'root' || userRole === 'admin';
 
+
+  console.log(XLSX.version);
 
   return (
     <AuthenticatedLayout>

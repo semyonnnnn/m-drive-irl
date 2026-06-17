@@ -77,4 +77,8 @@ class UserController extends Controller
 
         return back()->with('success', 'Roles updated successfully.');
     }
+
+    public function upload(){
+        dd('user controller upload');
+    }
 }

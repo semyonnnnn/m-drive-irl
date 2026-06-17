@@ -24,4 +24,9 @@ export default defineConfig({
       usePolling: true,
     },
   },
+  define: {
+    __BUNDLED_DEV__: JSON.stringify(true),
+    __SERVER_FORWARD_CONSOLE__: JSON.stringify(false),
+    __NODE__: JSON.stringify(false),
+  },
 })
