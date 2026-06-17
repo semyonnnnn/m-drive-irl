@@ -69,9 +69,9 @@ class UserController extends Controller
 
 
 
-        if (!$isAdminPage) {
-            (new UserListService)->update($related_users, $user, $request['roles'][0]);
-        }
+        // if (!$isAdminPage) {
+        //     (new UserListService)->update($related_users, $user, $request['roles'][0]);
+        // }
         $user->syncRoles($data['roles']);
 
 

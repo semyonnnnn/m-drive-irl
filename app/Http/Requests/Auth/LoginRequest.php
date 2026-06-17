@@ -29,6 +29,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'remember' => ['nullable', 'boolean'],
         ];
     }
 
@@ -82,4 +83,13 @@ class LoginRequest extends FormRequest
     {
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
+
+    // public function messages(): array
+    // {
+    //     return [
+    //         'email.required'    => 'ИДЕНТИФИКАТОР_ОТСУТСТВУЕТ: Введите адрес электронной почты.',
+    //         'email.string'       => 'ОШИБКА_ФОРМАТА: Указан неверный тип почтового адреса.',
+    //         'password.required' => 'КЛЮЧ_ДОСТУПА_ОТСУТСТВУЕТ: Введите системный пароль.',
+    //     ];
+    // }
 }

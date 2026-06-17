@@ -4,7 +4,7 @@ import InputLabel from '@/components/custom/InputLabel';
 import { Button } from '@/components/ui/button';
 import TextInput from '@/components/custom/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 import { AtSign, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function Login({
@@ -33,13 +33,13 @@ export default function Login({
             <Head title="Авторизация // SYS_AUTH" />
 
             {/* Background Blueprint Matrix Grid Pattern */}
-            <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:14px_14px] pointer-events-none z-0"></div>
+            <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[14px_14px] pointer-events-none z-0"></div>
 
             {/* Giant Background Watermarks */}
-            <div className="absolute top-10 left-[5%] text-9xl font-black text-zinc-900/[0.01] pointer-events-none transform -rotate-6 z-0 uppercase select-none">
+            <div className="absolute top-10 left-[5%] text-9xl font-black text-zinc-900/1 pointer-events-none transform -rotate-6 z-0 uppercase select-none">
                 вход
             </div>
-            <div className="absolute bottom-10 right-[5%] text-9xl font-black text-zinc-900/[0.01] pointer-events-none transform -rotate-6 z-0 uppercase select-none">
+            <div className="absolute bottom-10 right-[5%] text-9xl font-black text-zinc-900/1 pointer-events-none transform -rotate-6 z-0 uppercase select-none">
                 auth
             </div>
 
@@ -142,11 +142,11 @@ export default function Login({
 
                         {/* Footer Matrix Stamp */}
                         <div className="flex items-center justify-center gap-4 pt-2">
-                            <div className="h-[1px] flex-1 bg-zinc-300"></div>
+                            <div className="h-px flex-1 bg-zinc-300"></div>
                             <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest whitespace-nowrap">
                                 портал наставничество
                             </span>
-                            <div className="h-[1px] flex-1 bg-zinc-300"></div>
+                            <div className="h-px flex-1 bg-zinc-300"></div>
                         </div>
                     </div>
                 </div>

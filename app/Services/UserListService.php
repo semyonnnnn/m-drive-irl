@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Resources\AuthUserResource;
+use Illuminate\Pagination\LengthAwarePaginator;
 ///////////////////////////////////////
 use App\Models\User;
 use App\Enum\RolesEnum;
@@ -70,53 +71,68 @@ class UserListService
         ];
     }
 
-    public function update(array $related_users, User $user, string $requestedRole)
-    {
-        $isSensei = $user->hasRole(RolesEnum::Sensei->value);
-        $isGakusei = $user->hasRole(RolesEnum::Gakusei->value);
+    // public function update(array $related_users, User $user, string $requestedRole)
+    // {
+    //     $isSensei = $user->hasRole(RolesEnum::Sensei->value);
+    //     $isGakusei = $user->hasRole(RolesEnum::Gakusei->value);
 
-        if (!$isSensei && !$isGakusei) {
-            return;
-        }
+    //     if (!$isSensei && !$isGakusei) {
+    //         return;
+    //     }
 
-        $requestedIds = collect($related_users)->pluck('id')->filter()->values();
+    //     $requestedIds = collect($related_users)->pluck('id')->filter()->values();
 
-        if ($isSensei) {
-            if (!$user->hasRole($requestedRole)) {
-                $user->gakusei()->detach();
-                return;
-            }
+    //     if ($isSensei) {
+    //         if (!$user->hasRole($requestedRole)) {
+    //             $user->gakusei()->detach();
+    //             return;
+    //         }
 
 
-            $forbidden = User::whereIn('id', $requestedIds)
-                ->whereHas('sensei', fn($q) => $q->where('users.id', '!=', $user->id))
-                ->whereNotIn('id', $user->gakusei()->pluck('users.id'))
-                ->pluck('id');
+    //         $forbidden = User::whereIn('id', $requestedIds)
+    //             ->whereHas('sensei', fn($q) => $q->where('users.id', '!=', $user->id))
+    //             ->whereNotIn('id', $user->gakusei()->pluck('users.id'))
+    //             ->pluck('id');
 
-            if ($forbidden->isNotEmpty()) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
-                    'related_users' => 'У некоторых учеников уже есть наставники'
-                ]);
-            }
+    //         if ($forbidden->isNotEmpty()) {
+    //             throw \Illuminate\Validation\ValidationException::withMessages([
+    //                 'related_users' => 'У некоторых учеников уже есть наставники'
+    //             ]);
+    //         }
 
-            $user->gakusei()->detach();
+    //         $user->gakusei()->detach();
 
-            if ($requestedIds->isNotEmpty()) {
-                $user->gakusei()->attach($requestedIds);
-            }
+    //         if ($requestedIds->isNotEmpty()) {
+    //             $user->gakusei()->attach($requestedIds);
+    //         }
 
-        } else if ($isGakusei) {
-            if (!$user->hasRole($requestedRole)) {
-                $user->sensei()->detach();
-                return;
-            }
-            $user->sensei()->detach();
-            $user->sensei()->attach($requestedIds[0] ?? null);
-            $user->sensei()->sync($requestedIds[0] ?? null);
-        }
-    }
+    //     } else if ($isGakusei) {
+    //         if (!$user->hasRole($requestedRole)) {
+    //             $user->sensei()->detach();
+    //             return;
+    //         }
+    //         $user->sensei()->detach();
+    //         $user->sensei()->attach($requestedIds[0] ?? null);
+    //         $user->sensei()->sync($requestedIds[0] ?? null);
+    //     }
+    // }
 
     public function paginate(){
-       return AuthUserResource::collection(User::paginate(10))->collection->toArray();
+        $users = User::all();
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+        $currentUsers = $users->slice(($currentPage - 1) * $perPage, $perPage)->values()->all();
+
+        $users = new LengthAwarePaginator(
+            $currentUsers,
+            $users->count(),
+            $perPage,
+            $currentPage,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+        );
+
+        return $users;
+
+    //    return AuthUserResource::collection(User::paginate(10))->collection->toArray();
     }
 }

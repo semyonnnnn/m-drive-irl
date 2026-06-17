@@ -68,6 +68,19 @@ class DatabaseSeeder extends Seeder
             $alinaGakusei->assignRole(RolesEnum::Gakusei);
         }
 
+
+        $emptyPasswordUser = User::firstOrCreate(
+            ['email' => 'empty@empty.com'],
+            [
+                'name' => 'empty',
+                'password' => '',
+            ]
+        );
+        if (!$emptyPasswordUser->hasRole(RolesEnum::Gakusei)) {
+            $emptyPasswordUser->assignRole(RolesEnum::Gakusei);
+        }
+
+
         // 7. GENERATE 99 RANDOM DUMMY USERS
         User::factory()
             ->count(1000)
