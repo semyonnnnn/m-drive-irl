@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Resources\AuthUserResource;
 use App\Services\UserListService;
+use App\Http\Requests\UploadUserListRequest;
 
 class UserController extends Controller
 {
@@ -78,7 +79,7 @@ class UserController extends Controller
         return back()->with('success', 'Roles updated successfully.');
     }
 
-    public function upload(){
-        dd('user controller upload');
+    public function upload(Request $request){
+        dd($request->all());
     }
 }

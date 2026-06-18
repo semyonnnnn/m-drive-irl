@@ -1,53 +1,84 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm } from '@inertiajs/react';
+import * as XLSX from 'xlsx';
+
+interface ExcelUserData {
+    [key: string]: number | string;
+}
 
 const UploadUsersPanel = () => {
     const [isDragOver, setIsDragOver] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [parsedData, setParsedData] = useState<ExcelUserData[] | null>(null);
     const [isGlitching, setIsGlitching] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, post, reset, errors, clearErrors } = useForm<{
-        uploadedFile: File | null;
-        description: string
+    const { data, setData, post, reset, errors, setError, clearErrors } = useForm<{
+        payloadData: string;
     }>({
-        uploadedFile: null,
-        description: '',
+        payloadData: '',
     });
 
-    // Ambient industrial digital glitch animation system
-    useEffect(() => {
-        let glitchTimer: ReturnType<typeof setTimeout>;
-        let recoveryTimer: ReturnType<typeof setTimeout>;
+    const processExcelFile = (file: File) => {
+        // EXTENSION GUARD MATRIX: Allow xlsx, xls, csv, txt
+        if (!file.name.match(/\.(xlsx|xls|csv|txt)$/i)) {
+            setError('payload', 'ОШИБКА ФОРМАТА: Допустимы только .XLSX, .XLS, .CSV, .TXT');
+            setSelectedFile(null);
+            setParsedData(null);
+            return;
+        }
 
-        const triggerRandomGlitch = () => {
-            const nextGlitchDelay = Math.random() * 12000 + 6000; // 6-18s intervals
+        clearErrors('uploadedFile');
+        setSelectedFile(file);
+        setData('uploadedFile', file);
 
-            glitchTimer = setTimeout(() => {
-                setIsGlitching(true);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const dataBuffer = e.target?.result;
+                // SheetJS handles binary data string input for all selected formats
+                const workbook = XLSX.read(dataBuffer, { type: 'binary' });
 
-                recoveryTimer = setTimeout(() => {
-                    setIsGlitching(false);
-                    triggerRandomGlitch();
-                }, 500);
-            }, nextGlitchDelay);
+                const firstSheetName = workbook.SheetNames[0];
+                if (!firstSheetName) {
+                    throw new Error("EMPTY_MATRIX_STRUCTURE");
+                }
+
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                // For CSV and plain text formats, SheetJS raw configuration avoids structural breakdown
+                const jsonRows: ExcelUserData[] = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+                if (jsonRows.length === 0) {
+                    throw new Error("NO_DATA_ROWS");
+                }
+
+                setParsedData(jsonRows);
+                setData('payloadData', JSON.stringify(jsonRows));
+            } catch (err) {
+                setError('uploadedFile', 'СБОЙ СТРУКТУРЫ: Ошибка парсинга внутренней матрицы данных');
+                setParsedData(null);
+                console.error(err);
+            }
         };
 
-        triggerRandomGlitch();
-
-        return () => {
-            clearTimeout(glitchTimer);
-            clearTimeout(recoveryTimer);
-        };
-    }, []);
+        reader.readAsBinaryString(file);
+    };
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!parsedData || parsedData.length === 0) {
+            setError('uploadedFile', 'ОШИБКА АГРЕГАЦИИ: Массив пуст или не инициализирован');
+            return;
+        }
+
         post(route('user.upload'), {
             forceFormData: true,
             onSuccess: () => {
                 reset();
                 setSelectedFile(null);
+                setParsedData(null);
                 if (fileRef.current) {
                     fileRef.current.value = "";
                 }
@@ -58,36 +89,33 @@ const UploadUsersPanel = () => {
     const clearSelectedFile = (e: React.MouseEvent) => {
         e.preventDefault();
         setSelectedFile(null);
-        setData('uploadedFile', null);
-        clearErrors('uploadedFile');
+        setParsedData(null);
+        reset();
+        clearErrors();
         if (fileRef.current) fileRef.current.value = "";
     };
 
     return (
         <div className="w-full max-w-4xl p-1 bg-zinc-300 border border-zinc-400 rounded-xs shadow-[0_10px_30px_rgba(0,0,0,0.15)] relative">
-            {/* Outer Technical Frame Corner Decals */}
             <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-zinc-600 pointer-events-none"></div>
             <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-zinc-600 pointer-events-none"></div>
 
             <form
                 onSubmit={handleFormSubmit}
-                className={`relative block w-full bg-zinc-100 border border-zinc-400 p-5 font-mono text-left overflow-hidden transition-all duration-200 select-none`}
+                className="relative block w-full bg-zinc-100 border border-zinc-400 p-5 font-mono text-left overflow-hidden transition-all duration-200 select-none"
             >
-                {/* Internal Scanline & Mesh Overlays */}
+                {/* Overlays */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden z-40 opacity-[0.15] mix-blend-overlay">
-                    <div
-                        className="w-full h-0.5 bg-zinc-950"
-                        style={{ animation: 'staticScanline 8s linear infinite' }}
-                    ></div>
+                    <div className="w-full h-0.5 bg-zinc-950" style={{ animation: 'staticScanline 8s linear infinite' }}></div>
                 </div>
                 <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[10px_10px] pointer-events-none z-0"></div>
 
-                {/* Tactical Component Header */}
+                {/* Header */}
                 <div className="flex justify-between items-center border-b border-zinc-950 pb-2.5 mb-5 relative z-10">
                     <div className="flex items-center gap-2.5">
-                        <div className={`w-2 h-2 rounded-xs transition-colors duration-300 ${selectedFile ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-amber-500 animate-pulse"}`}></div>
+                        <div className={`w-2 h-2 rounded-xs transition-colors duration-300 ${selectedFile && Object.keys(errors).length === 0 ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-amber-500 animate-pulse"}`}></div>
                         <span className="text-xs font-black text-zinc-900 uppercase tracking-widest">
-                            [ МОДУЛЬ_ЗАГРУЗКИ_РЕЕСТРА // {selectedFile ? "МАССИВ_ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"} ]
+                            [ МОДУЛЬ_ЗАГРУЗКИ_РЕЕСТРА // {selectedFile && Object.keys(errors).length === 0 ? "МАССИВ_ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"} ]
                         </span>
                     </div>
                     <div className="text-[9px] text-zinc-500 font-bold bg-zinc-200 border border-zinc-300 px-2 py-0.5 tracking-wider">
@@ -95,23 +123,22 @@ const UploadUsersPanel = () => {
                     </div>
                 </div>
 
-                {/* Content Layout Grid */}
+                {/* Main Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10 items-start">
-
-                    {/* Left Column: Descriptions and Status Indicators */}
+                    {/* Left Column */}
                     <div className="md:col-span-1 flex flex-col gap-4">
-
-                        {/* Telemetry Stats Display Block */}
                         <div className="bg-zinc-200/50 border border-zinc-300 p-2 text-[10px] space-y-1 text-zinc-600">
                             <div className="font-bold border-b border-zinc-300 pb-1 mb-1 text-zinc-800 uppercase tracking-wider">// ТЕЛЕМЕТРИЯ_СТАТУСА</div>
-                            <div className="flex justify-between"><span>МАТРИЦА:</span> <span className="font-bold text-zinc-900">READY</span></div>
-                            <div className="flex justify-between"><span>ОБЪЕМ_MAX:</span> <span className="font-bold text-zinc-900">64.00 MB</span></div>
-                            <div className="flex justify-between"><span>АЛГОРИТМ:</span> <span className="font-bold text-zinc-900">RAW_DB_INJECT</span></div>
+                            <div className="flex justify-between"><span>МАТРИЦА:</span> <span className="font-bold text-zinc-900">{parsedData ? "PARSED_OK" : "READY"}</span></div>
+                            <div className="flex justify-between"><span>СУБЪЕКТЫ:</span> <span className="font-bold text-zinc-900">{parsedData ? parsedData.length : "0"} UNIT</span></div>
+                            <div className="flex justify-between"><span>АЛГОРИТМ:</span> <span className="font-bold text-zinc-900">CLIENT_PARSE_INJECT</span></div>
                         </div>
-                        <div className={`${selectedFile ? 'text-green-500' : 'text-amber-500'}`}>&gt;&gt;&gt; {selectedFile ? "МАССИВ_ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"}</div>
+                        <div className={`${selectedFile && Object.keys(errors).length === 0 ? 'text-green-500' : 'text-amber-500'} text-xs font-bold`}>
+                            &gt;&gt;&gt; {selectedFile && Object.keys(errors).length === 0 ? "СТРУКТУРА_ПРОВЕРЕНА" : "ОЖИДАНИЕ_ПАКЕТА"}
+                        </div>
                     </div>
 
-                    {/* Right Column: File Input Drop Zone */}
+                    {/* Right Column Drop Zone */}
                     <div className="md:col-span-2">
                         <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5">
                             // Пакет_Исходных_Данных
@@ -124,40 +151,38 @@ const UploadUsersPanel = () => {
                                 e.preventDefault();
                                 setIsDragOver(false);
                                 if (e.dataTransfer.files?.[0]) {
-                                    const file = e.dataTransfer.files[0];
-                                    setSelectedFile(file);
-                                    setData('uploadedFile', file);
+                                    processExcelFile(e.dataTransfer.files[0]);
                                     if (fileRef.current) fileRef.current.files = e.dataTransfer.files;
                                 }
                             }}
                             className={`border border-dashed p-6 min-h-28.75 flex flex-col items-center justify-center text-center transition-all duration-150 relative cursor-pointer ${isDragOver
                                 ? "border-amber-500 bg-amber-500/5 shadow-[inset_0_0_15px_rgba(245,158,11,0.05)]"
                                 : "border-zinc-300 bg-zinc-200/40 hover:border-zinc-400 hover:bg-zinc-200/70"
-                                } ${errors.uploadedFile ? "border-red-400 bg-red-50" : ""}`}
+                                } ${Object.keys(errors).length > 0 ? "border-red-400 bg-red-50" : ""}`}
                         >
                             <input
                                 ref={fileRef}
                                 type="file"
                                 id="fileInput"
                                 className="hidden"
+                                accept=".xlsx,.xls,.csv,.txt"
                                 onChange={(e) => {
                                     if (e.target.files?.[0]) {
-                                        setSelectedFile(e.target.files[0]);
-                                        setData('uploadedFile', e.target.files[0]);
+                                        processExcelFile(e.target.files[0]);
                                     }
                                 }}
                             />
 
-                            {selectedFile ? (
+                            {selectedFile && Object.keys(errors).length === 0 ? (
                                 <div className="w-full flex flex-col items-center gap-1">
                                     <div className="w-fit px-1 h-7 flex items-center justify-center bg-emerald-100 border border-emerald-300 text-emerald-700 text-xs font-bold">
-                                        ГОТОВ
+                                        МАССИВ_ИЗВЛЕЧЁН
                                     </div>
                                     <p className="text-xs font-black text-zinc-800 truncate max-w-sm uppercase tracking-wide">
                                         [{selectedFile.name}]
                                     </p>
                                     <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-tight">
-                                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB // СТАТУС: АГРЕГИРОВАН
+                                        {parsedData ? `${parsedData.length} СТРОК(И)` : "ВЕРИФИКАЦИЯ..."} // СТАТУС: АГРЕГИРОВАН
                                     </p>
                                 </div>
                             ) : (
@@ -167,26 +192,26 @@ const UploadUsersPanel = () => {
                                         ИЛИ НАЖМИТЕ ДЛЯ ОБЗОРНОГО ПОИСКА
                                     </div>
                                     <div className="text-[9px] text-amber-700/80 font-medium tracking-normal pt-1">
-                                        ДОПУСТИМЫЕ ФОРМАТЫ: .XLSX
+                                        ДОПУСТИМЫЕ ФОРМАТЫ: .XLSX, .XLS, .CSV, .TXT
                                     </div>
                                 </div>
                             )}
                         </label>
-                        {errors.uploadedFile && (
+                        {Object.keys(errors).length > 0 && (
                             <div className="text-red-700 font-bold text-[9px] mt-1 px-1.5 py-0.5 bg-red-100 border-l-2 border-red-600 uppercase tracking-wide">
-                                {errors.uploadedFile}
+                                {Object.values(errors)[0]}
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Control Action Toolbar Footer */}
+                {/* Footer Controls */}
                 <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mt-5 pt-3.5 border-t border-zinc-300">
                     <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">
-                        // СИНХРОНИЗАЦИЯ: {selectedFile ? "ГОТОВА К ИНЪЕКЦИИ" : "ОЖИДАНИЕ СИСТЕМНОГО ПАКЕТА"}
+                        // СИНХРОНИЗАЦИЯ: {selectedFile && Object.keys(errors).length === 0 ? "ГОТОВА К ИНЪЕКЦИИ" : "ОЖИДАНИЕ СИСТЕМНОГО ПАКЕТА"}
                     </span>
                     <div className="flex gap-2 justify-end">
-                        {selectedFile && (
+                        {selectedFile && Object.keys(errors).length === 0 && (
                             <button
                                 type="button"
                                 onClick={clearSelectedFile}
@@ -197,8 +222,8 @@ const UploadUsersPanel = () => {
                         )}
                         <button
                             type="submit"
-                            disabled={!selectedFile}
-                            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] border transition-all duration-150 ${selectedFile
+                            disabled={!selectedFile || !parsedData || Object.keys(errors).length > 0}
+                            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] border transition-all duration-150 ${selectedFile && Object.keys(errors).length === 0 && parsedData
                                 ? "bg-amber-500 text-zinc-950 border-amber-600 hover:bg-amber-400 active:scale-[0.99] shadow-sm cursor-pointer"
                                 : "bg-zinc-200 text-zinc-400 border-zinc-300 cursor-not-allowed"
                                 }`}
@@ -207,8 +232,8 @@ const UploadUsersPanel = () => {
                         </button>
                     </div>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 };
 

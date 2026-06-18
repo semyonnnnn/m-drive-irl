@@ -123,12 +123,12 @@ export default function Index({ materials }: PageProps<UploadType>) {
                                     </div>
                                 </div>
                                 {editMode && (
-                                    <div className="bottom-6 right-6 z-50 flex gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                    <div className="flex bottom-6 right-6 z-50 gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
                                         {/* CANCEL BUTTON */}
                                         <button
                                             onClick={() => setEditMode(false)}
-                                            className="px-6 py-3 bg-zinc-200 border border-zinc-400 text-zinc-600 text-[10px] font-mono font-bold uppercase tracking-[0.2em] 
-      hover:bg-zinc-300 hover:text-zinc-900 transition-all cursor-pointer shadow-[2px_2px_0px_rgba(0,0,0,0.1)]"
+                                            className="flex-1 py-3 bg-zinc-200 border border-zinc-400 text-zinc-600 text-[10px] font-mono font-bold uppercase tracking-[0.2em] 
+      hover:bg-zinc-300 hover:text-zinc-900 transition-all cursor-pointer shadow-[2px_2px_0px_rgba(0,0,0,0.1)] text-nowrap"
                                         >
                                             [ ОТМЕНА ]
                                         </button>
@@ -142,8 +142,8 @@ export default function Index({ materials }: PageProps<UploadType>) {
                                                     id: item.id
                                                 });
                                             }}
-                                            className="px-6 py-3 bg-zinc-950 border border-amber-600 text-amber-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] 
-      hover:bg-amber-600 hover:text-white transition-all cursor-pointer shadow-[2px_2px_0px_rgba(217,119,6,0.3)]"
+                                            className="flex-1 py-3 bg-zinc-950 border border-amber-600 text-amber-500 text-[10px] font-mono font-bold uppercase tracking-[0.2em] 
+      hover:bg-amber-600 hover:text-white transition-all cursor-pointer shadow-[2px_2px_0px_rgba(217,119,6,0.3)] text-nowrap"
                                         >
                                             [ УСТРАНИТЬ ]
                                         </button>
