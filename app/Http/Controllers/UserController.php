@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Resources\AuthUserResource;
 use App\Services\UserListService;
-use App\Http\Requests\UploadUserListRequest;
+use App\Http\Requests\UploadUserRequest;
 
 class UserController extends Controller
 {
@@ -47,7 +47,6 @@ class UserController extends Controller
 
 
         return Inertia::render('User/Edit', $data);
-
     }
 
     public function update(Request $request, User $user)
@@ -79,7 +78,43 @@ class UserController extends Controller
         return back()->with('success', 'Roles updated successfully.');
     }
 
-    public function upload(Request $request){
-        dd($request->all());
+    public function upload(UploadUserRequest $request)
+    {
+        $users = json_decode($request->payloadData, true);
+        $conflicts = [];
+        $insertedCount = 0;
+
+        foreach ($users as $index => $userData) {
+            $email = $userData['почта'];
+            $name  = $userData['имя'];
+
+            // 1. Check if the email already exists
+            $userExists = User::query()->where('email', $email)->exists();
+
+            if ($userExists) {
+                // Collect telemetry on the duplicate row (1-based index for humans)
+                $conflicts[] = "[{$email}] - СУБЪЕКТ В БАЗЕ.";
+                continue; // Skip this iteration and go to the next user
+            }
+
+            // 2. If it doesn't exist, safely insert them
+            User::create([
+                'name'     => $name,
+                'email'    => $email,
+                'password' => bcrypt('default_secure_password'),
+            ]);
+
+            $insertedCount++;
+        }
+
+        // 3. Handle response routing based on conflict state
+        if (!empty($conflicts)) {
+            return back()->with('error', [
+                'summary' => "ЧАСТИЧНАЯ_ОШИБКА: Импортировано {$insertedCount} шт.",
+                'details' => $conflicts
+            ]);
+        }
+
+        return back()->with('success', "ВСЕ СУБЪЕКТЫ ({$insertedCount} шт.) УСПЕШНО ИНДЕКСИРОВАНЫ");
     }
 }

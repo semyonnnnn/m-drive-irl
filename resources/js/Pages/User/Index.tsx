@@ -1,40 +1,55 @@
+import { Head, Link, usePage } from "@inertiajs/react";
+import { useState, useEffect } from "react";
+//////////////////////////////////////////////////////
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link } from "@inertiajs/react";
-import { User, PageProps } from "@/types";
+import { User, PageProps, PaginatedDataProps, UserIndexProps, FlashProps } from "@/types";
 import { Pagination } from "@/components/custom/Pagination";
 import { UploadUsersPanel } from "./UploadUsersPanel";
-import { PasswordGenerator } from "../Upload/PasswordGenerator";
+import { PasswordGenerator } from "../Material/PasswordGenerator";
+import { PopUp } from "@/components/custom/PopUp";
+import { ErrorTelemetry } from "./ErrorTelemetry";
 
-// Define a type that matches Laravel's paginated response structure
-interface PaginatedData<T> {
-  data: T[];
-  links: any[];
-  current_page: number;
-  last_page: number;
-  total: number;
-}
-
-interface IndexProps {
-  auth: PageProps['auth'];
-  users: User[] | PaginatedData<User>;
-  roleLabels: Record<string, string>;
-}
-
-export default function Index({ auth, users, roleLabels }: IndexProps) {
+export default function Index({ auth, users, roleLabels }: UserIndexProps) {
   // 1. Normalize the users data so the component doesn't care if it's paginated or a raw array
   const isPaginated = !Array.isArray(users);
-  const userList = isPaginated ? (users as PaginatedData<User>).data : (users as User[]);
-  const totalCount = isPaginated ? (users as PaginatedData<User>).total : (users as User[]).length;
+  const userList = isPaginated ? (users as PaginatedDataProps<User>).data : (users as User[]);
+  const totalCount = isPaginated ? (users as PaginatedDataProps<User>).total : (users as User[]).length;
+  const [message, setMessage] = useState<FlashProps>({
+    success: null,
+    error: {
+      summary: null,
+      details: null,
+    }
+  });
 
   // 2. Safe check for roles using optional chaining
   const userRole = auth.user?.roles?.[0]?.toLowerCase();
   const canEdit = userRole === 'root' || userRole === 'admin';
 
+  const flash = (usePage().props as any).flash as FlashProps;
+
+  useEffect(() => {
+    const isSuccessEmpty = flash.success === null;
+    const isErrorEmpty = (flash?.error?.summary === null) || (flash?.error?.details === null);
+    if (isSuccessEmpty && isErrorEmpty) return;
+
+    setMessage(flash);
+    console.log(flash);
+
+    const timer = setTimeout(() => {
+      setMessage({
+        ...flash,
+        success: null,
+      });
+    }, 7000);
+
+    return () => clearTimeout(timer);
+  }, [flash]);
 
   return (
     <AuthenticatedLayout>
       <Head title="Пользователи" />
-
+      {message.success && <PopUp message={message.success} />}
       <main
         style={{
           backgroundImage: `
@@ -51,6 +66,7 @@ export default function Index({ auth, users, roleLabels }: IndexProps) {
         }}
         className="min-h-screen bg-zinc-300 p-4 md:p-8 flex flex-col gap-8 relative select-none font-mono"
       >
+        {/* { <div>errors</div>} */}
         <div className="relative p-6 bg-zinc-50 border border-zinc-300/90 overflow-hidden rounded-xs z-10 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
           <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[12px_12px] pointer-events-none z-0"></div>
 
@@ -59,7 +75,7 @@ export default function Index({ auth, users, roleLabels }: IndexProps) {
               [ РЕЕСТР_СИСТЕМНЫХ_СУБЪЕКТОВ ]
             </h1>
             <div className="text-[10px] text-zinc-500 font-bold tracking-wider bg-zinc-200 border border-zinc-300/70 px-2 py-1">
-              [ {totalCount}_ЦЕЛЕЙ_В_СИСТЕМЕ ]
+              [ {totalCount}_СУБЪЕКТОВ_В_СИСТЕМЕ ]
             </div>
           </div>
 
@@ -111,10 +127,10 @@ export default function Index({ auth, users, roleLabels }: IndexProps) {
           {/* Conditional Pagination Rendering */}
           {isPaginated && (
             <Pagination
-              links={(users as PaginatedData<User>).links}
-              current_page={(users as PaginatedData<User>).current_page}
-              last_page={(users as PaginatedData<User>).last_page}
-              total={(users as PaginatedData<User>).total}
+              links={(users as PaginatedDataProps<User>).links}
+              current_page={(users as PaginatedDataProps<User>).current_page}
+              last_page={(users as PaginatedDataProps<User>).last_page}
+              total={(users as PaginatedDataProps<User>).total}
             />
           )}
         </div>
@@ -122,6 +138,15 @@ export default function Index({ auth, users, roleLabels }: IndexProps) {
           <UploadUsersPanel />
           <PasswordGenerator />
         </div>
+        {message?.error?.details && <ErrorTelemetry summary={message?.error?.summary} details={message?.error?.details} onClear={() => {
+          setMessage({
+            ...flash,
+            error: {
+              details: null,
+              summary: null
+            }
+          });
+        }} />}
       </main>
     </AuthenticatedLayout>
   );

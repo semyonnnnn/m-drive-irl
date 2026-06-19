@@ -15,28 +15,29 @@ class UploadController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Upload/Index', [
+        return Inertia::render('Material/Index', [
             'materials' => (new UploadService)->paginate()
         ]);
     }
 
-   public function store(Request $request)
+    public function store(Request $request)
     {
         (new UploadValidationService)->storeValidate($request);
         (new UploadService)->uploadFile($request);
-        
+
         return redirect()->back()->with('success', '[ОБРАБОТКА ЗАВЕРШЕНА] ПАКЕТ ИНТЕГРИРОВАН В СЕКТОР');
     }
-    
+
     public function destroy(int $id)
     {
         \App\Models\Material::destroy($id);
     }
 
-    public function edit(int $id){
+    public function edit(int $id)
+    {
         $material = \App\Models\Material::findOrFail($id);
 
-        return Inertia::render('Upload/SingleItem', [
+        return Inertia::render('Material/SingleItem', [
             'material' => $material
         ]);
     }

@@ -4,29 +4,21 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UploadUserListRequest extends FormRequest
+class UploadUserRequest extends FormRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'mimes:xlsx', 'max:10240'],
+            'payloadData' => ['required', 'string', 'json'],
         ];
     }
 
-
-    //!JSON JSON JSON JSON JSON JSON JSON JSON JSON JSON
-    /**
-     * Get custom error messages for validator failures.
-     */
     public function messages(): array
     {
         return [
-            // 'file.required' => 'ФАЙЛ_ОТСУТСТВУЕТ: Выберите файл для загрузки.',
-            // 'file.mimes'    => 'ОШИБКА_ФОРМАТА: разрешён только .XLSX.',
-            // 'file.max'      => 'ПРЕВЫШЕН_ЛИМИТ: Файл не должен превышать 10 МБ.',
+            'payloadData.required' => 'ДАННЫЕ_ОТСУТСТВУЮТ: Пакет матрицы данных пуст.',
+            'payloadData.string'   => 'СБОЙ_ТИПА_ДАННЫХ: Ожидался строковый формат пакета.',
+            'payloadData.json'     => 'ОШИБКА_СТРУКТУРЫ: Передан некорректный или повреждённый JSON.',
         ];
     }
 }

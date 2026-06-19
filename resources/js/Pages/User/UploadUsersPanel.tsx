@@ -6,31 +6,45 @@ interface ExcelUserData {
     [key: string]: number | string;
 }
 
+// Atomic UI descriptor state interface
+interface FileSessionState {
+    file: File | null;
+    error: string | null;
+}
+
 const UploadUsersPanel = () => {
     const [isDragOver, setIsDragOver] = useState(false);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [parsedData, setParsedData] = useState<ExcelUserData[] | null>(null);
     const [isGlitching, setIsGlitching] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, post, reset, errors, setError, clearErrors } = useForm<{
+    // 1. SINGLE ATOMIC STATE FOR FILE TRACKING
+    const [fileSession, setFileSession] = useState<FileSessionState>({
+        file: null,
+        error: null
+    });
+
+    // 2. INERTIA FORM: Keeps one single property for pure JSON transmission
+    const { data, setData, post, reset, errors: serverErrors, clearErrors } = useForm<{
         payloadData: string;
     }>({
         payloadData: '',
     });
 
     const processExcelFile = (file: File) => {
+        clearErrors();
+
         // EXTENSION GUARD MATRIX: Allow xlsx, xls, csv, txt
         if (!file.name.match(/\.(xlsx|xls|csv|txt)$/i)) {
-            setError('payload', 'ОШИБКА ФОРМАТА: Допустимы только .XLSX, .XLS, .CSV, .TXT');
-            setSelectedFile(null);
+            setFileSession({
+                file: null,
+                error: 'ОШИБКА ФОРМАТА: Допустимы только .XLSX, .XLS, .CSV, .TXT'
+            });
             setParsedData(null);
             return;
         }
 
-        clearErrors('uploadedFile');
-        setSelectedFile(file);
-        setData('uploadedFile', file);
+        setFileSession({ file, error: null });
 
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -56,7 +70,10 @@ const UploadUsersPanel = () => {
                 setParsedData(jsonRows);
                 setData('payloadData', JSON.stringify(jsonRows));
             } catch (err) {
-                setError('uploadedFile', 'СБОЙ СТРУКТУРЫ: Ошибка парсинга внутренней матрицы данных');
+                setFileSession({
+                    file: null,
+                    error: 'СБОЙ СТРУКТУРЫ: Ошибка парсинга внутренней матрицы данных'
+                });
                 setParsedData(null);
                 console.error(err);
             }
@@ -69,15 +86,15 @@ const UploadUsersPanel = () => {
         e.preventDefault();
 
         if (!parsedData || parsedData.length === 0) {
-            setError('uploadedFile', 'ОШИБКА АГРЕГАЦИИ: Массив пуст или не инициализирован');
+            setFileSession(prev => ({ ...prev, error: 'ОШИБКА АГРЕГАЦИИ: Массив пуст или не инициализирован' }));
             return;
         }
 
         post(route('user.upload'), {
-            forceFormData: true,
+            preserveScroll: true,
             onSuccess: () => {
                 reset();
-                setSelectedFile(null);
+                setFileSession({ file: null, error: null });
                 setParsedData(null);
                 if (fileRef.current) {
                     fileRef.current.value = "";
@@ -88,12 +105,15 @@ const UploadUsersPanel = () => {
 
     const clearSelectedFile = (e: React.MouseEvent) => {
         e.preventDefault();
-        setSelectedFile(null);
+        setFileSession({ file: null, error: null });
         setParsedData(null);
         reset();
         clearErrors();
         if (fileRef.current) fileRef.current.value = "";
     };
+
+    // Combine local validation errors or any Laravel framework response errors seamlessly
+    const activeError = fileSession.error || Object.values(serverErrors)[0];
 
     return (
         <div className="w-full max-w-4xl p-1 bg-zinc-300 border border-zinc-400 rounded-xs shadow-[0_10px_30px_rgba(0,0,0,0.15)] relative">
@@ -113,9 +133,9 @@ const UploadUsersPanel = () => {
                 {/* Header */}
                 <div className="flex justify-between items-center border-b border-zinc-950 pb-2.5 mb-5 relative z-10">
                     <div className="flex items-center gap-2.5">
-                        <div className={`w-2 h-2 rounded-xs transition-colors duration-300 ${selectedFile && Object.keys(errors).length === 0 ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-amber-500 animate-pulse"}`}></div>
+                        <div className={`w-2 h-2 rounded-xs transition-colors duration-300 ${fileSession.file && !activeError ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-amber-500 animate-pulse"}`}></div>
                         <span className="text-xs font-black text-zinc-900 uppercase tracking-widest">
-                            [ МОДУЛЬ_ЗАГРУЗКИ_РЕЕСТРА // {selectedFile && Object.keys(errors).length === 0 ? "МАССИВ_ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"} ]
+                            [ МОДУЛЬ_ЗАГРУЗКИ_РЕЕСТРА // {fileSession.file && !activeError ? "МАССИВ_ГОТОВ" : "ОЖИДАНИЕ_ПАКЕТА"} ]
                         </span>
                     </div>
                     <div className="text-[9px] text-zinc-500 font-bold bg-zinc-200 border border-zinc-300 px-2 py-0.5 tracking-wider">
@@ -133,8 +153,8 @@ const UploadUsersPanel = () => {
                             <div className="flex justify-between"><span>СУБЪЕКТЫ:</span> <span className="font-bold text-zinc-900">{parsedData ? parsedData.length : "0"} UNIT</span></div>
                             <div className="flex justify-between"><span>АЛГОРИТМ:</span> <span className="font-bold text-zinc-900">CLIENT_PARSE_INJECT</span></div>
                         </div>
-                        <div className={`${selectedFile && Object.keys(errors).length === 0 ? 'text-green-500' : 'text-amber-500'} text-xs font-bold`}>
-                            &gt;&gt;&gt; {selectedFile && Object.keys(errors).length === 0 ? "СТРУКТУРА_ПРОВЕРЕНА" : "ОЖИДАНИЕ_ПАКЕТА"}
+                        <div className={`${fileSession.file && !activeError ? 'text-green-500' : 'text-amber-500'} text-xs font-bold`}>
+                            &gt;&gt;&gt; {fileSession.file && !activeError ? "СТРУКТУРА_ПРОВЕРЕНА" : "ОЖИДАНИЕ_ПАКЕТА"}
                         </div>
                     </div>
 
@@ -158,7 +178,7 @@ const UploadUsersPanel = () => {
                             className={`border border-dashed p-6 min-h-28.75 flex flex-col items-center justify-center text-center transition-all duration-150 relative cursor-pointer ${isDragOver
                                 ? "border-amber-500 bg-amber-500/5 shadow-[inset_0_0_15px_rgba(245,158,11,0.05)]"
                                 : "border-zinc-300 bg-zinc-200/40 hover:border-zinc-400 hover:bg-zinc-200/70"
-                                } ${Object.keys(errors).length > 0 ? "border-red-400 bg-red-50" : ""}`}
+                                } ${activeError ? "border-red-400 bg-red-50" : ""}`}
                         >
                             <input
                                 ref={fileRef}
@@ -173,13 +193,13 @@ const UploadUsersPanel = () => {
                                 }}
                             />
 
-                            {selectedFile && Object.keys(errors).length === 0 ? (
+                            {fileSession.file && !activeError ? (
                                 <div className="w-full flex flex-col items-center gap-1">
                                     <div className="w-fit px-1 h-7 flex items-center justify-center bg-emerald-100 border border-emerald-300 text-emerald-700 text-xs font-bold">
                                         МАССИВ_ИЗВЛЕЧЁН
                                     </div>
                                     <p className="text-xs font-black text-zinc-800 truncate max-w-sm uppercase tracking-wide">
-                                        [{selectedFile.name}]
+                                        [{fileSession.file.name}]
                                     </p>
                                     <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-tight">
                                         {parsedData ? `${parsedData.length} СТРОК(И)` : "ВЕРИФИКАЦИЯ..."} // СТАТУС: АГРЕГИРОВАН
@@ -197,9 +217,9 @@ const UploadUsersPanel = () => {
                                 </div>
                             )}
                         </label>
-                        {Object.keys(errors).length > 0 && (
+                        {activeError && (
                             <div className="text-red-700 font-bold text-[9px] mt-1 px-1.5 py-0.5 bg-red-100 border-l-2 border-red-600 uppercase tracking-wide">
-                                {Object.values(errors)[0]}
+                                {activeError}
                             </div>
                         )}
                     </div>
@@ -208,10 +228,10 @@ const UploadUsersPanel = () => {
                 {/* Footer Controls */}
                 <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mt-5 pt-3.5 border-t border-zinc-300">
                     <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">
-                        // СИНХРОНИЗАЦИЯ: {selectedFile && Object.keys(errors).length === 0 ? "ГОТОВА К ИНЪЕКЦИИ" : "ОЖИДАНИЕ СИСТЕМНОГО ПАКЕТА"}
+                        // СИНХРОНИЗАЦИЯ: {fileSession.file && !activeError ? "ГОТОВА К ИНЪЕКЦИИ" : "ОЖИДАНИЕ СИСТЕМНОГО ПАКЕТА"}
                     </span>
                     <div className="flex gap-2 justify-end">
-                        {selectedFile && Object.keys(errors).length === 0 && (
+                        {fileSession.file && !activeError && (
                             <button
                                 type="button"
                                 onClick={clearSelectedFile}
@@ -222,8 +242,8 @@ const UploadUsersPanel = () => {
                         )}
                         <button
                             type="submit"
-                            disabled={!selectedFile || !parsedData || Object.keys(errors).length > 0}
-                            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] border transition-all duration-150 ${selectedFile && Object.keys(errors).length === 0 && parsedData
+                            disabled={!fileSession.file || !parsedData || !!activeError}
+                            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] border transition-all duration-150 ${fileSession.file && !activeError && parsedData
                                 ? "bg-amber-500 text-zinc-950 border-amber-600 hover:bg-amber-400 active:scale-[0.99] shadow-sm cursor-pointer"
                                 : "bg-zinc-200 text-zinc-400 border-zinc-300 cursor-not-allowed"
                                 }`}

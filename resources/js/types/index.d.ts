@@ -161,3 +161,29 @@ export interface PaginatedData<T> {
     to: number | null;
     total: number;
 }
+export interface PaginatedDataProps<T> {
+    data: T[];
+    links: any[];
+    current_page: number;
+    last_page: number;
+    total: number;
+}
+
+export interface UserIndexProps {
+    auth: PageProps['auth'];
+    users: User[] | PaginatedDataProps<User>;
+    roleLabels: Record<string, string>;
+}
+
+export interface FlashProps {
+    success: string | null;
+    error: {
+        summary: string | null;
+        details: string[] | null;
+    };
+}
+export interface ErrorTelemetryProps {
+    summary: string | null;
+    details: string[] | null;
+    onClear: () => void;
+}

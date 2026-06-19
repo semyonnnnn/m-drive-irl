@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { usePage, router, Link } from "@inertiajs/react";
+import { usePage, router } from "@inertiajs/react";
 ////////////////////////////////////////////////
 import { MaterialCover } from "./MaterialCover";
 import { PageProps, UploadType } from '@/types';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { DeploymentModal } from "./DeploymentModal";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
-import { PopUp } from "./PopUp";
+import { PopUp } from "@/components/custom/PopUp";
 import { Pagination } from "@/components/custom/Pagination";
 
 export default function Index({ materials }: PageProps<UploadType>) {

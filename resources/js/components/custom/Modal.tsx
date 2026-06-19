@@ -1,4 +1,4 @@
-import { DistortionLine } from '@/Pages/Upload/DistortionLine';
+import { DistortionLine } from '@/Pages/Material/DistortionLine';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 

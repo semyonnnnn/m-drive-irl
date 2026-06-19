@@ -117,10 +117,11 @@ class UserListService
     //     }
     // }
 
-    public function paginate(){
+    public function paginate()
+    {
         $users = User::all();
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
+        $perPage = 12;
         $currentUsers = $users->slice(($currentPage - 1) * $perPage, $perPage)->values()->all();
 
         $users = new LengthAwarePaginator(
@@ -133,6 +134,6 @@ class UserListService
 
         return $users;
 
-    //    return AuthUserResource::collection(User::paginate(10))->collection->toArray();
+        //    return AuthUserResource::collection(User::paginate(10))->collection->toArray();
     }
 }
