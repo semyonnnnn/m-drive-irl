@@ -1,8 +1,9 @@
 # Core Aliases
 alias docker='sudo docker'
+alias sail='./vendor/bin/sail'
 
 # Compose definitions
-export DEV_COMPOSE="docker compose -f compose.dev.yaml"
+export DEV_COMPOSE="docker compose -f compose.yaml"
 export PROD_COMPOSE="docker compose -f compose.prod.yaml"
 export CONTAINER="m-drive-irl-laravel.test-1"
 

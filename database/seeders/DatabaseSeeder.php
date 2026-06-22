@@ -45,48 +45,23 @@ class DatabaseSeeder extends Seeder
         }
 
         // 5. CREATE ALINA (ADMIN)
-        $alinaAdmin = User::firstOrCreate(
+        $Alina = User::firstOrCreate(
             ['email' => 'alina@alina.com'],
             [
                 'name' => 'Alina',
                 'password' => Hash::make('doch_sergeya'),
             ]
         );
-        if (!$alinaAdmin->hasRole(RolesEnum::Admin)) {
-            $alinaAdmin->assignRole(RolesEnum::Admin);
+        if (!$Alina->hasRole(RolesEnum::Admin)) {
+            $Alina->assignRole(RolesEnum::Admin);
         }
-
-        // 6. CREATE ALINA (STUDENT/GAKUSEI) - Changed email to prevent collision
-        $alinaGakusei = User::firstOrCreate(
-            ['email' => 'alina.student@alina.com'],
-            [
-                'name' => 'Alina Student',
-                'password' => Hash::make('example'),
-            ]
-        );
-        if (!$alinaGakusei->hasRole(RolesEnum::Gakusei)) {
-            $alinaGakusei->assignRole(RolesEnum::Gakusei);
-        }
-
-
-        $emptyPasswordUser = User::firstOrCreate(
-            ['email' => 'empty@empty.com'],
-            [
-                'name' => 'empty',
-                'password' => '',
-            ]
-        );
-        if (!$emptyPasswordUser->hasRole(RolesEnum::Gakusei)) {
-            $emptyPasswordUser->assignRole(RolesEnum::Gakusei);
-        }
-
 
         // 7. GENERATE 99 RANDOM DUMMY USERS
-        User::factory()
-            ->count(1000)
-            ->create()
-            ->each(function ($user) {
-                $user->assignRole(RolesEnum::Gakusei);
-            });
+        // User::factory()
+        //     ->count(1000)
+        //     ->create()
+        //     ->each(function ($user) {
+        //         $user->assignRole(RolesEnum::Gakusei);
+        //     });
     }
 }

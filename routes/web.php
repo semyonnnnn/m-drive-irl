@@ -15,7 +15,9 @@ Route::get('/', function () {
     return Inertia::render('Main/Guest');
 })->name('dashboard');
 
-
+Route::post('/test', function () {
+    abort('wow');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user', [UserController::class, 'index'])->name('user.index');

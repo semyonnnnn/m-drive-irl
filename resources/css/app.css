@@ -1,5 +1,20 @@
 @import 'tailwindcss';
 
+@utility custom-scrollbar {
+    &::-webkit-scrollbar {
+        width: 0.8rem;
+    }
+    &::-webkit-scrollbar-track {
+        background: var(--color-black);
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--color-red-950);
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--color-red-900);
+    }
+}
+
 @plugin 'tailwindcss-animate';
 @import 'tw-animate-css';
 

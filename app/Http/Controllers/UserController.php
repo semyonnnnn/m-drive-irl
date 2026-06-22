@@ -101,7 +101,7 @@ class UserController extends Controller
             User::create([
                 'name'     => $name,
                 'email'    => $email,
-                'password' => bcrypt('default_secure_password'),
+                'password' => null,
             ]);
 
             $insertedCount++;
