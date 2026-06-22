@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 interface User {
     id: string;
@@ -23,7 +24,7 @@ const PasswordGenerator: React.FC = () => {
 
         try {
             // 1. Target local database records requiring configuration
-            const response = await fetch('/api/users/pending-passwords');
+            const response = await fetch('/user.password.generate');
             if (!response.ok) throw new Error('FAIL_TO_FETCH_RECORDS');
 
             const users: User[] = await response.json();

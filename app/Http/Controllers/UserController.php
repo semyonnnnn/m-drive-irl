@@ -117,4 +117,8 @@ class UserController extends Controller
 
         return back()->with('success', "ВСЕ СУБЪЕКТЫ ({$insertedCount} шт.) УСПЕШНО ИНДЕКСИРОВАНЫ");
     }
+    public function generate()
+    {
+        dd('hi');
+    }
 }

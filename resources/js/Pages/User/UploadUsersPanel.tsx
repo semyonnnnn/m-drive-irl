@@ -154,7 +154,7 @@ const UploadUsersPanel = () => {
                             <div className="flex justify-between"><span>АЛГОРИТМ:</span> <span className="font-bold text-zinc-900">CLIENT_PARSE_INJECT</span></div>
                         </div>
                         <div className={`${fileSession.file && !activeError ? 'text-green-500' : 'text-amber-500'} text-xs font-bold`}>
-                            &gt;&gt;&gt; {fileSession.file && !activeError ? "СТРУКТУРА_ПРОВЕРЕНА" : "ОЖИДАНИЕ_ПАКЕТА"}
+                            &gt;&gt;&gt; {fileSession.file && !activeError ? "МАССИВ_ИЗВЛЕЧЁН" : "ОЖИДАНИЕ_ПАКЕТА"}
                         </div>
                     </div>
 

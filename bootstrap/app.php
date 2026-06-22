@@ -23,6 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (Throwable $e, Request $request) {
 
             if (!config('app.debug')) {
+
+                // CRUCIAL FIX: If the request is from Inertia, an AJAX call, or expects JSON,
+                // let Laravel and Inertia handle the error natively so popups and forms don't break.
+                if ($request->header('X-Inertia') || $request->expectsJson() || $request->ajax()) {
+                    return null; // Defers handling back to the framework/Inertia
+                }
+
                 $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
                 $officialStatusText = \Symfony\Component\HttpFoundation\Response::$statusTexts[$statusCode] ?? 'Unknown';
 
@@ -35,11 +42,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 // 3. Dynamic Status Message based on the HTTP code type
                 if ($statusCode >= 500) {
-                    $dynamicStatus = 'КРИТИЧЕСКИЙ_СБОЙ_ЯДРА'; // Server Crash
+                    $dynamicStatus = 'КРИТИЧЕСКИЙ_СБОЙ_ЯДРА';
                 } elseif ($statusCode === 403 || $statusCode === 401) {
-                    $dynamicStatus = 'ДОСТУП_БЛОКИРОВАН'; // Auth Failure
+                    $dynamicStatus = 'ДОСТУП_БЛОКИРОВАН';
                 } else {
-                    $dynamicStatus = '...'; // Not Found / Other 4xx
+                    $dynamicStatus = '...';
                 }
 
                 // 4. Dynamic Telemetry Loop
@@ -53,13 +60,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->view('errors.minimal', [
                     'code' => $statusCode,
                     'message' => $e->getMessage() ?: $officialStatusText,
-                    'operation' => $dynamicOperation, // Pass new dynamic operation
-                    'status' => $dynamicStatus,       // Pass new dynamic status
-                    'target' => $dynamicTarget,       // Pass new dynamic target
+                    'operation' => $dynamicOperation,
+                    'status' => $dynamicStatus,
+                    'target' => $dynamicTarget,
                     'location' => 'NODE_' . $request->ip(),
                     'telemetry' => $telemetryData,
                 ], $statusCode);
             }
         });
     })
+
     ->create();
