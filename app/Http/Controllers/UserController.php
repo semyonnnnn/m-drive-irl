@@ -119,6 +119,18 @@ class UserController extends Controller
     }
     public function generate()
     {
-        dd('hi');
+        // Return mock data matching your frontend's 'User[]' type to verify the pipeline
+        return response()->json([
+            [
+                'id' => 1,
+                'name' => 'Иван Иванов',
+                'email' => 'ivan@example.com'
+            ],
+            [
+                'id' => 2,
+                'name' => 'Петр Петров',
+                'email' => 'petr@example.com'
+            ]
+        ]);
     }
 }

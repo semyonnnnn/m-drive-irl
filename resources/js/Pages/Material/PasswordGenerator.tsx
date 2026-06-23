@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
-import axios from 'axios';
+import { router } from '@inertiajs/react';
 
 interface User {
     id: string;
@@ -18,51 +18,50 @@ const PasswordGenerator: React.FC = () => {
         return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
     };
 
-    const handleProcessAndDownload = async () => {
+    const handleProcessAndDownload = () => {
         setIsProcessing(true);
         setStatus('PROCESSING');
 
-        try {
-            // 1. Target local database records requiring configuration
-            const response = await fetch('/user.password.generate');
-            if (!response.ok) throw new Error('FAIL_TO_FETCH_RECORDS');
+        router.post('/generate', {}, {
+            preserveState: true,  // Keeps your current React component state alive
+            preserveScroll: true, // Prevents the window scroll from shifting
 
-            const users: User[] = await response.json();
+            onSuccess: (page) => {
+                // Inertia returns data through page.props automatically
+                const users = page.props.generated_users as User[];
 
-            if (users.length === 0) {
-                setStatus('IDLE');
-                alert('РЕЕСТР ПУСТ: Нет субъектов без паролей.');
+                if (!users || users.length === 0) {
+                    setStatus('IDLE');
+                    alert('РЕЕСТР ПУСТ: Нет субъектов без паролей.');
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // Your sheet generation pipeline runs safely on the client side
+                const processedData = users.map(user => ({
+                    'ID': user.id,
+                    'ФИО / NAME': user.name.toUpperCase(),
+                    'EMAIL': user.email,
+                    'СГЕНЕРИРОВАННЫЙ ПАРОЛЬ / PASSWORD': generateRandomPassword()
+                }));
+
+                const worksheet = XLSX.utils.json_to_sheet(processedData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'CREDENTIALS_DATA');
+                worksheet['!cols'] = [{ wch: 15 }, { wch: 35 }, { wch: 30 }, { wch: 20 }];
+
+                const timestamp = new Date().toISOString().slice(0, 10);
+                XLSX.writeFile(workbook, `PASS_INJECT_REPORT_${timestamp}.xlsx`);
+
+                setStatus('SUCCESS');
                 setIsProcessing(false);
-                return;
+            },
+            onError: (errors) => {
+                console.error(errors);
+                setStatus('ERROR');
+                setIsProcessing(false);
             }
-
-            // 2. Generate secure passwords & assemble sheet mapping
-            const processedData = users.map(user => ({
-                'ID': user.id,
-                'ФИО / NAME': user.name.toUpperCase(),
-                'EMAIL': user.email,
-                'СГЕНЕРИРОВАННЫЙ ПАРОЛЬ / PASSWORD': generateRandomPassword()
-            }));
-
-            // 3. Build Excel matrix
-            const worksheet = XLSX.utils.json_to_sheet(processedData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'CREDENTIALS_DATA');
-
-            // Adjust grid spacing properties
-            worksheet['!cols'] = [{ wch: 15 }, { wch: 35 }, { wch: 30 }, { wch: 20 }];
-
-            // 4. File system stream export
-            const timestamp = new Date().toISOString().slice(0, 10);
-            XLSX.writeFile(workbook, `PASS_INJECT_REPORT_${timestamp}.xlsx`);
-
-            setStatus('SUCCESS');
-        } catch (error) {
-            console.error(error);
-            setStatus('ERROR');
-        } finally {
-            setIsProcessing(false);
-        }
+        });
     };
 
     return (

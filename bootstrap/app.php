@@ -5,7 +5,6 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Illuminate\Http\Request;
-use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,32 +23,28 @@ return Application::configure(basePath: dirname(__DIR__))
 
             if (!config('app.debug')) {
 
-                // CRUCIAL FIX: If the request is from Inertia, an AJAX call, or expects JSON,
-                // let Laravel and Inertia handle the error natively so popups and forms don't break.
-                if ($request->header('X-Inertia') || $request->expectsJson() || $request->ajax()) {
-                    return null; // Defers handling back to the framework/Inertia
+                // 1. STRICT INERTIA EXCEPTION: Only back out if it's a real, active SPA client-side request transition.
+                // If it's a direct browser bar entry or a cold page load refresh, do NOT return null.
+                if ($request->header('X-Inertia')) {
+                    return null; // Let the React Inertia SPA handle modal popup errors locally
                 }
 
-                $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+                // 2. CORE TRANSLATION: Explicitly capture raw policy authentication exceptions
+                // and force them to map to a true 403 status code before running checks.
+                if ($e instanceof \Illuminate\Auth\Access\AuthorizationException || $e instanceof \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException) {
+                    $statusCode = 403;
+                } else {
+                    $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+                }
+
                 $officialStatusText = \Symfony\Component\HttpFoundation\Response::$statusTexts[$statusCode] ?? 'Unknown';
 
-                // 1. Dynamic Operation Type
+                // Dynamic tracking strings for your telemetry dashboard matrix
                 $dynamicOperation = $request->method() . '_REQUEST';
-
-                // 2. Dynamic Target Path
                 $path = $request->path();
                 $dynamicTarget = $path === '/' ? 'ROOT_CORE' : strtoupper(str_replace(['/', '-'], ['_', '_'], $path));
+                $dynamicStatus = ($statusCode === 403 || $statusCode === 401) ? 'ДОСТУП_БЛОКИРОВАН' : (($statusCode >= 500) ? 'КРИТИЧЕСКИЙ_СБОЙ_ЯДРА' : '...');
 
-                // 3. Dynamic Status Message based on the HTTP code type
-                if ($statusCode >= 500) {
-                    $dynamicStatus = 'КРИТИЧЕСКИЙ_СБОЙ_ЯДРА';
-                } elseif ($statusCode === 403 || $statusCode === 401) {
-                    $dynamicStatus = 'ДОСТУП_БЛОКИРОВАН';
-                } else {
-                    $dynamicStatus = '...';
-                }
-
-                // 4. Dynamic Telemetry Loop
                 $telemetryData = [
                     'МАРШРУТ СБОЯ: ' . $request->method() . ' ' . $request->fullUrl(),
                     'СТАТУС ОТВЕТА: ' . $statusCode . ' (' . strtoupper(str_replace(' ', '_', $officialStatusText)) . ')',
@@ -57,6 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'IP-АДРЕС ИСТОЧНИКА: ' . $request->ip(),
                 ];
 
+                // 3. FORCE EXECUTION: Safely output your custom stylized blade template
                 return response()->view('errors.minimal', [
                     'code' => $statusCode,
                     'message' => $e->getMessage() ?: $officialStatusText,
@@ -69,5 +65,6 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
     })
+
 
     ->create();

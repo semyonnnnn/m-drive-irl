@@ -4,7 +4,7 @@ const ErrorTelemetry = ({ summary, details, onClear }: ErrorTelemetryProps) => {
     if (!summary) return null;
 
     return (
-        <div className="w-full p-1 bg-zinc-300 border border-zinc-400 rounded-xs shadow-[0_12px_35px_rgba(0,0,0,0.2)] relative font-mono z-50 animate-fade-in">
+        <div id="ErrorTelemetry" className="w-full p-1 bg-zinc-300 border border-zinc-400 rounded-xs shadow-[0_12px_35px_rgba(0,0,0,0.2)] relative font-mono z-50 animate-fade-in">
             {/* Severe System Override Corner Accents */}
             <div className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-red-600 pointer-events-none"></div>
             <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-red-600 pointer-events-none"></div>

@@ -15,8 +15,8 @@ Route::get('/', function () {
     return Inertia::render('Main/Guest');
 })->name('dashboard');
 
-Route::post('/test', function () {
-    abort('wow');
+Route::get('/test', function () {
+    abort(504);
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -24,9 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
     Route::post('/user', [UserController::class, 'upload'])->name('user.upload');
-    Route::post('/user.password.generate', [UserController::class, 'generate'])->name('user.password.generate');
-
-
+    Route::post('/generate', [UserController::class, 'generate'])->name('generate');
 
     Route::get('/upload', [UploadController::class, 'index'])->name('upload.index');
     Route::get('/upload/{id}/edit', [UploadController::class, 'edit'])->name('upload.edit');

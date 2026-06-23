@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useForm } from '@inertiajs/react';
 import * as XLSX from 'xlsx';
 
@@ -99,6 +99,16 @@ const UploadUsersPanel = () => {
                 if (fileRef.current) {
                     fileRef.current.value = "";
                 }
+                setTimeout(() => {
+                    const telemetryElement = document.getElementById('ErrorTelemetry');
+
+                    if (telemetryElement) {
+                        telemetryElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }, 0);
             },
         });
     };
