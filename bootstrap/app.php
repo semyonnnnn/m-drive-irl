@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -19,43 +21,58 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+
+        // 1. NORMALIZATION LAYER: Force raw core Policy failures into real HTTP exceptions
+        $exceptions->map(AuthorizationException::class, function (AuthorizationException $e) {
+            return new AccessDeniedHttpException($e->getMessage() ?: 'Forbidden Access Matrix.', $e);
+        });
+
+        // 2. RENDERING LAYER: Intercept and build your custom terminal-style Blade view
         $exceptions->render(function (Throwable $e, Request $request) {
 
             if (!config('app.debug')) {
 
-                // 1. STRICT INERTIA EXCEPTION: Only back out if it's a real, active SPA client-side request transition.
-                // If it's a direct browser bar entry or a cold page load refresh, do NOT return null.
+                // STRICT INERTIA FILTER: Only bypass if it is an active client-side link navigation
                 if ($request->header('X-Inertia')) {
-                    return null; // Let the React Inertia SPA handle modal popup errors locally
+                    return null;
                 }
 
-                // 2. CORE TRANSLATION: Explicitly capture raw policy authentication exceptions
-                // and force them to map to a true 403 status code before running checks.
-                if ($e instanceof \Illuminate\Auth\Access\AuthorizationException || $e instanceof \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException) {
-                    $statusCode = 403;
-                } else {
-                    $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
-                }
-
+                // Extract the true status code after normalization mapping runs
+                $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
                 $officialStatusText = \Symfony\Component\HttpFoundation\Response::$statusTexts[$statusCode] ?? 'Unknown';
 
                 // Dynamic tracking strings for your telemetry dashboard matrix
                 $dynamicOperation = $request->method() . '_REQUEST';
                 $path = $request->path();
-                $dynamicTarget = $path === '/' ? 'ROOT_CORE' : strtoupper(str_replace(['/', '-'], ['_', '_'], $path));
+
+                // FIX 1: Limit and Shorten the target URL string path mapping (Max 25 Chars)
+                if ($path === '/') {
+                    $dynamicTarget = 'ROOT_CORE';
+                } else {
+                    $formattedTarget = strtoupper(str_replace(['/', '-'], ['_', '_'], $path));
+                    $dynamicTarget = \Illuminate\Support\Str::limit($formattedTarget, 25, '...');
+                }
+
                 $dynamicStatus = ($statusCode === 403 || $statusCode === 401) ? 'ДОСТУП_БЛОКИРОВАН' : (($statusCode >= 500) ? 'КРИТИЧЕСКИЙ_СБОЙ_ЯДРА' : '...');
 
+                // FIX 2: Limit and Shorten the full URL trace string (Max 45 Chars)
+                $shortenedUrl = \Illuminate\Support\Str::limit($request->fullUrl(), 45, '...');
+
                 $telemetryData = [
-                    'МАРШРУТ СБОЯ: ' . $request->method() . ' ' . $request->fullUrl(),
+                    'МАРШРУТ СБОЯ: ' . $request->method() . ' ' . $shortenedUrl,
                     'СТАТУС ОТВЕТА: ' . $statusCode . ' (' . strtoupper(str_replace(' ', '_', $officialStatusText)) . ')',
                     'ВРЕМЯ ФИКСАЦИИ: ' . now()->toIso8601String(),
                     'IP-АДРЕС ИСТОЧНИКА: ' . $request->ip(),
                 ];
 
-                // 3. FORCE EXECUTION: Safely output your custom stylized blade template
+                // FIX 3: Limit and Shorten the exception message string (Max 50 Chars)
+                $rawMessage = $e->getMessage() ?: $officialStatusText;
+                $shortenedMessage = \Illuminate\Support\Str::limit($rawMessage, 50, '...');
+
+                // FORCE EXECUTION: Safely output your custom stylized blade template
                 return response()->view('errors.minimal', [
                     'code' => $statusCode,
-                    'message' => $e->getMessage() ?: $officialStatusText,
+                    'message' => $shortenedMessage,
                     'operation' => $dynamicOperation,
                     'status' => $dynamicStatus,
                     'target' => $dynamicTarget,
@@ -65,6 +82,4 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
     })
-
-
     ->create();

@@ -117,20 +117,46 @@ class UserController extends Controller
 
         return back()->with('success', "ВСЕ СУБЪЕКТЫ ({$insertedCount} шт.) УСПЕШНО ИНДЕКСИРОВАНЫ");
     }
-    public function generate()
-    {
-        // Return mock data matching your frontend's 'User[]' type to verify the pipeline
-        return response()->json([
-            [
-                'id' => 1,
-                'name' => 'Иван Иванов',
-                'email' => 'ivan@example.com'
-            ],
-            [
-                'id' => 2,
-                'name' => 'Петр Петров',
-                'email' => 'petr@example.com'
-            ]
-        ]);
-    }
+
+    // public function generate()
+    // {
+    //     // 1. Fetch the raw users who don't have a password
+    //     $users = Users::query(['id', 'name', 'email'])
+    //         ->whereNull('password')
+    //         ->get();
+
+    //     if ($users->isEmpty()) {
+    //         return response()->json([]);
+    //     }
+
+    //     // This array will hold the plain text credentials to send back to React
+    //     $frontendReportData = [];
+
+    //     // 2. Start a Database Transaction to ensure all updates happen safely together
+    //     \Illuminate\Support\Facades\DB::transaction(function () use ($users, &$frontendReportData) {
+    //         foreach ($users as $user) {
+    //             // Generate a secure, temporary random password (12 characters long)
+    //             $plainPassword = \Illuminate\Support\Str::random(12);
+
+    //             // Store the plain unhashed credentials for the frontend Excel sheet
+    //             $frontendReportData[] = [
+    //                 'id'    => $user->id,
+    //                 'name'  => $user->name,
+    //                 'email' => $user->email,
+    //                 'plain_password' => $plainPassword, // Plain text here
+    //             ];
+
+    //             // 3. Securely hash the password and update the record in the database
+    //             \Illuminate\Support\Facades\DB::table('users')
+    //                 ->where('id', $user->id)
+    //                 ->update([
+    //                     'password' => \Illuminate\Support\Facades\Hash::make($plainPassword),
+    //                     'updated_at' => now(),
+    //                 ]);
+    //         }
+    //     });
+
+    //     // 4. Return the collection of plain-text passwords back to your React frontend
+    //     return response()->json($frontendReportData);
+    // }
 }
