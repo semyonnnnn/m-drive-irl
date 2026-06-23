@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
     Route::post('/user', [UserController::class, 'upload'])->name('user.upload');
     Route::post('/generate', [UserController::class, 'generate'])->name('generate');
+    Route::post('/regenerate', [UserController::class, 'regenerate'])->name('regenerate');
 
     Route::get('/upload', [UploadController::class, 'index'])->name('upload.index');
     Route::get('/upload/{id}/edit', [UploadController::class, 'edit'])->name('upload.edit');

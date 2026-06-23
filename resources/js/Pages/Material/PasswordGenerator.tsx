@@ -18,11 +18,12 @@ const PasswordGenerator: React.FC = () => {
         return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
     };
 
-    const handleProcessAndDownload = () => {
+
+    const handleProcessAndDownload = (route: string) => {
         setIsProcessing(true);
         setStatus('PROCESSING');
 
-        router.post('/generate', {}, {
+        router.post(route, {}, {
             preserveState: true,  // Keeps your current React component state alive
             preserveScroll: true, // Prevents the window scroll from shifting
 
@@ -144,18 +145,38 @@ const PasswordGenerator: React.FC = () => {
                     <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">
             // СИНХРОНИЗАЦИЯ: {isProcessing ? "АКТИВНЫЙ ЗАПРОС К ЯДРУ" : "ОЖИДАНИЕ СИСТЕМНОГО СИГНАЛА"}
                     </span>
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex flex-col sm:flex-row gap-2 justify-end">
+
+                        {/* BUTTON 02: Archive Re-Extraction / Re-Download Engine */}
                         <button
                             type="button"
-                            onClick={handleProcessAndDownload}
+                            onClick={() => {
+                                handleProcessAndDownload('/regenerate')
+                            }} // Binds directly to your encrypted decryption pipeline
                             disabled={isProcessing}
-                            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] border transition-all duration-150 ${isProcessing
+                            className={`px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-[0.15em] border transition-all duration-150 ${isProcessing
                                 ? "bg-zinc-200 text-zinc-400 border-zinc-300 cursor-not-allowed"
-                                : "bg-amber-500 text-zinc-950 border-amber-600 hover:bg-amber-400 active:scale-[0.99] shadow-sm cursor-pointer"
+                                : "bg-zinc-100 text-zinc-800 border-zinc-700 hover:bg-zinc-950 hover:text-zinc-50 hover:border-zinc-950 active:scale-[0.98] shadow-sm cursor-pointer"
+                                }`}
+                        >
+                            [ перегенерировать и скачать ]
+                        </button>
+
+                        {/* BUTTON 01: Core Password Stream Generation and Encryption */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                handleProcessAndDownload('/generate')
+                            }}
+                            disabled={isProcessing}
+                            className={`px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-[0.15em] border transition-all duration-150 ${isProcessing
+                                ? "bg-zinc-200 text-zinc-400 border-zinc-300 cursor-not-allowed"
+                                : "bg-amber-500 text-zinc-950 border-amber-700 hover:bg-amber-400 hover:border-amber-600 active:scale-[0.98] shadow-md cursor-pointer"
                                 }`}
                         >
                             {isProcessing ? "ОБРАБОТКА ПОТОКА..." : "[ СГЕНЕРИРОВАТЬ И СКАЧАТЬ ]"}
                         </button>
+
                     </div>
                 </div>
 

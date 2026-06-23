@@ -12,6 +12,7 @@ use App\Http\Resources\AuthUserResource;
 use App\Services\UserListService;
 use App\Http\Requests\UploadUserRequest;
 
+
 class UserController extends Controller
 {
     /**
@@ -97,7 +98,6 @@ class UserController extends Controller
                 continue; // Skip this iteration and go to the next user
             }
 
-            // 2. If it doesn't exist, safely insert them
             User::create([
                 'name'     => $name,
                 'email'    => $email,
@@ -107,7 +107,6 @@ class UserController extends Controller
             $insertedCount++;
         }
 
-        // 3. Handle response routing based on conflict state
         if (!empty($conflicts)) {
             return back()->with('error', [
                 'summary' => "ЧАСТИЧНАЯ_ОШИБКА: Импортировано {$insertedCount} шт.",
@@ -118,45 +117,51 @@ class UserController extends Controller
         return back()->with('success', "ВСЕ СУБЪЕКТЫ ({$insertedCount} шт.) УСПЕШНО ИНДЕКСИРОВАНЫ");
     }
 
-    // public function generate()
-    // {
-    //     // 1. Fetch the raw users who don't have a password
-    //     $users = Users::query(['id', 'name', 'email'])
-    //         ->whereNull('password')
-    //         ->get();
+    public function generate()
+    {
+        $this->isNew(true);
+    }
 
-    //     if ($users->isEmpty()) {
-    //         return response()->json([]);
-    //     }
+    public function regenerate()
+    {
+        $this->isNew(false);
+    }
 
-    //     // This array will hold the plain text credentials to send back to React
-    //     $frontendReportData = [];
+    protected function isNew(bool $isNew)
+    {
+        $users = $isNew ?
+            \Illuminate\Support\Facades\DB::table('users')
+            ->select(['id', 'name', 'email'])
+            ->whereNull('password')
+            ->get() :
+            User::withoutRole(RolesEnum::Root->value)->get();
 
-    //     // 2. Start a Database Transaction to ensure all updates happen safely together
-    //     \Illuminate\Support\Facades\DB::transaction(function () use ($users, &$frontendReportData) {
-    //         foreach ($users as $user) {
-    //             // Generate a secure, temporary random password (12 characters long)
-    //             $plainPassword = \Illuminate\Support\Str::random(12);
+        if ($users->isEmpty()) {
+            return response()->json([]);
+        }
 
-    //             // Store the plain unhashed credentials for the frontend Excel sheet
-    //             $frontendReportData[] = [
-    //                 'id'    => $user->id,
-    //                 'name'  => $user->name,
-    //                 'email' => $user->email,
-    //                 'plain_password' => $plainPassword, // Plain text here
-    //             ];
+        $frontendReportData = [];
 
-    //             // 3. Securely hash the password and update the record in the database
-    //             \Illuminate\Support\Facades\DB::table('users')
-    //                 ->where('id', $user->id)
-    //                 ->update([
-    //                     'password' => \Illuminate\Support\Facades\Hash::make($plainPassword),
-    //                     'updated_at' => now(),
-    //                 ]);
-    //         }
-    //     });
+        \Illuminate\Support\Facades\DB::transaction(function () use ($users, &$frontendReportData) {
+            foreach ($users as $user) {
+                $plainPassword = \Illuminate\Support\Str::random(12);
 
-    //     // 4. Return the collection of plain-text passwords back to your React frontend
-    //     return response()->json($frontendReportData);
-    // }
+                $frontendReportData[] = [
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                    'plain_password' => $plainPassword,
+                ];
+
+                \Illuminate\Support\Facades\DB::table('users')
+                    ->where('id', $user->id)
+                    ->update([
+                        'password' => \Illuminate\Support\Facades\Hash::make($plainPassword),
+                        'updated_at' => now(),
+                    ]);
+            }
+        });
+
+        return response()->json($frontendReportData);
+    }
 }
