@@ -24,26 +24,31 @@ const PasswordGenerator: React.FC = () => {
         setStatus('PROCESSING');
 
         router.post(route, {}, {
-            preserveState: true,  // Keeps your current React component state alive
-            preserveScroll: true, // Prevents the window scroll from shifting
+            preserveState: true,
+            preserveScroll: true,
 
             onSuccess: (page) => {
-                // Inertia returns data through page.props automatically
-                const users = page.props.generated_users as User[];
+                // FIX: Safely check both the shared flash bag and direct page props
+                const flashBag = page.props.flash as any;
+                const users = (flashBag?.generated_users || page.props.generated_users) as any[];
 
-                if (!users || users.length === 0) {
+                // If the local callback state is laggy, fall back to the global page props hook
+                const fallbackUsers = (page.props.flash as any)?.generated_users || page.props.generated_users;
+                const absoluteUsersPayload = users || fallbackUsers;
+
+                if (!absoluteUsersPayload || absoluteUsersPayload.length === 0) {
                     setStatus('IDLE');
                     alert('РЕЕСТР ПУСТ: Нет субъектов без паролей.');
                     setIsProcessing(false);
                     return;
                 }
 
-                // Your sheet generation pipeline runs safely on the client side
-                const processedData = users.map(user => ({
+                // Map and build using the plain text password returned from the backend
+                const processedData = absoluteUsersPayload.map(user => ({
                     'ID': user.id,
-                    'ФИО / NAME': user.name.toUpperCase(),
+                    'ФИО / NAME': user.name ? user.name.toUpperCase() : 'НЕДОСТУПНО',
                     'EMAIL': user.email,
-                    'СГЕНЕРИРОВАННЫЙ ПАРОЛЬ / PASSWORD': generateRandomPassword()
+                    'СГЕНЕРИРОВАННЫЙ ПАРОЛЬ / PASSWORD': user.plain_password // Use backend string
                 }));
 
                 const worksheet = XLSX.utils.json_to_sheet(processedData);

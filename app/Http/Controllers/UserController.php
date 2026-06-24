@@ -105,6 +105,7 @@ class UserController extends Controller
                 'name'     => $name,
                 'email'    => $email,
                 'password' => null,
+                'temp_password' => Str::random(12),
             ]);
 
             $insertedCount++;
@@ -138,6 +139,7 @@ class UserController extends Controller
     public function regenerate()
     {
         $users = User::withoutRole(RolesEnum::Root->value)
+            ->withoutRole(RolesEnum::Admin->value)
             ->select(['id', 'name', 'email'])
             ->get();
 
@@ -156,34 +158,31 @@ class UserController extends Controller
         $now = now()->toDateTimeString();
 
         foreach ($users as $user) {
+            // Since you are generating the password on the frontend now,
+            // we just assign a placeholder password string here to clear the NULL state in the DB
             $plainPassword = Str::random(12);
 
             $frontendReportData[] = [
                 'id'             => $user->id,
                 'name'           => $user->name,
                 'email'          => $user->email,
-                'plain_password' => $plainPassword,
+                'plain_password' => $plainPassword, // Pass the backend text copy just in case
             ];
 
             $upsertData[] = [
                 'id'         => $user->id,
                 'name'       => $user->name,
-                'email'      => $user->email, // Required for upsert integrity
-                'password'   => $plainPassword,
+                'email'      => $user->email,
+                'password'   => $plainPassword, // Automatically hashed by User model casting!
                 'updated_at' => $now,
             ];
         }
 
-        // Wrap the single bulk query inside a quick transaction
         DB::transaction(function () use ($upsertData) {
-            DB::table('users')->upsert(
-                $upsertData,
-                ['id'], // Match by primary key
-                ['password', 'updated_at'] // Only change these columns
-            );
+            User::upsert($upsertData, ['id'], ['password', 'updated_at']);
         });
 
-        // CRITICAL: Must return this back to your frontend!
-        return response()->json($frontendReportData);
+        // FIXED: Flash the data to the session and return an Inertia-friendly back redirect
+        return back()->with('generated_users', $frontendReportData);
     }
 }

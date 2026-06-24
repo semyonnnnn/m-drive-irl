@@ -72,6 +72,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 // FORCE EXECUTION: Safely output your custom stylized blade template
                 return response()->view('errors.minimal', [
                     'code' => $statusCode,
+                    'rawMessage' => $rawMessage,
                     'message' => $shortenedMessage,
                     'operation' => $dynamicOperation,
                     'status' => $dynamicStatus,

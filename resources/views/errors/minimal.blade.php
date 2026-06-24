@@ -369,7 +369,12 @@
             font-weight: 700;
             letter-spacing: 3px;
             margin-left: 15px;
-            /* opacity: 0.7; */
+            
+            /* Grug layout safety fixes */
+            display: inline-block;
+            word-break: break-all;     /* Forces long words to wrap neatly */
+            white-space: normal;       /* Keeps text inside the terminal box */
+            text-transform: uppercase; /* Keeps the clean industrial matrix look */
         }
         
         .error-code-divider {
@@ -424,7 +429,7 @@
             <div class="error-code-container">
                 <span class="error-code">{{ $code ?? '???' }}</span>
                 <span class="error-code-divider"></span>
-                <span class="error-code-small">{{ $message }}</span>
+                <span class="error-code-small">{{ $rawMessage }}</span>
             </div>
             
             {{-- MAIN CONTENT --}}
