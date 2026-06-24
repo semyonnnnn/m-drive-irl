@@ -47,6 +47,7 @@ export const Pagination = ({ links, current_page, last_page, total }: Pagination
                             key={idx}
                             href={link.url}
                             preserveScroll
+                            preserveState
                             className={`px-3 py-1.5 border text-[10px] font-mono font-black uppercase tracking-widest select-none cursor-pointer transition-all duration-75 active:scale-98 ${link.active
                                 ? "bg-orange-700 border-orange-950 text-orange-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] translate-y-0.5"
                                 : `bg-zinc-800 border-zinc-950 text-zinc-400 hover:text-orange-500 hover:border-orange-900 shadow-[0_2px_0_#09090b] hover:shadow-none hover:translate-y-0.5 ${Math.random() < 0.3 && 'animate-core-malfunction'}`

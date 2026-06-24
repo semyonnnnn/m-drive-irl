@@ -197,6 +197,7 @@ const UploadUsersPanel = () => {
                                 className="hidden"
                                 accept=".xlsx,.xls,.csv,.txt"
                                 onChange={(e) => {
+                                    console.log('tried to upload');
                                     if (e.target.files?.[0]) {
                                         processExcelFile(e.target.files[0]);
                                     }

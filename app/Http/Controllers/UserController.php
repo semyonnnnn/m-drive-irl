@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Enum\RolesEnum;
-//////////////////////////////////
 use Inertia\Inertia;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
+//////////////////////////////////
+use App\Enum\RolesEnum;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Http\Resources\AuthUserResource;
 use App\Services\UserListService;
@@ -119,49 +122,68 @@ class UserController extends Controller
 
     public function generate()
     {
-        $this->isNew(true);
-    }
-
-    public function regenerate()
-    {
-        $this->isNew(false);
-    }
-
-    protected function isNew(bool $isNew)
-    {
-        $users = $isNew ?
-            \Illuminate\Support\Facades\DB::table('users')
+        $users = DB::table('users')
             ->select(['id', 'name', 'email'])
             ->whereNull('password')
-            ->get() :
-            User::withoutRole(RolesEnum::Root->value)->get();
+            ->get();
 
         if ($users->isEmpty()) {
             return response()->json([]);
         }
 
+        return $this->processAndAssignPasswords($users);
+    }
+
+    // 2. REGENERATE: For all non-root users
+    public function regenerate()
+    {
+        $users = User::withoutRole(RolesEnum::Root->value)
+            ->select(['id', 'name', 'email'])
+            ->get();
+
+        if ($users->isEmpty()) {
+            return response()->json([]);
+        }
+
+        return $this->processAndAssignPasswords($users);
+    }
+
+    // 3. Shared Processor (Fast, Memory-safe, Single Transaction)
+    protected function processAndAssignPasswords(Collection $users)
+    {
         $frontendReportData = [];
+        $upsertData = [];
+        $now = now()->toDateTimeString();
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($users, &$frontendReportData) {
-            foreach ($users as $user) {
-                $plainPassword = \Illuminate\Support\Str::random(12);
+        foreach ($users as $user) {
+            $plainPassword = Str::random(12);
 
-                $frontendReportData[] = [
-                    'id'    => $user->id,
-                    'name'  => $user->name,
-                    'email' => $user->email,
-                    'plain_password' => $plainPassword,
-                ];
+            $frontendReportData[] = [
+                'id'             => $user->id,
+                'name'           => $user->name,
+                'email'          => $user->email,
+                'plain_password' => $plainPassword,
+            ];
 
-                \Illuminate\Support\Facades\DB::table('users')
-                    ->where('id', $user->id)
-                    ->update([
-                        'password' => \Illuminate\Support\Facades\Hash::make($plainPassword),
-                        'updated_at' => now(),
-                    ]);
-            }
+            $upsertData[] = [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email, // Required for upsert integrity
+                'password'   => $plainPassword,
+                'updated_at' => $now,
+            ];
+        }
+
+        // Wrap the single bulk query inside a quick transaction
+        DB::transaction(function () use ($upsertData) {
+            DB::table('users')->upsert(
+                $upsertData,
+                ['id'], // Match by primary key
+                ['password', 'updated_at'] // Only change these columns
+            );
         });
 
+        // CRITICAL: Must return this back to your frontend!
         return response()->json($frontendReportData);
     }
 }

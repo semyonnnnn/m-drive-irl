@@ -31,3 +31,7 @@ alias dockerpsa="docker ps -a --format 'table {{.ID}}\t{{.Names}}\t{{.Ports}}'"
 # Clean Rebuilds
 alias redocker="clean_up && sudo $DEV_COMPOSE up -d"
 alias redockerbuild="clean_up && sudo $DEV_COMPOSE up -d --build"
+
+
+#python
+alias python='./env/bin/python3'
