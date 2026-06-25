@@ -16,7 +16,7 @@ export default function Welcome({ auth }: Props) {
     <>
       <Head title="Main // SYSTEM" />
 
-      {auth.user ? (
+      {auth?.user ? (
         /* Target View Frame for Active Sessions */
         <AuthenticatedLayout>
           <Dashboard />

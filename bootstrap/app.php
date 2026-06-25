@@ -15,9 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // 1. GLOBAL WEB APPENDS (Inertia shared state initialization)
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+        ]);
+
+        // 2. ROUTE ALIASES (Your custom password reset wall)
+        $middleware->alias([
+            'force_reset' => \App\Http\Middleware\EnforcePasswordReset::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -187,3 +187,7 @@ export interface ErrorTelemetryProps {
     details: string[] | null;
     onClear: () => void;
 }
+
+export interface PageUser extends PageProps {
+    user: User;
+}

@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
 //////////////////////////////////
 use App\Enum\RolesEnum;
 use App\Models\User;
@@ -119,70 +117,5 @@ class UserController extends Controller
         }
 
         return back()->with('success', "ВСЕ СУБЪЕКТЫ ({$insertedCount} шт.) УСПЕШНО ИНДЕКСИРОВАНЫ");
-    }
-
-    public function generate()
-    {
-        $users = DB::table('users')
-            ->select(['id', 'name', 'email'])
-            ->whereNull('password')
-            ->get();
-
-        if ($users->isEmpty()) {
-            return response()->json([]);
-        }
-
-        return $this->processAndAssignPasswords($users);
-    }
-
-    // 2. REGENERATE: For all non-root users
-    public function regenerate()
-    {
-        $users = User::withoutRole(RolesEnum::Root->value)
-            ->withoutRole(RolesEnum::Admin->value)
-            ->select(['id', 'name', 'email'])
-            ->get();
-
-        if ($users->isEmpty()) {
-            return response()->json([]);
-        }
-
-        return $this->processAndAssignPasswords($users);
-    }
-
-    // 3. Shared Processor (Fast, Memory-safe, Single Transaction)
-    protected function processAndAssignPasswords(Collection $users)
-    {
-        $frontendReportData = [];
-        $upsertData = [];
-        $now = now()->toDateTimeString();
-
-        foreach ($users as $user) {
-            // Since you are generating the password on the frontend now,
-            // we just assign a placeholder password string here to clear the NULL state in the DB
-            $plainPassword = Str::random(12);
-
-            $frontendReportData[] = [
-                'id'             => $user->id,
-                'name'           => $user->name,
-                'email'          => $user->email,
-                'plain_password' => $plainPassword, // Pass the backend text copy just in case
-            ];
-
-            $upsertData[] = [
-                'id'         => $user->id,
-                'name'       => $user->name,
-                'email'      => $user->email,
-                'password'   => $plainPassword, // Automatically hashed by User model casting!
-                'updated_at' => $now,
-            ];
-        }
-
-        DB::transaction(function () use ($upsertData) {
-            User::upsert($upsertData, ['id'], ['password', 'updated_at']);
-        });
-
-        // FIXED: Flash the data to the session and return an Inertia-friendly back redirect
-        return back()->with('generated_users', $frontendReportData);
     }
 }
