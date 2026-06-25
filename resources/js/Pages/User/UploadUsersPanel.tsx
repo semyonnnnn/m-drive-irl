@@ -132,7 +132,7 @@ const UploadUsersPanel = () => {
 
             <form
                 onSubmit={handleFormSubmit}
-                className="relative block w-full bg-zinc-100 border border-zinc-400 p-5 font-mono text-left overflow-hidden transition-all duration-200 select-none"
+                className="relative block w-full bg-zinc-100 border h-full border-zinc-400 p-5 font-mono text-left overflow-hidden transition-all duration-200 select-none"
             >
                 {/* Overlays */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden z-40 opacity-[0.15] mix-blend-overlay">

@@ -25,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'force_reset' => \App\Http\Middleware\EnforcePasswordReset::class,
         ]);
+
+        // 3. GUEST REDIRECTION RULE (Pushes unauthenticated users explicitly back to root / string path)
+        $middleware->redirectTo(guests: '/');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
@@ -35,6 +38,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // 2. RENDERING LAYER: Intercept and build your custom terminal-style Blade view
         $exceptions->render(function (Throwable $e, Request $request) {
+
+            // EXCLUSION GUARD MATRIX: Pass execution back to Laravel core layout for core routing actions
+            if (
+                $e instanceof \Illuminate\Auth\AuthenticationException ||
+                $e instanceof \Illuminate\Validation\ValidationException
+            ) {
+                return null;
+            }
 
             if (!config('app.debug')) {
 
@@ -51,7 +62,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 $dynamicOperation = $request->method() . '_REQUEST';
                 $path = $request->path();
 
-                // FIX 1: Limit and Shorten the target URL string path mapping (Max 25 Chars)
+                // Limit and Shorten the target URL string path mapping (Max 25 Chars)
                 if ($path === '/') {
                     $dynamicTarget = 'ROOT_CORE';
                 } else {
@@ -61,7 +72,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 $dynamicStatus = ($statusCode === 403 || $statusCode === 401) ? 'ДОСТУП_БЛОКИРОВАН' : (($statusCode >= 500) ? 'КРИТИЧЕСКИЙ_СБОЙ_ЯДРА' : '...');
 
-                // FIX 2: Limit and Shorten the full URL trace string (Max 45 Chars)
+                // Limit and Shorten the full URL trace string (Max 45 Chars)
                 $shortenedUrl = \Illuminate\Support\Str::limit($request->fullUrl(), 45, '...');
 
                 $telemetryData = [
@@ -71,7 +82,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'IP-АДРЕС ИСТОЧНИКА: ' . $request->ip(),
                 ];
 
-                // FIX 3: Limit and Shorten the exception message string (Max 50 Chars)
+                // Limit and Shorten the exception message string (Max 50 Chars)
                 $rawMessage = $e->getMessage() ?: $officialStatusText;
                 $shortenedMessage = \Illuminate\Support\Str::limit($rawMessage, 50, '...');
 

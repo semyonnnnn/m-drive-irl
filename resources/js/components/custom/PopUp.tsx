@@ -1,10 +1,12 @@
 interface PopUpProps {
     message: string;
+    handleClick: () => void;
 }
 
-const PopUp = ({ message }: PopUpProps) => {
+const PopUp = ({ message, handleClick }: PopUpProps) => {
     return (
-        <div className="bottom-6 right-6 z-100 w-86 bg-zinc-100 border border-amber-600/40 p-4 text-amber-800 font-mono shadow-[4px_4px_0px_rgba(100,100,100,1)] clip-corner ac-scanline fixed overflow-hidden select-none animate-[slideIn_0.2s_ease-out_forwards]">
+        <div onClick={() => handleClick()}
+            className="bottom-6 right-6 z-100 w-86 bg-zinc-100 border border-amber-600/40 p-4 text-amber-800 font-mono shadow-[4px_4px_0px_rgba(100,100,100,1)] clip-corner ac-scanline fixed overflow-hidden select-none animate-[slideIn_0.2s_ease-out_forwards]">
 
             {/* Tactical Corner Overlays */}
             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-600 z-50"></div>

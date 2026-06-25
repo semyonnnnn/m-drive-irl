@@ -30,26 +30,46 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
 
   useEffect(() => {
     const isSuccessEmpty = flash.success === null;
-    const isErrorEmpty = (flash?.error?.summary === null) || (flash?.error?.details === null);
+    const isErrorEmpty = !flash?.error?.summary && !flash?.error?.details;
+
+    // 1. If everything is completely empty, don't do anything
     if (isSuccessEmpty && isErrorEmpty) return;
 
-    setMessage(flash);
+    // 2. Intelligently merge the state: 
+    // If a pagination request brings back an empty error object, retain your current error log state.
+    setMessage(prev => ({
+      success: flash.success, // Success popups can follow normal lifecycle rules
+      error: isErrorEmpty ? prev.error : {
+        summary: flash.error.summary,
+        details: flash.error.details
+      }
+    }));
+
     console.log(flash);
 
-    const timer = setTimeout(() => {
-      setMessage({
-        ...flash,
-        success: null,
-      });
-    }, 7000);
-
-    return () => clearTimeout(timer);
+    // 3. Keep the timeout strictly isolated to the temporary success popup notifications
+    if (flash.success) {
+      const timer = setTimeout(() => {
+        setMessage(prev => ({
+          ...prev,
+          success: null,
+        }));
+      }, 7000);
+      return () => clearTimeout(timer);
+    }
   }, [flash]);
-
   return (
     <AuthenticatedLayout>
       <Head title="Пользователи" />
-      {message.success && <PopUp message={message.success} />}
+      {message.success && <PopUp message={message.success} handleClick={() => {
+        setMessage({
+          success: null,
+          error: {
+            summary: null,
+            details: null,
+          }
+        });
+      }} />}
       <main
         style={{
           backgroundImage: `

@@ -181,7 +181,7 @@ const PasswordGenerator: React.FC = () => {
                             type="button"
                             onClick={() => handleProcessAndDownload('/pass.regenerate')}
                             disabled={processing}
-                            className={`px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-[0.15em] border transition-all duration-150 ${processing
+                            className={`text-nowrap px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-[0.15em] border transition-all duration-150 ${processing
                                 ? "bg-zinc-200 text-zinc-400 border-zinc-300 cursor-not-allowed"
                                 : "bg-zinc-100 text-zinc-800 border-zinc-700 hover:bg-zinc-950 hover:text-zinc-50 hover:border-zinc-950 active:scale-[0.98] shadow-sm cursor-pointer"
                                 }`}
@@ -194,7 +194,7 @@ const PasswordGenerator: React.FC = () => {
                             type="button"
                             onClick={() => handleProcessAndDownload('/pass.download')}
                             disabled={processing}
-                            className={`px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-[0.15em] border transition-all duration-150 ${processing
+                            className={`text-nowrap px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-[0.15em] border transition-all duration-150 ${processing
                                 ? "bg-zinc-200 text-zinc-400 border-zinc-300 cursor-not-allowed"
                                 : "bg-amber-500 text-zinc-950 border-amber-700 hover:bg-amber-400 hover:border-amber-600 active:scale-[0.98] shadow-md cursor-pointer"
                                 }`}
