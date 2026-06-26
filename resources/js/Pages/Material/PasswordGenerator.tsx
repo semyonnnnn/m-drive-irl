@@ -3,10 +3,9 @@ import * as XLSX from 'xlsx';
 import { useForm, usePage } from '@inertiajs/react';
 
 interface GeneratedUser {
-    id: number | string;
     name: string | null;
     email: string;
-    plain_password?: string;
+    temp_password: string;
 }
 
 interface FlashProps {
@@ -49,10 +48,9 @@ const PasswordGenerator: React.FC = () => {
 
                 // Compile database stream matrix directly into XLSX layout vectors
                 const processedData = users.map(user => ({
-                    'ID': user.id,
-                    'ФИО / NAME': user.name ? user.name.toUpperCase() : 'НЕСВЯЗАННЫЙ СУБЪЕКТ',
-                    'EMAIL': user.email,
-                    'СГЕНЕРИРОВАННЫЙ ПАРОЛЬ / PASSWORD': user.plain_password || 'МАТРИЦА_УЖЕ_ЗАПИСАНА'
+                    'ИМЯ': user?.name?.toUpperCase() ?? '',
+                    'ПОЧТА': user.email ?? '',
+                    'ВРЕМЕННЫЙ ПАРОЛЬ': user.temp_password ?? '',
                 }));
 
                 const worksheet = XLSX.utils.json_to_sheet(processedData);
@@ -117,7 +115,12 @@ const PasswordGenerator: React.FC = () => {
                             <div className="font-bold border-b border-zinc-300 pb-1 mb-1 text-zinc-800 uppercase tracking-wider">// ТЕЛЕМЕТРИЯ_КРИПТОГРАФИИ</div>
                             <div className="flex justify-between"><span>МОДУЛЬ:</span> <span className="font-bold text-zinc-900">PASS_GEN_v1.0</span></div>
                             <div className="flex justify-between"><span>АЛГОРИТМ:</span> <span className="font-bold text-zinc-900">CRYPTO_RAND_SHA256</span></div>
-                            <div className="flex justify-between"><span>СТАТУС:</span> <span className={`font-bold ${activeError ? 'text-red-600' : activeSuccess ? 'text-emerald-600' : 'text-zinc-900'}`}>{processing ? 'PROCESSING' : activeError ? 'ERROR' : activeSuccess ? 'SUCCESS' : status}</span></div>
+                            <div className="flex justify-between">
+                                <span>СТАТУС:</span>
+                                <span className={`font-bold ${activeError ? 'text-red-600' : activeSuccess ? 'text-emerald-600' : 'text-zinc-900'}`}>
+                                    {processing ? 'PROCESSING' : activeError ? 'ERROR' : activeSuccess ? 'SUCCESS' : status}
+                                </span>
+                            </div>
                         </div>
 
                         {/* Telemetry Output Log */}
