@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
+import Modal from "@/components/custom/Modal";
 
 interface GeneratedUser {
     name: string | null;
@@ -15,17 +16,114 @@ interface FlashProps {
     [key: string]: any;
 }
 
+// ==========================================
+// SUB-COMPONENT: TACTICAL CONFIRMATION OVERLAY
+// ==========================================
+interface RegenerateConfirmationModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    processing: boolean;
+}
+
+const RegenerateConfirmationModal: React.FC<RegenerateConfirmationModalProps> = ({
+    isOpen,
+    onClose,
+    onConfirm,
+    processing
+}) => {
+    const [isGlitching, setIsGlitching] = useState(false);
+
+    useEffect(() => {
+        let glitchTimer: ReturnType<typeof setTimeout>;
+        let recoveryTimer: ReturnType<typeof setTimeout>;
+
+        const triggerRandomGlitch = () => {
+            const nextGlitchDelay = Math.random() * 8000 + 3000;
+            glitchTimer = setTimeout(() => {
+                setIsGlitching(true);
+                recoveryTimer = setTimeout(() => {
+                    setIsGlitching(false);
+                    triggerRandomGlitch();
+                }, 500);
+            }, nextGlitchDelay);
+        };
+
+        if (isOpen) triggerRandomGlitch();
+        else setIsGlitching(false);
+
+        return () => {
+            clearTimeout(glitchTimer);
+            clearTimeout(recoveryTimer);
+        };
+    }, [isOpen]);
+
+    return (
+        <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!processing}>
+            <div className={`relative block w-full bg-zinc-100 border-2 border-red-500 p-6 font-mono text-left select-none overflow-hidden transition-colors duration-200 ${isGlitching ? "animate-signal-glitch border-amber-600 bg-zinc-200" : ""
+                }`}>
+                {/* Visual hardware brackets */}
+                <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-red-600 pointer-events-none"></div>
+                <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-red-600 pointer-events-none"></div>
+
+                {/* Header Terminal */}
+                <div className="flex justify-between items-center border-b border-red-500 pb-2 mb-4">
+                    <span className="text-xs font-black text-red-600 tracking-widest uppercase">
+                        [ ВНИМАНИЕ // КРИТИЧЕСКАЯ_ПЕРЕЗАПИСЬ ]
+                    </span>
+                    <span className="text-[9px] text-zinc-500 font-bold bg-zinc-200 border border-zinc-300 px-1.5 py-0.5">
+                        WARN.SYS_0X9F
+                    </span>
+                </div>
+
+                {/* Warning Telemetry Body */}
+                <div className="space-y-3 mb-6">
+                    <div className="text-[11px] font-bold text-zinc-800 uppercase tracking-wide leading-relaxed">
+                        Запущена директива полной регенерации. Текущие временные ключи доступа всех незащищенных субъектов будут принудительно аннулированы и перезаписаны в ядре БД.
+                    </div>
+                    <div className="bg-red-100/60 border border-red-300 p-2.5 text-[9px] text-red-700 font-bold tracking-wide uppercase">
+                        // ВНИМАНИЕ: Предыдущие матрицы доступов станут невалидны. Данное действие необратимо.
+                    </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end gap-2 border-t border-zinc-300 pt-3">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={processing}
+                        className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider border border-zinc-400 bg-zinc-200 text-zinc-700 hover:bg-zinc-300 active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                    >
+                        [ отмена ]
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onConfirm}
+                        disabled={processing}
+                        className="px-4 py-1.5 text-[10px] font-black uppercase tracking-wider border border-red-700 bg-red-600 text-white hover:bg-red-700 active:scale-[0.98] shadow-md cursor-pointer disabled:bg-zinc-400 disabled:border-zinc-500 disabled:cursor-not-allowed"
+                    >
+                        {processing ? "ПЕРЕЗАПИСЬ..." : "[ ПОДТВЕРДИТЬ ]"}
+                    </button>
+                </div>
+            </div>
+        </Modal>
+    );
+};
+
+// ==========================================
+// CORE COMPONENT MODULE: PASSWORD GENERATOR
+// ==========================================
 const PasswordGenerator: React.FC = () => {
     const [status, setStatus] = useState<'IDLE' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('IDLE');
+    const [localSuccess, setLocalSuccess] = useState<string | null>(null);
+    const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
 
-    // Pull down global page props to directly capture flash telemetry from the pipeline
-    const { flash } = usePage().props as unknown as { flash: FlashProps };
-
-    // Initialize Inertia Form handling
+    // Initialize Inertia Form handling independently
     const { post, processing, errors: serverErrors, clearErrors } = useForm<{ err_message?: string }>({});
 
     const handleProcessAndDownload = (endpointRoute: string) => {
         clearErrors();
+        setLocalSuccess(null);
         setStatus('PROCESSING');
 
         post(endpointRoute, {
@@ -35,14 +133,16 @@ const PasswordGenerator: React.FC = () => {
                 const flashBag = page.props.flash as FlashProps;
                 const users = flashBag?.generated_users;
 
-                // Handle testing sequences where only a clean flash message is returned
                 if (flashBag?.success && (!users || users.length === 0)) {
+                    setLocalSuccess(flashBag.success);
                     setStatus('SUCCESS');
+                    setIsConfirmOpen(false);
                     return;
                 }
 
                 if (!users || users.length === 0) {
                     setStatus('ERROR');
+                    setIsConfirmOpen(false);
                     return;
                 }
 
@@ -62,19 +162,19 @@ const PasswordGenerator: React.FC = () => {
                 const timestamp = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(workbook, `SYS_KEY_INJECT_${timestamp}.xlsx`);
 
+                setLocalSuccess(flashBag?.success || 'МАССИВ УСПЕШНО СГЕНЕРИРОВАН');
                 setStatus('SUCCESS');
+                setIsConfirmOpen(false);
             },
             onError: () => {
                 setStatus('ERROR');
+                setIsConfirmOpen(false);
             }
         });
     };
 
-    // COMBINED ERROR MATRIX: Seamlessly fall back to fallback strings if specific keys are absent
     const activeError = serverErrors.err_message || Object.values(serverErrors)[0];
-
-    // COMBINED SUCCESS MATRIX: Pull from server's session stream directly
-    const activeSuccess = flash?.success;
+    const activeSuccess = localSuccess;
 
     return (
         <div className="w-full max-w-4xl p-1 bg-zinc-300 border border-zinc-400 rounded-xs shadow-[0_10px_30px_rgba(0,0,0,0.15)] relative">
@@ -98,7 +198,7 @@ const PasswordGenerator: React.FC = () => {
                                 status === 'ERROR' || activeError ? "bg-red-500 shadow-[0_0_8px_#ef4444]" : "bg-zinc-400"
                             }`}></div>
                         <span className="text-xs font-black text-zinc-900 uppercase tracking-widest">
-                            [ МОДУЛЬ_ГЕНЕРАЦИИ_ПАРОЛЕЙ // {processing ? 'PROCESSING' : activeError ? 'ERROR' : activeSuccess ? 'SUCCESS' : status} ]
+                            [ МОДУЛЬ_ГЕНЕРАЦИИ_ПАРОЛЕЙ // {processing ? 'ЗАПУСК' : activeError ? 'СБОЙ' : activeSuccess ? 'ГОТОВ' : status} ]
                         </span>
                     </div>
                     <div className="text-[9px] text-zinc-500 font-bold bg-zinc-200 border border-zinc-300 px-2 py-0.5 tracking-wider">
@@ -118,7 +218,7 @@ const PasswordGenerator: React.FC = () => {
                             <div className="flex justify-between">
                                 <span>СТАТУС:</span>
                                 <span className={`font-bold ${activeError ? 'text-red-600' : activeSuccess ? 'text-emerald-600' : 'text-zinc-900'}`}>
-                                    {processing ? 'PROCESSING' : activeError ? 'ERROR' : activeSuccess ? 'SUCCESS' : status}
+                                    {processing ? 'ЗАПУСК' : activeError ? 'СБОЙ' : activeSuccess ? 'ГОТОВ' : status}
                                 </span>
                             </div>
                         </div>
@@ -156,7 +256,7 @@ const PasswordGenerator: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Inline Error Telemetry output log similar to your form upload banner */}
+                        {/* Inline Error Telemetry output log */}
                         {activeError && (
                             <div className="text-red-700 font-bold text-[9px] mt-2 px-1.5 py-0.5 bg-red-100 border-l-2 border-red-600 uppercase tracking-wide">
                                 СБОЙ ПОТОКА ИНЪЕКЦИИ: {activeError}
@@ -179,10 +279,10 @@ const PasswordGenerator: React.FC = () => {
                     </span>
                     <div className="flex flex-col sm:flex-row gap-2 justify-end">
 
-                        {/* BUTTON 02: Archive Re-Extraction */}
+                        {/* BUTTON 02: Remapped to trigger secure modal sequence */}
                         <button
                             type="button"
-                            onClick={() => handleProcessAndDownload('/pass.regenerate')}
+                            onClick={() => setIsConfirmOpen(true)}
                             disabled={processing}
                             className={`text-nowrap px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-[0.15em] border transition-all duration-150 ${processing
                                 ? "bg-zinc-200 text-zinc-400 border-zinc-300 cursor-not-allowed"
@@ -209,6 +309,14 @@ const PasswordGenerator: React.FC = () => {
                 </div>
 
             </div>
+
+            {/* Tactical confirmation overlay portal instance */}
+            <RegenerateConfirmationModal
+                isOpen={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={() => handleProcessAndDownload('/pass.regenerate')}
+                processing={processing}
+            />
         </div>
     );
 };

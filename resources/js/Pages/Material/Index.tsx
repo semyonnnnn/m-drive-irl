@@ -45,7 +45,9 @@ export default function Index({ materials }: PageProps<UploadType>) {
     return (
         <AuthenticatedLayout>
             <main className="min-h-screen bg-linear-to-r from-zinc-200/70 via-zinc-200/40 to-zinc-300/30 p-4 md:p-8 flex flex-col gap-8 relative select-none">
-                {message && <PopUp message={message} />}
+                {message && <PopUp message={message} handleClick={() => {
+                    setMessage(null);
+                }} />}
                 <div className="relative p-4 md:p-6 bg-zinc-50 border border-zinc-300/90 overflow-hidden rounded-xs z-10 clip-corner shadow-xs">
                     <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[12px_12px] pointer-events-none z-0"></div>
                     {WATERMARK_LAYOUT_MAP.map((position, idx) => (
