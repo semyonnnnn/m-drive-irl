@@ -8,11 +8,13 @@ export default function Modal({
     maxWidth = 'xl',
     closeable = true,
     onClose = () => { },
+    className
 }: PropsWithChildren<{
     show: boolean;
-    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'auto' | 'px' | 'full' | 'screen' | 'fit';
     closeable?: boolean;
     onClose: CallableFunction;
+    className?: string;
 }>) {
 
     const maxWidthClass = {
@@ -21,6 +23,16 @@ export default function Modal({
         lg: 'sm:max-w-lg',
         xl: 'sm:max-w-xl',
         '2xl': 'sm:max-w-2xl',
+        '3xl': 'sm:max-w-3xl',
+        '4xl': 'sm:max-w-4xl',
+        '5xl': 'sm:max-w-5xl',
+        '6xl': 'sm:max-w-6xl',
+        '7xl': 'sm:max-w-7xl',
+        'auto': 'sm:max-w-auto',
+        'px': 'sm:max-w-px',
+        'full': 'sm:max-w-full',
+        'screen': 'sm:max-w-screen',
+        'fit': 'sm:max-w-fit'
     }[maxWidth];
 
     return (

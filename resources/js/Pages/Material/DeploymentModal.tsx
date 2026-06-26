@@ -70,7 +70,8 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                         },
                     });
                 }}
-                className={`relative block w-full bg-zinc-100 border-2 border-zinc-400 p-6 shadow-2xl clip-corner font-mono text-left z-50 ac-scanline overflow-hidden transition-colors duration-200 ${isGlitching ? "animate-signal-glitch" : ""}`}>
+                className={`
+                relative block w-full bg-zinc-100 border-2 border-zinc-400 p-6 shadow-2xl clip-corner font-mono text-left z-50 ac-scanline overflow-hidden transition-colors duration-200 ${isGlitching ? "animate-signal-glitch" : ""}`}>
 
                 <div className="absolute inset-0 pointer-events-none overflow-hidden z-40 opacity-20">
                     <div
@@ -168,7 +169,7 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
                     ) : (
                         <div className="text-xs text-zinc-600 font-bold uppercase tracking-wider max-w-xs leading-relaxed select-none">
                             <ul className="list-none flex flex-col gap-1">
-                                <li>[&gt] ПЕРЕТАЩИТЕ ДАННЫЕ В УЗЕЛ</li>
+                                <li>[&gt;] ПЕРЕТАЩИТЕ ДАННЫЕ В УЗЕЛ</li>
                                 <li className="w-full flex justify-center py-1">
                                     <span className="bg-[rgb(75,75,75)] text-white px-3 py-0.5 text-[10px]">ИЛИ НАЖМИТЕ</span>
                                 </li>

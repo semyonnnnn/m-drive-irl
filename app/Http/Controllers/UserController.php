@@ -28,10 +28,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function edit(User $user)
+    public function edit(User $user, Request $request)
     {
         $this->authorize('editAccess', [$user]);
-
 
         $data = [
             'user' => new AuthUserResource($user),
@@ -47,8 +46,7 @@ class UserController extends Controller
             $data['ours'] = $relations['ours'];
         }
 
-
-        return Inertia::render('User/Edit', $data);
+        return response()->json($data);
     }
 
     public function update(Request $request, User $user)
