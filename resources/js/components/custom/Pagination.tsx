@@ -15,10 +15,6 @@ export const Pagination = ({ links, current_page, last_page, total }: Pagination
     // Hide component entirely if there are no pages to navigate
     if (!links || links.length <= 3) return null;
 
-    const randomDigit = Math.floor(Math.random() * 10);
-
-    console.log(links);
-
     return (
         <div className="mt-8 p-3 bg-zinc-100 border border-zinc-300/80 flex justify-between items-center font-mono text-xs clip-corner relative z-10 shadow-xs">
             <div className="text-zinc-500 uppercase text-[9px] font-bold">

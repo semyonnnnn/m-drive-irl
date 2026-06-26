@@ -11,11 +11,8 @@ import { ErrorTelemetry } from "./ErrorTelemetry";
 import { EditUserModal } from "./EditUserModal";
 import axios from 'axios';
 
-interface CustomUserIndexProps extends UserIndexProps {
-  editingUser?: any; // Dynamic partial matrix prop injected from backend
-}
 
-export default function Index({ auth, users, roleLabels, editingUser }: CustomUserIndexProps) {
+export default function Index({ auth, users, roleLabels }: UserIndexProps) {
   // 1. Normalize the users data so the component doesn't care if it's paginated or a raw array
   const isPaginated = !Array.isArray(users);
   const userList = isPaginated ? (users as PaginatedDataProps<User>).data : (users as User[]);
@@ -39,12 +36,10 @@ export default function Index({ auth, users, roleLabels, editingUser }: CustomUs
 
   const flash = (usePage().props as any).flash as FlashProps;
 
-  // Sync server prop streams straight to local modal display layout cache
   useEffect(() => {
-    if (editingUser) {
-      setActiveUser(editingUser);
-    }
-  }, [editingUser]);
+    console.log('activeUser:', activeUser)
+  }, [activeUser]);
+
 
   const handleFetchAndOpenModal = (userId: number) => {
     setLoadingUserId(userId);

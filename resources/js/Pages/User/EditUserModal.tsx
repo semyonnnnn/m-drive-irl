@@ -150,7 +150,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                                     disabled={processing}
                                     className={`w-full bg-zinc-200 border border-zinc-400 p-2.5 text-sm font-mono text-zinc-900 focus:outline-none focus:border-amber-500 transition-colors clip-corner disabled:bg-zinc-200/50 disabled:text-zinc-400 appearance-none ${errors.role && "border-red-500!"}`}
                                 >
-                                    <option value="" className="bg-zinc-100 text-zinc-500">ВЫБЕРИТЕ ПАРАМЕТР ДОСТУПА</option>
+                                    <option value="" className="bg-zinc-100 text-zinc-500">{user.roles[0] ?? '---'}</option>
                                     {roles.map((role) => (
                                         <option key={role.id} value={role.name} className="bg-zinc-100 text-zinc-900">
                                             {roleLabels[role.name]?.toUpperCase() || role.name.toUpperCase()}

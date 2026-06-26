@@ -32,10 +32,17 @@ class UserController extends Controller
     {
         $this->authorize('editAccess', [$user]);
 
+        $labels = RolesEnum::labels();
+        // Banish the root translation key from the map
+        unset($labels[RolesEnum::Root->value]);
+
         $data = [
             'user' => new AuthUserResource($user),
-            'roles' => Role::all(),
-            'roleLabels' => RolesEnum::labels(),
+            // Exclude root role model from DB query
+            'roles' => Role::where('name', '!=', RolesEnum::Root->value)->get(),
+            // Send the cleaned labels map
+            'roleLabels' => $labels,
+            'editableUser' => $request->user()
         ];
 
         $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
