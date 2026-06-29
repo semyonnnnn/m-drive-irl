@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\UserResource;
 use App\Services\UserListService;
 use App\Http\Requests\UploadUserRequest;
+use App\Services\UserValidationService;
 
 
 class UserController extends Controller
@@ -53,34 +54,38 @@ class UserController extends Controller
 
         return response()->json($data);
     }
-
     public function update(Request $request, User $user)
     {
-        // dd($user->hasRole(RolesEnum::Gakusei->value));
         if ($user->hasRole(RolesEnum::Root->value)) {
             return;
         }
 
         $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
-
         $related_users = $request->get('related_users');
-        $data = $request->validate([
-            'roles' => ['required', 'array'],
-            'roles.*' => ['string'],
-        ]);
+
+        // 1. Validate 'role' as a single string matching your frontend structure
+        // dd($request->all());
+        $data = (new UserValidationService())->validateUpdate($request);
+
+        // dd('validation succeeded');
+
+        // Optional: Keep this here for testing if needed
+        // dd('after validation', $data['role']);
 
         $this->authorize('updateAccess', [$user]);
-        $this->authorize('assignRoles', [$user, $data['roles']]);
 
-
+        // 2. Wrap the string into an array if your Policy expects an array of roles
+        $this->authorize('assignRoles', [$user, [$data['role']]]);
 
         // if (!$isAdminPage) {
-        //     (new UserListService)->update($related_users, $user, $request['roles'][0]);
+        //     (new UserListService)->update($related_users, $user, $data['role']);
         // }
-        $user->syncRoles($data['roles']);
 
+        // 3. Pass the string wrapped in an array to syncRoles (Spatie expects an array/collection)
+        $user->syncRoles([$data['role']]);
 
-        return back()->with('success', 'Roles updated successfully.');
+        // dd($user->name);
+        return back()->with('success', "СУБЪЕКТ [{$user->name}]: ДАННЫЕ ОБНОВЛЕНЫ");
     }
 
     public function upload(UploadUserRequest $request)
