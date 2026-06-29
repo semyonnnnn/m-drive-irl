@@ -27,7 +27,7 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
   });
 
   // METRIC HOOKS: Track active data stream and loading indicators
-  const [activeUser, setActiveUser] = useState<any | null>(null);
+  const [backendDataLocal, setBackendDataLocal] = useState<any | null>(null);
   const [loadingUserId, setLoadingUserId] = useState<number | null>(null);
 
   // 2. Safe check for roles using optional chaining
@@ -37,8 +37,8 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
   const flash = (usePage().props as any).flash as FlashProps;
 
   useEffect(() => {
-    console.log('activeUser:', activeUser)
-  }, [activeUser]);
+    console.log('backendDataLocal:', backendDataLocal)
+  }, [backendDataLocal]);
 
 
   const handleFetchAndOpenModal = (userId: number) => {
@@ -48,7 +48,7 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
     axios.get(route("user.edit", userId))
       .then(response => {
         // response.data has all the shiny rock properties
-        setActiveUser(response.data);
+        setBackendDataLocal(response.data);
         setLoadingUserId(null);
       })
       .catch(() => {
@@ -57,7 +57,7 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
   };
 
   const handleCloseModal = () => {
-    setActiveUser(null); // Flushes cache, instantly dropping modal from DOM tree
+    setBackendDataLocal(null); // Flushes cache, instantly dropping modal from DOM tree
   };
 
   useEffect(() => {
@@ -208,15 +208,11 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
       </main>
 
       {/* PORTAL INTERCEPT: Renders modal overlay frame when activeUser payload data cache arrives */}
-      {activeUser && (
+      {backendDataLocal && (
         <EditUserModal
           isOpen={true}
           onClose={handleCloseModal}
-          user={activeUser.user}
-          roles={activeUser.roles}
-          roleLabels={activeUser.roleLabels}
-          relatedUsers={activeUser.related_users}
-          ours={activeUser.ours}
+          backendData={backendDataLocal}
         />
       )}
     </AuthenticatedLayout>

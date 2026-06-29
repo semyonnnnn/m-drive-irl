@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Http\Resources\AuthUserResource;
+use App\Http\Resources\UserResource;
 use Illuminate\Pagination\LengthAwarePaginator;
 ///////////////////////////////////////
 use App\Models\User;
@@ -134,6 +134,6 @@ class UserListService
 
         return $users;
 
-        //    return AuthUserResource::collection(User::paginate(10))->collection->toArray();
+        //    return UserResource::collection(User::paginate(10))->collection->toArray();
     }
 }

@@ -8,8 +8,9 @@ use Illuminate\Support\Str;
 //////////////////////////////////
 use App\Enum\RolesEnum;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use App\Http\Resources\AuthUserResource;
+use Illuminate\Support\Facades\Auth;
+// use Spatie\Permission\Models\Role;
+use App\Http\Resources\UserResource;
 use App\Services\UserListService;
 use App\Http\Requests\UploadUserRequest;
 
@@ -37,12 +38,9 @@ class UserController extends Controller
         unset($labels[RolesEnum::Root->value]);
 
         $data = [
-            'user' => new AuthUserResource($user),
-            // Exclude root role model from DB query
-            'roles' => Role::where('name', '!=', RolesEnum::Root->value)->get(),
-            // Send the cleaned labels map
+            'user' => Auth::user(),
             'roleLabels' => $labels,
-            'editableUser' => $request->user()
+            'editableUser' => new UserResource($user),
         ];
 
         $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
@@ -91,9 +89,9 @@ class UserController extends Controller
         $conflicts = [];
         $insertedCount = 0;
 
-        foreach ($users as $index => $userData) {
-            $email = $userData['почта'];
-            $name  = $userData['имя'];
+        foreach ($users as $index => $user) {
+            $email = $user['почта'];
+            $name  = $user['имя'];
 
             // 1. Check if the email already exists
             $userExists = User::query()->where('email', $email)->exists();
@@ -104,12 +102,14 @@ class UserController extends Controller
                 continue; // Skip this iteration and go to the next user
             }
 
-            User::create([
+            $created = User::create([
                 'name'     => $name,
                 'email'    => $email,
                 'password' => null,
                 'temp_password' => Str::random(12),
             ]);
+
+            $created->assignRole(RolesEnum::Gakusei->value);
 
             $insertedCount++;
         }

@@ -10,44 +10,46 @@ interface Role {
 interface EditUserModalProps {
     isOpen: boolean;
     onClose: () => void;
-    user: {
-        id: number;
-        name: string;
-        email: string;
-        roles?: Role[];
-    };
-    roles: Role[];
-    roleLabels: Record<string, string>;
-    relatedUsers?: any[];
-    ours?: any[];
+    backendData: any
+    // user: {
+    //     id: number;
+    //     name: string;
+    //     email: string;
+    //     roles?: Role[];
+    // };
+    // roles: Role[];
+    // roleLabels: Record<string, string>;
+    // relatedUsers?: any[];
+    // ours?: any[];
 }
 
 const EditUserModal: React.FC<EditUserModalProps> = ({
     isOpen,
     onClose,
-    user,
-    roles,
-    roleLabels,
-    relatedUsers = [],
-    ours = [],
+    backendData,
+    // user,
+    // roles,
+    // roleLabels,
+    // relatedUsers = [],
+    // ours = [],
 }) => {
     const { data, setData, put, processing, errors } = useForm({
-        name: user.name ?? "",
-        email: user.email ?? "",
-        role: user.roles?.[0]?.name ?? "",
+        name: backendData.name ?? "",
+        email: backendData.email ?? "",
+        role: backendData.roles?.[0]?.name ?? "",
     });
 
     useEffect(() => {
         setData({
-            name: user.name ?? "",
-            email: user.email ?? "",
-            role: user.roles?.[0]?.name ?? "",
+            name: backendData.name ?? "",
+            email: backendData.email ?? "",
+            role: backendData.roles?.[0]?.name ?? "",
         });
-    }, [user]);
+    }, [backendData]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route("user.update", user.id), {
+        put(route("user.update", backendData.id), {
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => {
@@ -55,6 +57,20 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             },
         });
     };
+
+    const user = backendData.editableUser;
+    const roles = backendData.roleLabels;
+    const me = backendData.user;
+
+    const otherRoles = Object.fromEntries(
+        Object.entries(roles).filter(([key]) => key !== user.roles[0])
+    );
+
+    console.log('otherRoles', otherRoles);
+
+    console.log('roles', roles);
+    console.log('user', user);
+
 
     return (
         <Modal show={isOpen} onClose={onClose} closeable={!processing} maxWidth="3xl">
@@ -80,7 +96,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     <div className="flex items-center gap-3">
                         <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${processing ? "bg-red-500" : "bg-amber-500"}`}></div>
                         <span className="text-xs font-bold text-zinc-800 uppercase tracking-widest">
-                            МАТРИЦА_КОНФИГУРАЦИИ // SYS_ID.{user.id}
+                            МАТРИЦА_КОНФИГУРАЦИИ // SYS_ID.{backendData.id}
                         </span>
                     </div>
                     <button
@@ -93,7 +109,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     </button>
                 </div>
 
-                {/* Основной двухколоночный грид */}
+                {/* Основной двухколонный грид */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-50 mb-6">
 
                     {/* Левая секция: Ввод параметров */}
@@ -105,7 +121,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                             </label>
                             <input
                                 type="text"
-                                value={data.name}
+                                value={user.name}
                                 onChange={(e) => setData("name", e.target.value)}
                                 disabled={processing}
                                 className={`w-full bg-zinc-200 border border-zinc-400 p-2.5 text-sm font-mono text-zinc-900 focus:outline-none focus:border-amber-500 transition-colors clip-corner disabled:bg-zinc-200/50 disabled:text-zinc-400 ${errors.name && "border-red-500!"}`}
@@ -125,7 +141,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                             </label>
                             <input
                                 type="email"
-                                value={data.email}
+                                value={user.email}
                                 onChange={(e) => setData("email", e.target.value)}
                                 disabled={processing}
                                 className={`w-full bg-zinc-200 border border-zinc-400 p-2.5 text-sm font-mono text-zinc-900 focus:outline-none focus:border-amber-500 transition-colors clip-corner disabled:bg-zinc-200/50 disabled:text-zinc-400 ${errors.email && "border-red-500!"}`}
@@ -150,10 +166,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                                     disabled={processing}
                                     className={`w-full bg-zinc-200 border border-zinc-400 p-2.5 text-sm font-mono text-zinc-900 focus:outline-none focus:border-amber-500 transition-colors clip-corner disabled:bg-zinc-200/50 disabled:text-zinc-400 appearance-none ${errors.role && "border-red-500!"}`}
                                 >
-                                    <option value="" className="bg-zinc-100 text-zinc-500">{user.roles[0] ?? '---'}</option>
-                                    {roles.map((role) => (
-                                        <option key={role.id} value={role.name} className="bg-zinc-100 text-zinc-900">
-                                            {roleLabels[role.name]?.toUpperCase() || role.name.toUpperCase()}
+                                    <option value="" className="bg-zinc-100 text-zinc-500">{roles[user.roles[0]]?.toUpperCase() ?? '---'}</option>
+                                    {(Object.entries(otherRoles) as [string, string][]).map(([key, name]: [string, string]) => (
+                                        <option key={key} value={name} className="bg-zinc-100 text-zinc-900">
+                                            {name?.toUpperCase() || name.toUpperCase()}
                                         </option>
                                     ))}
                                 </select>
@@ -173,9 +189,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                             <div>
                                 <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-300 pb-1.5 mb-2 flex justify-between items-center">
                                     <span>// СВЯЗАННЫЕ_УЗЛЫ</span>
-                                    <span className="text-amber-600">[{relatedUsers.length}]</span>
+                                    {/* <span className="text-amber-600">[{relatedUsers.length}]</span> */}
                                 </div>
-                                {relatedUsers.length > 0 ? (
+                                {/* {relatedUsers.length > 0 ? (
                                     <div className="max-h-24 overflow-y-auto space-y-1 text-[10px] text-zinc-600 scrollbar-thin scrollbar-thumb-zinc-300 pr-1">
                                         {relatedUsers.map((rel: any, idx: number) => (
                                             <div key={idx} className="truncate bg-zinc-100/60 p-1.5 border border-zinc-300 hover:border-zinc-400 text-zinc-700">
@@ -187,16 +203,16 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                                     <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest p-2 bg-zinc-100/40 border border-zinc-300/40 text-center">
                                         СВЯЗИ_ОТСУТСТВУЮТ
                                     </div>
-                                )}
+                                )} */}
                             </div>
 
                             {/* Базовые матрицы */}
                             <div>
                                 <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-300 pb-1.5 mb-2 flex justify-between items-center">
                                     <span>// БАЗОВЫЕ_МАТРИЦЫ</span>
-                                    <span className="text-amber-600">[{ours.length}]</span>
+                                    {/* <span className="text-amber-600">[{ours.length}]</span> */}
                                 </div>
-                                {ours.length > 0 ? (
+                                {/* {ours.length > 0 ? (
                                     <div className="max-h-24 overflow-y-auto space-y-1 text-[10px] text-zinc-600 scrollbar-thin scrollbar-thumb-zinc-300 pr-1">
                                         {ours.map((item: any, idx: number) => (
                                             <div key={idx} className="truncate bg-zinc-100/60 p-1.5 border border-zinc-300 hover:border-zinc-400 text-zinc-700">
@@ -208,7 +224,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                                     <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest p-2 bg-zinc-100/40 border border-zinc-300/40 text-center">
                                         СТРУКТУРА_ПУСТА
                                     </div>
-                                )}
+                                )} */}
                             </div>
                         </div>
 
