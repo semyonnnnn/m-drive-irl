@@ -158,7 +158,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                                         {roles[currentRoleKey]?.toUpperCase() || 'ВЫБЕРИТЕ РОЛЬ...'}
                                     </option>
                                     {(Object.entries(roles) as [string, string][]).map(([key, name]) => (
-                                        <option key={key} value={name} className="bg-zinc-100 text-zinc-900">
+                                        <option key={key} value={key} className="bg-zinc-100 text-zinc-900">
                                             {name?.toUpperCase()}
                                         </option>
                                     ))}

@@ -21,11 +21,11 @@ class UserValidationService
     {
 
         // Extract raw backing values from your RolesEnum case files
-        $allowedRoles = RolesEnum::labels();
+        $allowedRoles = array_keys(RolesEnum::labels());
 
         $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:20'],
-            'email' => ['required', 'string', 'email', 'max:20'],
+            'name' => ['required', 'string', 'max:50'],
+            'email' => ['required', 'string', 'email', 'max:50'],
             'role' => ['required', 'string', Rule::in($allowedRoles)],
         ], $this->getTacticalErrorMessages());
 

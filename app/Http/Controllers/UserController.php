@@ -57,38 +57,26 @@ class UserController extends Controller
     }
     public function update(Request $request, User $user)
     {
-        DB::table('non_existent_table_xyz')->get();
         if ($user->hasRole(RolesEnum::Root->value)) {
             return;
         }
 
-        $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
-        $related_users = $request->get('related_users');
+        // for later
+        // $isAdminPage = $user->hasRole(RolesEnum::Admin->value);
+        // $related_users = $request->get('related_users');
 
-        // 1. Validate 'role' as a single string matching your frontend structure
-        // dd($request->all());
         $data = (new UserValidationService())->validateUpdate($request);
-
-        // dd('after validation');
-
-        // dd('validation succeeded');
-
-        // Optional: Keep this here for testing if needed
-        // dd('after validation', $data['role']);
 
         $this->authorize('updateAccess', [$user]);
 
-        // 2. Wrap the string into an array if your Policy expects an array of roles
         $this->authorize('assignRoles', [$user, [$data['role']]]);
 
-        // if (!$isAdminPage) {
-        //     (new UserListService)->update($related_users, $user, $data['role']);
-        // }
-
-        // 3. Pass the string wrapped in an array to syncRoles (Spatie expects an array/collection)
+        $user->update([
+            'name'  => $data['name'],
+            'email' => $data['email'],
+        ]);
         $user->syncRoles([$data['role']]);
 
-        // dd($user->name);
         return back()->with('success', "СУБЪЕКТ [{$user->name}]: ДАННЫЕ ОБНОВЛЕНЫ");
     }
 

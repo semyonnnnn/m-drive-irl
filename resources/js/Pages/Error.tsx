@@ -49,7 +49,7 @@ export default function Error() {
                 <div className="absolute -bottom-px -right-px w-2.5 h-2.5 border-b-2 border-r-2 border-[#dc2626] pointer-events-none" />
 
                 {/* Главный фон терминала — жёстко #09090b */}
-                <div className="relative flex flex-col flex-1 bg-[#09090b] text-[#ef4444] border border-[#3f0a0a] p-7.5 overflow-hidden select-none">
+                <div className="relative flex flex-col flex-1 bg-[#09090b] text-[#ef4444] border border-[#3f0a0a] p-7.5 overflow-hidden">
 
                     {/* Сканирующая линия */}
                     <div className="absolute inset-0 pointer-events-none overflow-hidden z-40 opacity-12 mix-blend-overlay">
