@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 //////////////////////////////////
 use App\Enum\RolesEnum;
 use App\Models\User;
@@ -56,6 +57,7 @@ class UserController extends Controller
     }
     public function update(Request $request, User $user)
     {
+        DB::table('non_existent_table_xyz')->get();
         if ($user->hasRole(RolesEnum::Root->value)) {
             return;
         }
@@ -66,6 +68,8 @@ class UserController extends Controller
         // 1. Validate 'role' as a single string matching your frontend structure
         // dd($request->all());
         $data = (new UserValidationService())->validateUpdate($request);
+
+        // dd('after validation');
 
         // dd('validation succeeded');
 

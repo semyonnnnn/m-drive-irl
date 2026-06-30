@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 //////////////////////////////////////////
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UploadController;
+// use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     $user = Auth::user();
@@ -21,6 +22,11 @@ Route::get('/', function () {
 
     return Inertia::render('Main/Guest');
 })->name('dashboard');
+
+
+// Route::get('/test', function () {
+//     return DB::table('non_existent_table_xyz')->get();
+// });
 
 // 1. First Layer: User must be authenticated
 Route::middleware(['auth'])->group(function () {

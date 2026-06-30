@@ -12,7 +12,7 @@ enum RolesEnum: string
     public static function labels(): array
     {
         return [
-            self::Root->value => 'root',
+            self::Root->value => 'Root',
             self::Admin->value => 'Администратор',
             self::Sensei->value => 'Наставник',
             self::Gakusei->value => 'Ученик',

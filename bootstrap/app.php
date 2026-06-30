@@ -7,6 +7,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'force_reset' => \App\Http\Middleware\EnforcePasswordReset::class,
         ]);
 
-        // 3. GUEST REDIRECTION RULE (Pushes unauthenticated users explicitly back to root / string path)
+        // 3. GUEST REDIRECTION RULE (Pushes unauthenticated users explicitly back to root)
         $middleware->redirectTo(guests: '/');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -36,10 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
             return new AccessDeniedHttpException($e->getMessage() ?: 'Forbidden Access Matrix.', $e);
         });
 
-        // 2. RENDERING LAYER: Intercept and build your custom terminal-style Blade view
+        // 2. RENDERING LAYER: Intercept and build custom error states
         $exceptions->render(function (Throwable $e, Request $request) {
 
-            // EXCLUSION GUARD MATRIX: Pass execution back to Laravel core layout for core routing actions
+            // EXCLUSION GUARD MATRIX: Let Validation and Auth bypass this custom rendering
             if (
                 $e instanceof \Illuminate\Auth\AuthenticationException ||
                 $e instanceof \Illuminate\Validation\ValidationException
@@ -47,47 +48,43 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            if (!config('app.debug')) {
+            // Determine the HTTP Status Code (e.g., 404, 403, or 500 for database insertion failures)
+            $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+            $officialStatusText = \Symfony\Component\HttpFoundation\Response::$statusTexts[$statusCode] ?? 'Unknown';
 
-                // STRICT INERTIA FILTER: Only bypass if it is an active client-side link navigation
-                if ($request->header('X-Inertia')) {
-                    return null;
-                }
+            // If APP_DEBUG is true and it's a server crash (500), crash normally to see the native stack trace
+            if (config('app.debug') && $statusCode === 500) {
+                return null;
+            }
 
-                // Extract the true status code after normalization mapping runs
-                $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
-                $officialStatusText = \Symfony\Component\HttpFoundation\Response::$statusTexts[$statusCode] ?? 'Unknown';
+            // --- TELEMETRY CALCULATIONS ---
+            $dynamicOperation = $request->method() . '_REQUEST';
+            $path = $request->path();
 
-                // Dynamic tracking strings for your telemetry dashboard matrix
-                $dynamicOperation = $request->method() . '_REQUEST';
-                $path = $request->path();
+            if ($path === '/') {
+                $dynamicTarget = 'ROOT_CORE';
+            } else {
+                $formattedTarget = strtoupper(str_replace(['/', '-'], ['_', '_'], $path));
+                $dynamicTarget = \Illuminate\Support\Str::limit($formattedTarget, 25, '...');
+            }
 
-                // Limit and Shorten the target URL string path mapping (Max 25 Chars)
-                if ($path === '/') {
-                    $dynamicTarget = 'ROOT_CORE';
-                } else {
-                    $formattedTarget = strtoupper(str_replace(['/', '-'], ['_', '_'], $path));
-                    $dynamicTarget = \Illuminate\Support\Str::limit($formattedTarget, 25, '...');
-                }
+            $dynamicStatus = ($statusCode === 403 || $statusCode === 401) ? 'ДОСТУП_БЛОКИРОВАН' : (($statusCode >= 500) ? 'КРИТИЧЕСКИЙ_СБОЙ_ЯДРА' : '...');
+            $shortenedUrl = \Illuminate\Support\Str::limit($request->fullUrl(), 45, '...');
 
-                $dynamicStatus = ($statusCode === 403 || $statusCode === 401) ? 'ДОСТУП_БЛОКИРОВАН' : (($statusCode >= 500) ? 'КРИТИЧЕСКИЙ_СБОЙ_ЯДРА' : '...');
+            $telemetryData = [
+                'МАРШРУТ СБОЯ: ' . $request->method() . ' ' . $shortenedUrl,
+                'СТАТУС ОТВЕТА: ' . $statusCode . ' (' . strtoupper(str_replace(' ', '_', $officialStatusText)) . ')',
+                'ВРЕМЯ ФИКСАЦИИ: ' . now()->toIso8601String(),
+                'IP-АДРЕС ИСТОЧНИКА: ' . $request->ip(),
+            ];
 
-                // Limit and Shorten the full URL trace string (Max 45 Chars)
-                $shortenedUrl = \Illuminate\Support\Str::limit($request->fullUrl(), 45, '...');
+            $rawMessage = $e->getMessage() ?: $officialStatusText;
+            $shortenedMessage = \Illuminate\Support\Str::limit($rawMessage, 50, '...');
 
-                $telemetryData = [
-                    'МАРШРУТ СБОЯ: ' . $request->method() . ' ' . $shortenedUrl,
-                    'СТАТУС ОТВЕТА: ' . $statusCode . ' (' . strtoupper(str_replace(' ', '_', $officialStatusText)) . ')',
-                    'ВРЕМЯ ФИКСАЦИИ: ' . now()->toIso8601String(),
-                    'IP-АДРЕС ИСТОЧНИКА: ' . $request->ip(),
-                ];
-
-                // Limit and Shorten the exception message string (Max 50 Chars)
-                $rawMessage = $e->getMessage() ?: $officialStatusText;
-                $shortenedMessage = \Illuminate\Support\Str::limit($rawMessage, 50, '...');
-
-                // FORCE EXECUTION: Safely output your custom stylized blade template
-                return response()->view('errors.minimal', [
+            // --- INERTIA APP GUARD ---
+            // If the request comes from Inertia, compile payload and dispatch cleanly to a frontend page
+            if ($request->header('X-Inertia')) {
+                return Inertia::render('Error', [
                     'code' => $statusCode,
                     'rawMessage' => $rawMessage,
                     'message' => $shortenedMessage,
@@ -96,6 +93,37 @@ return Application::configure(basePath: dirname(__DIR__))
                     'target' => $dynamicTarget,
                     'location' => 'NODE_' . $request->ip(),
                     'telemetry' => $telemetryData,
+                ])->toResponse($request)->setStatusCode($statusCode);
+            }
+
+            // --- STANDARD BLADE FALLBACK MATRIX (Direct URL visits) ---
+            $viewName = view()->exists("errors.{$statusCode}") ? "errors.{$statusCode}" : 'errors.minimal';
+
+            try {
+                // Try rendering your custom code blade layout (e.g. errors.404)
+                return response()->view($viewName, [
+                    'code' => $statusCode,
+                    'rawMessage' => $rawMessage,
+                    'message' => $shortenedMessage,
+                    'operation' => $dynamicOperation,
+                    'status' => $dynamicStatus,
+                    'target' => $dynamicTarget,
+                    'location' => 'NODE_' . $request->ip(),
+                    'telemetry' => $telemetryData,
+                ], $statusCode);
+            } catch (\Throwable $viewException) {
+                // If your custom view file causes a rendering crash, fallback to errors.minimal safely
+                $errorString = \Illuminate\Support\Str::limit($viewException->getMessage(), 35);
+
+                return response()->view('errors.minimal', [
+                    'code' => $statusCode,
+                    'rawMessage' => $rawMessage,
+                    'message' => $shortenedMessage,
+                    'operation' => $dynamicOperation,
+                    'status' => $dynamicStatus,
+                    'target' => $dynamicTarget,
+                    'location' => 'NODE_' . $request->ip(),
+                    'telemetry' => array_merge($telemetryData, ["ОШИБКА_КОМПИЛЯЦИИ: {$errorString}"]),
                 ], $statusCode);
             }
         });

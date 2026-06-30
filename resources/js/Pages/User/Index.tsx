@@ -36,9 +36,9 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
 
   const flash = (usePage().props as any).flash as FlashProps;
 
-  useEffect(() => {
-    console.log('backendDataLocal:', backendDataLocal)
-  }, [backendDataLocal]);
+  // useEffect(() => {
+  //   console.log('backendDataLocal:', backendDataLocal)
+  // }, [backendDataLocal]);
 
 
   const handleFetchAndOpenModal = (userId: number) => {
@@ -50,6 +50,7 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
         // response.data has all the shiny rock properties
         setBackendDataLocal(response.data);
         setLoadingUserId(null);
+        // console.error("AXIOS_CORE_CRASH:", error.response?.data || error.message);
       })
       .catch(() => {
         setLoadingUserId(null);
