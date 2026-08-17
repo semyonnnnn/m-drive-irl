@@ -120,16 +120,24 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
 }
 
 const MenuItem = ({ href_route, name }: { href_route: string, name: string }) => {
-    const isCurrent = route().current(href_route);
+    // Extract base resource name to construct wildcard (e.g., 'material.index' -> 'material.*')
+    const routePattern = href_route.includes('.')
+        ? `${href_route.split('.')[0]}.*`
+        : href_route;
+
+    const isCurrent = route().current(routePattern);
 
     return (
         <Link
             href={route(href_route)}
-            className={`px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-300/70 transition-colors clip-corner ${isCurrent && 'border-b-amber-600 text-black! border'}`}
+            className={`px-3 py-1.5 text-xs font-bold uppercase tracking-widest transition-colors clip-corner ${isCurrent
+                    ? 'border-b-amber-600 text-black border-b-2 border-x border-t border-zinc-300 bg-amber-500/10'
+                    : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-300/70'
+                }`}
         >
-            <span className={`${isCurrent && 'text-amber-600'}`}>[{" "}</span>
+            <span className={isCurrent ? 'text-amber-600 font-black' : ''}>[ </span>
             {name}
-            <span className={`${isCurrent && 'text-amber-600'}`}>{" "}]</span>
+            <span className={isCurrent ? 'text-amber-600 font-black' : ''}> ]</span>
         </Link>
     );
-}
+};

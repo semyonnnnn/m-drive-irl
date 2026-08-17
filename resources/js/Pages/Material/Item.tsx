@@ -4,11 +4,12 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import { Link } from '@inertiajs/react';
 
 // Point to the PDF.js worker at module level
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-export default function SingleItem({ material }: PageProps<{ material: LearningMaterial }>) {
+export default function Item({ material }: PageProps<{ material: LearningMaterial }>) {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [inputPage, setInputPage] = useState<string>('1');
@@ -95,6 +96,21 @@ export default function SingleItem({ material }: PageProps<{ material: LearningM
                     {/* CRT Scanline Background Effect */}
                     <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-[0.05] mix-blend-overlay">
                         <div className="w-full h-0.5 bg-amber-400" style={{ animation: 'staticScanline 10s linear infinite' }}></div>
+                    </div>
+
+                    {/* Terminal Navigation Breadcrumb */}
+                    <div className="flex items-center gap-2 mb-4 text-xs md:text-sm font-mono uppercase tracking-widest bg-zinc-900/60 border border-zinc-800/80 px-4 py-2.5 relative z-10">
+                        <span className="text-zinc-500 font-semibold hover:text-amber-400 transition cursor-pointer">
+                            <Link
+                                href={route('material.index')}
+                            >
+                                материалы
+                            </Link>
+                        </span>
+                        <span className="text-amber-500 font-bold">&gt;&gt;</span>
+                        <span className="text-amber-400 font-bold truncate">
+                            {material.title || material.title || `ОБЪЕКТ #${material.id}`}
+                        </span>
                     </div>
 
                     {/* HUD Toolbar Header */}
@@ -199,8 +215,8 @@ export default function SingleItem({ material }: PageProps<{ material: LearningM
                                                     key={p}
                                                     onClick={() => setPageNumber(p)}
                                                     className={`relative flex flex-col items-center p-1.5 rounded-2xs transition border cursor-pointer ${isActive
-                                                            ? 'border-amber-500 bg-amber-950/50 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
-                                                            : 'border-zinc-800 bg-zinc-950/80 hover:border-zinc-600 hover:bg-zinc-900'
+                                                        ? 'border-amber-500 bg-amber-950/50 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
+                                                        : 'border-zinc-800 bg-zinc-950/80 hover:border-zinc-600 hover:bg-zinc-900'
                                                         }`}
                                                 >
                                                     <Page
