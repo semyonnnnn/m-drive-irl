@@ -29,7 +29,11 @@ class TestController extends Controller
         \App\Models\Test::destroy($id);
     }
 
-    public function edit(int $id)
+    public function create(){
+        return Inertia::render('Test/Create');
+    }
+
+    public function show(int $id)
     {
         $test = \App\Models\Test::findOrFail($id);
 

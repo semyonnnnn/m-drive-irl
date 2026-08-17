@@ -168,7 +168,7 @@ export default function Item({ material }: PageProps<{ material: LearningMateria
                             >
                                 -
                             </button>
-                            <span className="font-mono text-sm md:text-base text-zinc-300 min-w-[55px] text-center font-bold">
+                            <span className="font-mono text-sm md:text-base text-zinc-300 min-w-13.75 text-center font-bold">
                                 {Math.round(scale * 100)}%
                             </span>
                             <button
@@ -205,7 +205,7 @@ export default function Item({ material }: PageProps<{ material: LearningMateria
                         <div className="flex w-full gap-4 items-stretch">
 
                             {/* Left Filmstrip Sidebar */}
-                            <div className="w-36 flex-shrink-0 bg-zinc-900/50 p-2.5 border border-zinc-800 relative">
+                            <div className="w-36 shrink-0 bg-zinc-900/50 p-2.5 border border-zinc-800 relative">
                                 <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto amber-striped-scrollbar flex flex-col gap-3 pr-1">
                                     {numPages &&
                                         Array.from(new Array(numPages), (_, index) => index + 1).map((p) => {

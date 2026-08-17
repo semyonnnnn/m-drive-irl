@@ -41,12 +41,13 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/user', [UserController::class, 'upload'])->name('user.upload');
 
             Route::get('/material', [MaterialController::class, 'index'])->name('material.index');
-            Route::get('/material/{id}/edit', [MaterialController::class, 'edit'])->name('material.edit');
+            Route::get('/material/{id}/show', [MaterialController::class, 'show'])->name('material.show');
             Route::post('/material', [MaterialController::class, 'store'])->name('material.post');
             Route::delete('/material/{id}', [MaterialController::class, 'destroy'])->name('material.destroy');
 
             Route::get('/test', [TestController::class, 'index'])->name('test.index');
-            Route::get('/test/{id}/edit', [TestController::class, 'edit'])->name('test.edit');
+            Route::get('/test/{id}/show', [TestController::class, 'show'])->name('test.show');
+            Route::get('/test/create', [TestController::class, 'create'])->name('test.create');
             Route::post('/test', [TestController::class, 'store'])->name('test.post');
             Route::delete('/test/{id}', [TestController::class, 'destroy'])->name('test.destroy');
 

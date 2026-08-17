@@ -31,7 +31,7 @@ class MaterialController extends Controller
         \App\Models\Material::destroy($id);
     }
 
-    public function edit(int $id)
+    public function show(int $id)
     {
         $material = \App\Models\Material::findOrFail($id);
 
