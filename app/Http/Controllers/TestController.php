@@ -6,7 +6,6 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 //////////////////////////////////////
 use App\Services\UploadService;
-use App\Services\UploadValidationService;
 
 class TestController extends Controller
 {
@@ -32,10 +31,10 @@ class TestController extends Controller
 
     public function edit(int $id)
     {
-        $material = \App\Models\Material::findOrFail($id);
+        $test = \App\Models\Test::findOrFail($id);
 
         return Inertia::render('Test/Item', [
-            'material' => $material
+            'test' => $test
         ]);
     }
 }

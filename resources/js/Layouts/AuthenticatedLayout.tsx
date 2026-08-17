@@ -31,24 +31,10 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
 
                     {/* Desktop Navigation - System Links */}
                     <nav className="hidden lg:flex items-center gap-1">
-                        <Link
-                            href={route('test.index')}
-                            className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
-                        >
-                            [ тесты ]
-                        </Link>
-                        <Link
-                            href={route('material.index')}
-                            className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
-                        >
-                            [ материалы ]
-                        </Link>
-                        <Link
-                            href={route('user.index')}
-                            className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
-                        >
-                            [ группа ]
-                        </Link>
+                        <MenuItem href_route='dashboard' name='главная' />
+                        <MenuItem href_route='test.index' name='тесты' />
+                        <MenuItem href_route='material.index' name='материалы' />
+                        <MenuItem href_route='user.index' name='группа' />
                     </nav>
                 </div>
 
@@ -130,5 +116,20 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                 </div>
             </main>
         </div>
+    );
+}
+
+const MenuItem = ({ href_route, name }: { href_route: string, name: string }) => {
+    const isCurrent = route().current(href_route);
+
+    return (
+        <Link
+            href={route(href_route)}
+            className={`px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-300/70 transition-colors clip-corner ${isCurrent && 'border-b-amber-600 text-black! border'}`}
+        >
+            <span className={`${isCurrent && 'text-amber-600'}`}>[{" "}</span>
+            {name}
+            <span className={`${isCurrent && 'text-amber-600'}`}>{" "}]</span>
+        </Link>
     );
 }
