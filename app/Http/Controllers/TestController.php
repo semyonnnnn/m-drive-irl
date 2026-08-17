@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Inertia\Inertia;
+use Illuminate\Http\Request;
+//////////////////////////////////////
+use App\Services\UploadService;
+use App\Services\UploadValidationService;
+
+class TestController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        return Inertia::render('Test/Index', [
+            // 'materials' => (new UploadService)->paginate()
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+
+    }
+
+    public function destroy(int $id)
+    {
+        \App\Models\Test::destroy($id);
+    }
+
+    public function edit(int $id)
+    {
+        $material = \App\Models\Material::findOrFail($id);
+
+        return Inertia::render('Test/Item', [
+            'material' => $material
+        ]);
+    }
+}

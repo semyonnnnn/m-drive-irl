@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 ////////////////////////////////////////////////
-import { MaterialCover } from "./MaterialCover";
+import { MaterialCover } from "./Partials/MaterialCover";
 import { PageProps, UploadType } from '@/types';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { DeploymentModal } from "./DeploymentModal";
-import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
+import { DeploymentModal } from "./Partials/DeploymentModal";
+import { DeleteConfirmationModal } from "./Partials/DeleteConfirmationModal";
 import { PopUp } from "@/components/custom/PopUp";
 import { Pagination } from "@/components/custom/Pagination";
 
@@ -108,7 +108,7 @@ export default function Index({ materials }: PageProps<UploadType>) {
                             >
                                 <div className="absolute top-0 right-0 w-1 h-1 bg-zinc-400/30 group-hover:bg-amber-500 m-1 transition-colors"></div>
                                 <div className="w-full mb-3" onClick={() => {
-                                    router.get(route('upload.edit', { id: item.id }));
+                                    router.get(route('material.edit', { id: item.id }));
                                 }}>
                                     <MaterialCover item={item} />
                                 </div>
@@ -176,7 +176,7 @@ export default function Index({ materials }: PageProps<UploadType>) {
                     })}
                     itemName={delModConf.title}
                     onConfirm={() => {
-                        router.delete(route('upload.destroy', { id: delModConf.id }));
+                        router.delete(route('material.destroy', { id: delModConf.id }));
                     }}
                 />
             </main>

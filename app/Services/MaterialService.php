@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Models\Material;
-use Illuminate\Http\Request;
+use App\Http\Requests\Material\MaterialStoreRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class UploadService
+class MaterialService
 {
-    public function uploadFile(Request $request)
+    public function uploadFile(MaterialStoreRequest $request)
     {
         $file = $request->file('uploadedFile');
         $originalFullName = $file->getClientOriginalName();

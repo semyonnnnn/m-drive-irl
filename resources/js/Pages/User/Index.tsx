@@ -5,7 +5,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { User, PageProps, PaginatedDataProps, UserIndexProps, FlashProps } from "@/types";
 import { Pagination } from "@/components/custom/Pagination";
 import { UploadUsersPanel } from "./UploadUsersPanel";
-import { PasswordGenerator } from "../Material/PasswordGenerator";
+import { PasswordGenerator } from "../Material/Partials/PasswordGenerator";
 import { PopUp } from "@/components/custom/PopUp";
 import { ErrorTelemetry } from "./ErrorTelemetry";
 import { EditUserModal } from "./EditUserModal";

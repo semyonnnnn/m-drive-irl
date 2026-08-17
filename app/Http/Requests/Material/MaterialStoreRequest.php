@@ -1,19 +1,15 @@
 <?php
 
-namespace App\Services;
+namespace App\Http\Requests\Material;
 
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Http\FormRequest;
 
-class UploadValidationService
+
+class MaterialStoreRequest extends FormRequest
 {
-    public function storeValidate(Request $request)
+    public function rules(): array
     {
-        $request->validate($this->storeRules(), $this->messages());
-    }
-
-    public function storeRules(): array
-    {
-        return [
+            return [
             // Validate file presence, size (64MB = 65536 KB), and specific types
             'uploadedFile' => [
                 'required', 
@@ -28,7 +24,7 @@ class UploadValidationService
 
     public function messages(): array
     {
-        return [
+      return [
             'uploadedFile.required' => '[ОШИБКА] ПАКЕТ ДАННЫХ НЕ ОБНАРУЖЕН',
             'uploadedFile.max'      => '[ОШИБКА] ОБЪЕМ ПАКЕТА ПРЕВЫШАЕТ 64MB',
             'uploadedFile.mimes'    => '[ОШИБКА] ФОРМАТ ДАННЫХ НЕ ПОДДЕРЖИВАЕТСЯ (ДОПУСТИМЫ: PDF, DOCX, XLSX)',
@@ -37,4 +33,5 @@ class UploadValidationService
             'description.string'    => '[ОШИБКА] ТРЕБУЕТСЯ ТЕКСТОВОЕ ПОЛЕ',
         ];
     }
+
 }

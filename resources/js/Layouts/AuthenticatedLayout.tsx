@@ -32,13 +32,13 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                     {/* Desktop Navigation - System Links */}
                     <nav className="hidden lg:flex items-center gap-1">
                         <Link
-                            href={route('upload.index')}
+                            href={route('test.index')}
                             className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
                         >
                             [ тесты ]
                         </Link>
                         <Link
-                            href={route('upload.index')}
+                            href={route('material.index')}
                             className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60 transition-colors clip-corner"
                         >
                             [ материалы ]

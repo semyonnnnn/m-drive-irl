@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 //////////////////////////////////////
-use App\Services\UploadService;
-use App\Services\UploadValidationService;
+use App\Services\MaterialService;
+use App\Http\Requests\Material\MaterialStoreRequest;
 
-class UploadController extends Controller
+class MaterialController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,14 +15,13 @@ class UploadController extends Controller
     public function index()
     {
         return Inertia::render('Material/Index', [
-            'materials' => (new UploadService)->paginate()
+            'materials' => (new MaterialService)->paginate()
         ]);
     }
 
-    public function store(Request $request)
+    public function store(MaterialStoreRequest $r)
     {
-        (new UploadValidationService)->storeValidate($request);
-        (new UploadService)->uploadFile($request);
+        (new MaterialService)->uploadFile($r);
 
         return redirect()->back()->with('success', '[ОБРАБОТКА ЗАВЕРШЕНА] ПАКЕТ ИНТЕГРИРОВАН В СЕКТОР');
     }
@@ -37,7 +35,7 @@ class UploadController extends Controller
     {
         $material = \App\Models\Material::findOrFail($id);
 
-        return Inertia::render('Material/SingleItem', [
+        return Inertia::render('Material/Item', [
             'material' => $material
         ]);
     }

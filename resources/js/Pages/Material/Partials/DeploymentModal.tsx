@@ -58,7 +58,7 @@ const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClose }) =>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
-                    post(route('upload.post'), {
+                    post(route('material.post'), {
                         forceFormData: true,
                         onSuccess: () => {
                             onClose();
