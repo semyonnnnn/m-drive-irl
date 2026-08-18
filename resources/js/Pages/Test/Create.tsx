@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
+import DeleteTestConfirmationModal from './Partials/DeleteTestConfirmationModal';
 
 export interface AnswerOption {
     id: string;
@@ -21,8 +22,19 @@ export interface TestFormData {
     questions: QuestionItem[];
 }
 
+const generateUUID = (): string => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+};
+
 export default function Create({ auth }: PageProps) {
-    const [formData, setFormData] = useState<TestFormData>({
+    const { data, setData, post, processing, errors } = useForm<TestFormData>({
         title: '',
         description: '',
         questions: [],
@@ -31,111 +43,109 @@ export default function Create({ auth }: PageProps) {
     const [questionText, setQuestionText] = useState('');
     const [answers, setAnswers] = useState<[string, string, string, string]>(['', '', '', '']);
     const [correctIndex, setCorrectIndex] = useState<number>(0);
+    const [draftError, setDraftError] = useState<string | null>(null);
 
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
+    // Modal state management
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<'single' | 'all' | null>(null);
+    const [targetQuestionId, setTargetQuestionId] = useState<string | null>(null);
 
     const handleAnswerChange = (index: number, value: string) => {
-        const updated = [...answers] as [string, string, string, string];
+        const updated: [string, string, string, string] = [...answers];
         updated[index] = value;
         setAnswers(updated);
+        if (draftError) setDraftError(null);
     };
 
     const handleAddQuestion = () => {
-        if (!questionText.trim()) return;
-        if (answers.some((a) => !a.trim())) return;
+        if (!questionText.trim()) {
+            setDraftError('Укажите текст вопроса');
+            return;
+        }
+
+        if (answers.some((a) => !a.trim())) {
+            setDraftError('Заполните все 4 варианта ответа');
+            return;
+        }
 
         const newQuestion: QuestionItem = {
-            id: `q_${Date.now()}`,
+            id: `q_${generateUUID()}`,
             text: questionText.trim(),
             options: answers.map((ans, idx) => ({
-                id: `opt_${Date.now()}_${idx}`,
+                id: `opt_${generateUUID()}`,
                 text: ans.trim(),
                 isCorrect: idx === correctIndex,
             })),
         };
 
-        setFormData((prev) => ({
-            ...prev,
-            questions: [...prev.questions, newQuestion],
-        }));
+        setData('questions', [...data.questions, newQuestion]);
 
-        // Reset Question Draft
+        // Reset draft state
         setQuestionText('');
         setAnswers(['', '', '', '']);
         setCorrectIndex(0);
+        setDraftError(null);
     };
 
-    const handleRemoveQuestion = (id: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            questions: prev.questions.filter((q) => q.id !== id),
-        }));
+    const triggerRemoveQuestionModal = (id: string) => {
+        setTargetQuestionId(id);
+        setDeleteTarget('single');
+        setIsDeleteModalOpen(true);
     };
 
-    const handleResetQuestions = () => {
-        setFormData((prev) => ({
-            ...prev,
-            questions: [],
-        }));
+    const triggerResetQuestionsModal = () => {
+        setTargetQuestionId(null);
+        setDeleteTarget('all');
+        setIsDeleteModalOpen(true);
     };
 
-    // INLINE EDITING FOR COMMITTED QUESTIONS
+    const handleConfirmDelete = () => {
+        if (deleteTarget === 'single' && targetQuestionId) {
+            setData('questions', data.questions.filter((q) => q.id !== targetQuestionId));
+        } else if (deleteTarget === 'all') {
+            setData('questions', []);
+        }
+
+        handleCloseModal();
+    };
+
+    const handleCloseModal = () => {
+        setIsDeleteModalOpen(false);
+        setDeleteTarget(null);
+        setTargetQuestionId(null);
+    };
+
     const handleUpdateQuestionText = (qId: string, text: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            questions: prev.questions.map((q) =>
-                q.id === qId ? { ...q, text } : q
-            ),
-        }));
+        setData('questions', data.questions.map((q) => (q.id === qId ? { ...q, text } : q)));
     };
 
     const handleUpdateOptionText = (qId: string, optId: string, text: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            questions: prev.questions.map((q) => {
-                if (q.id !== qId) return q;
-                return {
-                    ...q,
-                    options: q.options.map((opt) =>
-                        opt.id === optId ? { ...opt, text } : opt
-                    ),
-                };
-            }),
+        setData('questions', data.questions.map((q) => {
+            if (q.id !== qId) return q;
+            return {
+                ...q,
+                options: q.options.map((opt) => (opt.id === optId ? { ...opt, text } : opt)),
+            };
         }));
     };
 
     const handleSetCorrectOption = (qId: string, optId: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            questions: prev.questions.map((q) => {
-                if (q.id !== qId) return q;
-                return {
-                    ...q,
-                    options: q.options.map((opt) => ({
-                        ...opt,
-                        isCorrect: opt.id === optId,
-                    })),
-                };
-            }),
+        setData('questions', data.questions.map((q) => {
+            if (q.id !== qId) return q;
+            return {
+                ...q,
+                options: q.options.map((opt) => ({ ...opt, isCorrect: opt.id === optId })),
+            };
         }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        router.post(route('tests.store'), formData);
+        post(route('tests.store'));
     };
 
     return (
         <AuthenticatedLayout
-            user={auth.user}
             header={
                 <div
                     className="w-full border-b-2 border-white/20 p-4 font-mono flex items-center justify-between"
@@ -148,7 +158,6 @@ export default function Create({ auth }: PageProps) {
                         backgroundSize: '16px 16px, 16px 16px, 100% 100%',
                     }}
                 >
-                    {/* BREADCRUMB NAVIGATION */}
                     <div className="flex items-center gap-2 text-xs md:text-sm font-mono uppercase tracking-widest relative z-10">
                         <span className="text-zinc-300 font-semibold hover:text-amber-400 transition cursor-pointer">
                             <Link href={route('tests.index')}>тесты</Link>
@@ -159,7 +168,6 @@ export default function Create({ auth }: PageProps) {
                         </span>
                     </div>
 
-                    {/* STATUS INDICATOR */}
                     <div className="flex items-center space-x-2 text-[10px] text-zinc-300 font-bold uppercase tracking-wider">
                         <span className="h-2 w-2 rounded-xs bg-emerald-400 animate-pulse duration-3000" />
                         <span>создание_теста</span>
@@ -169,10 +177,7 @@ export default function Create({ auth }: PageProps) {
         >
             <Head title="Создание теста" />
 
-            {/* OUTER PAGE CANVAS */}
             <form onSubmit={handleSubmit} className="w-full p-4 sm:p-6 font-mono flex flex-col justify-start items-start bg-zinc-400 gap-6">
-
-                {/* 1. PRIMARY CONSTRUCTOR PANEL */}
                 <div
                     className="w-full h-auto p-6 clip-corner border-[3px] border-amber-600 shadow-md"
                     style={{
@@ -184,7 +189,6 @@ export default function Create({ auth }: PageProps) {
                         backgroundSize: '16px 16px, 16px 16px, 100% 100%',
                     }}
                 >
-                    {/* HEADER METADATA */}
                     <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-zinc-400">
                         <div className="flex items-center gap-2">
                             <span className="text-amber-600 font-black">//</span>
@@ -197,7 +201,6 @@ export default function Create({ auth }: PageProps) {
                         </span>
                     </div>
 
-                    {/* 1. TEST NAME */}
                     <div className="mb-4">
                         <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
                             Наименование Теста
@@ -205,15 +208,15 @@ export default function Create({ auth }: PageProps) {
                         <input
                             type="text"
                             name="title"
-                            value={formData.title}
-                            onChange={handleInputChange}
+                            value={data.title}
+                            onChange={(e) => setData('title', e.target.value)}
                             placeholder="ВВЕДИТЕ НАЗВАНИЕ..."
                             required
                             className="w-full bg-zinc-100/90 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2.5 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
                         />
+                        {errors.title && <p className="text-red-700 text-[10px] font-bold mt-1 uppercase">{errors.title}</p>}
                     </div>
 
-                    {/* 2. INSTRUCTION / DESCRIPTION FIELD */}
                     <div className="mb-6">
                         <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
                             Описание и Инструкции
@@ -221,14 +224,14 @@ export default function Create({ auth }: PageProps) {
                         <textarea
                             rows={3}
                             name="description"
-                            value={formData.description}
-                            onChange={handleInputChange}
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
                             placeholder="УКАЖИТЕ ОСНОВНЫЕ ТРЕБОВАНИЯ И ВВОДНЫЕ..."
                             className="w-full bg-zinc-100/90 text-zinc-950 placeholder-zinc-500 text-xs p-3 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner resize-none"
                         />
+                        {errors.description && <p className="text-red-700 text-[10px] font-bold mt-1 uppercase">{errors.description}</p>}
                     </div>
 
-                    {/* 3. QUESTION CREATION BLOCK */}
                     <div className="pt-4 border-t-2 border-zinc-400">
                         <label className="block text-[10px] font-black text-zinc-600 uppercase mb-3">
                             // ДОБАВЛЕНИЕ ВОПРОСА
@@ -242,13 +245,15 @@ export default function Create({ auth }: PageProps) {
                                 <input
                                     type="text"
                                     value={questionText}
-                                    onChange={(e) => setQuestionText(e.target.value)}
+                                    onChange={(e) => {
+                                        setQuestionText(e.target.value);
+                                        if (draftError) setDraftError(null);
+                                    }}
                                     placeholder="ВВЕДИТЕ ТЕКСТ ВОПРОСА..."
                                     className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
                                 />
                             </div>
 
-                            {/* ANSWER INPUTS */}
                             <div className="mb-4">
                                 <label className="block text-[10px] font-black text-zinc-600 uppercase mb-2">
                                     Варианты Ответов (Отметьте правильный)
@@ -259,16 +264,16 @@ export default function Create({ auth }: PageProps) {
                                         <div
                                             key={index}
                                             className={`flex items-center gap-2 p-2 border-2 clip-corner transition-colors ${correctIndex === index
-                                                    ? 'bg-emerald-950/10 border-emerald-600'
-                                                    : 'bg-zinc-100 border-zinc-400'
+                                                ? 'bg-emerald-950/10 border-emerald-600'
+                                                : 'bg-zinc-100 border-zinc-400'
                                                 }`}
                                         >
                                             <button
                                                 type="button"
                                                 onClick={() => setCorrectIndex(index)}
                                                 className={`w-5 h-5 flex items-center justify-center border-2 clip-corner transition-all cursor-pointer shrink-0 ${correctIndex === index
-                                                        ? 'bg-emerald-500 border-emerald-600 text-zinc-950'
-                                                        : 'bg-zinc-300 border-zinc-500 text-transparent hover:border-zinc-700'
+                                                    ? 'bg-emerald-500 border-emerald-600 text-zinc-950'
+                                                    : 'bg-zinc-300 border-zinc-500 text-transparent hover:border-zinc-700'
                                                     }`}
                                             >
                                                 <span className="text-[10px] font-black font-mono">✓</span>
@@ -277,17 +282,15 @@ export default function Create({ auth }: PageProps) {
                                             <input
                                                 type="text"
                                                 value={answer}
-                                                onChange={(e) =>
-                                                    handleAnswerChange(index, e.target.value)
-                                                }
+                                                onChange={(e) => handleAnswerChange(index, e.target.value)}
                                                 placeholder={`ОТВЕТ #${index + 1}...`}
                                                 className="flex-1 bg-transparent text-zinc-950 placeholder-zinc-500 text-xs font-bold py-1.5 border-b-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider transition-colors"
                                             />
 
                                             <span
                                                 className={`text-[9px] font-black uppercase px-1.5 py-0.5 clip-corner shrink-0 ${correctIndex === index
-                                                        ? 'bg-emerald-500 text-zinc-950'
-                                                        : 'bg-zinc-300 text-zinc-600'
+                                                    ? 'bg-emerald-500 text-zinc-950'
+                                                    : 'bg-zinc-300 text-zinc-600'
                                                     }`}
                                             >
                                                 {correctIndex === index ? 'ВЕРНО' : 'ОШИБКА'}
@@ -296,6 +299,12 @@ export default function Create({ auth }: PageProps) {
                                     ))}
                                 </div>
                             </div>
+
+                            {draftError && (
+                                <p className="text-red-700 text-[10px] font-bold mb-3 uppercase">
+                                    [ ОШИБКА ]: {draftError}
+                                </p>
+                            )}
 
                             <button
                                 type="button"
@@ -308,10 +317,15 @@ export default function Create({ auth }: PageProps) {
                     </div>
                 </div>
 
-                {/* 2. SEPARATE PANEL FOR ADDED QUESTIONS */}
-                {formData.questions.length > 0 && (
+                {errors.questions && (
+                    <p className="text-red-700 text-xs font-bold uppercase bg-zinc-300 p-3 border-2 border-red-600 clip-corner w-full">
+                        [ ОШИБКА ВАЛИДАЦИИ ]: {errors.questions}
+                    </p>
+                )}
+
+                {data.questions.length > 0 && (
                     <div
-                        className="w-full h-auto p-6 clip-corner border-[3px] border-amber-600 shadow-md bg-zinc-300"
+                        className="w-full flex flex-col gap-4 h-auto p-6 clip-corner border-[3px] border-amber-600 shadow-md bg-zinc-300"
                         style={{
                             backgroundImage: `
                                 linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
@@ -324,7 +338,7 @@ export default function Create({ auth }: PageProps) {
                             <div className="flex items-center gap-2">
                                 <span className="text-amber-600 font-black">//</span>
                                 <h3 className="text-base font-black text-zinc-900 uppercase tracking-widest">
-                                    ДОБАВЛЕННЫЕ ВОПРОСЫ В ТЕСТ ({formData.questions.length})
+                                    ДОБАВЛЕННЫЕ ВОПРОСЫ В ТЕСТ ({data.questions.length})
                                 </h3>
                             </div>
                             <span className="text-[10px] font-mono text-zinc-600 font-black uppercase">
@@ -332,26 +346,25 @@ export default function Create({ auth }: PageProps) {
                             </span>
                         </div>
 
-                        {/* TOP ACTION CONTROLS */}
                         <div className="flex gap-4 justify-end pb-4 mb-4 border-b-2 border-zinc-400">
                             <button
                                 type="button"
-                                onClick={handleResetQuestions}
+                                onClick={triggerResetQuestionsModal}
                                 className="px-5 py-2.5 bg-zinc-300 border-2 border-red-600 text-red-700 text-xs font-black uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors cursor-pointer clip-corner"
                             >
                                 [ СБРОСИТЬ ]
                             </button>
                             <button
                                 type="submit"
-                                className="px-5 py-2.5 bg-zinc-950 border-2 border-amber-500 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-500 hover:text-zinc-950 transition-colors cursor-pointer clip-corner"
+                                disabled={processing}
+                                className="px-5 py-2.5 bg-zinc-950 border-2 border-amber-500 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-500 hover:text-zinc-950 disabled:opacity-50 transition-colors cursor-pointer clip-corner"
                             >
-                                // СОХРАНИТЬ_ТЕСТ
+                                {processing ? 'СОХРАНЕНИЕ...' : '// СОХРАНИТЬ_ТЕСТ'}
                             </button>
                         </div>
 
-                        {/* LIST OF COMMITTED QUESTIONS */}
                         <ul className="space-y-4">
-                            {formData.questions.map((q, idx) => (
+                            {data.questions.map((q, idx) => (
                                 <li
                                     key={q.id}
                                     className="bg-zinc-100 p-4 border-2 border-zinc-400 hover:border-amber-600 clip-corner transition-colors"
@@ -364,37 +377,34 @@ export default function Create({ auth }: PageProps) {
                                             <input
                                                 type="text"
                                                 value={q.text}
-                                                onChange={(e) =>
-                                                    handleUpdateQuestionText(q.id, e.target.value)
-                                                }
+                                                onChange={(e) => handleUpdateQuestionText(q.id, e.target.value)}
                                                 className="w-full bg-transparent text-xs font-bold text-zinc-950 uppercase tracking-wide py-1 border-b-2 border-zinc-400 outline-hidden focus:border-amber-600 transition-colors"
                                             />
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => handleRemoveQuestion(q.id)}
+                                            onClick={() => triggerRemoveQuestionModal(q.id)}
                                             className="text-red-700 hover:bg-red-200/60 font-black text-[10px] px-2 py-0.5 border border-red-500 clip-corner cursor-pointer uppercase shrink-0 transition-colors"
                                         >
                                             [ УДАЛИТЬ ]
                                         </button>
                                     </div>
 
-                                    {/* EDITABLE ANSWERS GRID WITH UNDERLINES */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-zinc-300">
                                         {q.options.map((opt, oIdx) => (
                                             <div
                                                 key={opt.id}
                                                 className={`flex items-center gap-2 p-2 border-2 clip-corner transition-colors ${opt.isCorrect
-                                                        ? 'bg-emerald-950/10 border-emerald-600'
-                                                        : 'bg-zinc-200/60 border-zinc-400'
+                                                    ? 'bg-emerald-950/10 border-emerald-600'
+                                                    : 'bg-zinc-200/60 border-zinc-400'
                                                     }`}
                                             >
                                                 <button
                                                     type="button"
                                                     onClick={() => handleSetCorrectOption(q.id, opt.id)}
                                                     className={`w-5 h-5 flex items-center justify-center border-2 clip-corner transition-all cursor-pointer shrink-0 ${opt.isCorrect
-                                                            ? 'bg-emerald-500 border-emerald-600 text-zinc-950'
-                                                            : 'bg-zinc-300 border-zinc-500 text-transparent hover:border-zinc-700'
+                                                        ? 'bg-emerald-500 border-emerald-600 text-zinc-950'
+                                                        : 'bg-zinc-300 border-zinc-500 text-transparent hover:border-zinc-700'
                                                         }`}
                                                 >
                                                     <span className="text-[10px] font-black font-mono">✓</span>
@@ -408,19 +418,15 @@ export default function Create({ auth }: PageProps) {
                                                     type="text"
                                                     value={opt.text}
                                                     onChange={(e) =>
-                                                        handleUpdateOptionText(
-                                                            q.id,
-                                                            opt.id,
-                                                            e.target.value
-                                                        )
+                                                        handleUpdateOptionText(q.id, opt.id, e.target.value)
                                                     }
                                                     className="flex-1 bg-transparent text-zinc-950 text-xs font-bold py-1 border-b-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider transition-colors"
                                                 />
 
                                                 <span
                                                     className={`text-[9px] font-black uppercase px-1.5 py-0.5 clip-corner shrink-0 ${opt.isCorrect
-                                                            ? 'bg-emerald-500 text-zinc-950'
-                                                            : 'bg-zinc-300 text-zinc-600'
+                                                        ? 'bg-emerald-500 text-zinc-950'
+                                                        : 'bg-zinc-300 text-zinc-600'
                                                         }`}
                                                 >
                                                     {opt.isCorrect ? 'ВЕРНО' : 'ОШИБКА'}
@@ -431,26 +437,37 @@ export default function Create({ auth }: PageProps) {
                                 </li>
                             ))}
                         </ul>
-
-                        {/* BOTTOM ACTION CONTROLS */}
-                        <div className="flex gap-4 justify-end pt-6 mt-6 border-t-2 border-zinc-400">
+                        <div className="flex gap-4 justify-end pb-4 pt-4 mb-4 border-b-2 border-t-2 border-zinc-400">
                             <button
                                 type="button"
-                                onClick={handleResetQuestions}
+                                onClick={triggerResetQuestionsModal}
                                 className="px-5 py-2.5 bg-zinc-300 border-2 border-red-600 text-red-700 text-xs font-black uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors cursor-pointer clip-corner"
                             >
                                 [ СБРОСИТЬ ]
                             </button>
                             <button
                                 type="submit"
-                                className="px-5 py-2.5 bg-zinc-950 border-2 border-amber-500 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-500 hover:text-zinc-950 transition-colors cursor-pointer clip-corner"
+                                disabled={processing}
+                                className="px-5 py-2.5 bg-zinc-950 border-2 border-amber-500 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-500 hover:text-zinc-950 disabled:opacity-50 transition-colors cursor-pointer clip-corner"
                             >
-                                // СОХРАНИТЬ_ТЕСТ
+                                {processing ? 'СОХРАНЕНИЕ...' : '// СОХРАНИТЬ_ТЕСТ'}
                             </button>
                         </div>
                     </div>
                 )}
             </form>
+
+
+            <DeleteTestConfirmationModal
+                show={isDeleteModalOpen}
+                onClose={handleCloseModal}
+                onConfirm={handleConfirmDelete}
+                itemName={
+                    deleteTarget === 'all'
+                        ? 'ВСЕ ВОПРОСЫ ТЕСТА'
+                        : data.questions.find((q) => q.id === targetQuestionId)?.text || 'ВЫБРАННЫЙ ВОПРОС'
+                }
+            />
         </AuthenticatedLayout>
     );
 }
