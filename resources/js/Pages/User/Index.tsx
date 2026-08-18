@@ -45,7 +45,7 @@ export default function Index({ auth, users, roleLabels }: UserIndexProps) {
     setLoadingUserId(userId);
 
     // Quiet hunter fetch data, URL bar stay safe on Index list!
-    axios.get(route("user.edit", userId))
+    axios.get(route("users.edit", userId))
       .then(response => {
         // response.data has all the shiny rock properties
         setBackendDataLocal(response.data);

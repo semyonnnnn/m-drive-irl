@@ -108,7 +108,7 @@ export default function Index({ materials }: PageProps<UploadType>) {
                             >
                                 <div className="absolute top-0 right-0 w-1 h-1 bg-zinc-400/30 group-hover:bg-amber-500 m-1 transition-colors"></div>
                                 <div className="w-full mb-3" onClick={() => {
-                                    router.get(route('material.show', { id: item.id }));
+                                    router.get(route('materials.show', { id: item.id }));
                                 }}>
                                     <MaterialCover item={item} />
                                 </div>
@@ -176,7 +176,7 @@ export default function Index({ materials }: PageProps<UploadType>) {
                     })}
                     itemName={delModConf.title}
                     onConfirm={() => {
-                        router.delete(route('material.destroy', { id: delModConf.id }));
+                        router.delete(route('materials.destroy', { id: delModConf.id }));
                     }}
                 />
             </main>

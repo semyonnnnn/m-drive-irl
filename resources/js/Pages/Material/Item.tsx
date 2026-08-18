@@ -102,7 +102,7 @@ export default function Item({ material }: PageProps<{ material: LearningMateria
                     <div className="flex items-center gap-2 mb-4 text-xs md:text-sm font-mono uppercase tracking-widest bg-zinc-900/60 border border-zinc-800/80 px-4 py-2.5 relative z-10">
                         <span className="text-zinc-500 font-semibold hover:text-amber-400 transition cursor-pointer">
                             <Link
-                                href={route('material.index')}
+                                href={route('materials.index')}
                             >
                                 материалы
                             </Link>

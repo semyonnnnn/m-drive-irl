@@ -32,9 +32,9 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                     {/* Desktop Navigation - System Links */}
                     <nav className="hidden lg:flex items-center gap-1">
                         <MenuItem href_route='dashboard' name='главная' />
-                        <MenuItem href_route='test.index' name='тесты' />
-                        <MenuItem href_route='material.index' name='материалы' />
-                        <MenuItem href_route='user.index' name='группа' />
+                        <MenuItem href_route='tests.index' name='тесты' />
+                        <MenuItem href_route='materials.index' name='материалы' />
+                        <MenuItem href_route='users.index' name='группа' />
                     </nav>
                 </div>
 
@@ -101,7 +101,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                 {header && (
                     <div className="mx-auto px-4 sm:px-8 mb-6">
                         {/* Dynamic Subheader Module Frame */}
-                        <div className="p-4 bg-zinc-50 border border-zinc-300 clip-corner relative overflow-hidden">
+                        <div className="p-4 bg-zinc-300 border border-zinc-300 clip-corner relative overflow-hidden">
                             <div className="absolute inset-0 opacity-[0.01] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[10px_10px] pointer-events-none"></div>
                             <div className="relative z-10 text-zinc-900 font-bold uppercase tracking-wider text-sm">
                                 {header}
@@ -120,7 +120,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
 }
 
 const MenuItem = ({ href_route, name }: { href_route: string, name: string }) => {
-    // Extract base resource name to construct wildcard (e.g., 'material.index' -> 'material.*')
+    // Extract base resource name to construct wildcard (e.g., 'materials.index' -> 'materials.*')
     const routePattern = href_route.includes('.')
         ? `${href_route.split('.')[0]}.*`
         : href_route;
@@ -131,8 +131,8 @@ const MenuItem = ({ href_route, name }: { href_route: string, name: string }) =>
         <Link
             href={route(href_route)}
             className={`px-3 py-1.5 text-xs font-bold uppercase tracking-widest transition-colors clip-corner ${isCurrent
-                    ? 'border-b-amber-600 text-black border-b-2 border-x border-t border-zinc-300 bg-amber-500/10'
-                    : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-300/70'
+                ? 'border-b-amber-600 text-black border-b-2 border-x border-t border-zinc-300 bg-amber-500/10'
+                : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-300/70'
                 }`}
         >
             <span className={isCurrent ? 'text-amber-600 font-black' : ''}>[ </span>

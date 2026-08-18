@@ -43,7 +43,7 @@ export default function Edit({
 
   const updateUser: FormEventHandler = ev => {
     ev.preventDefault();
-    put(route("user.update", user.id), { preserveScroll: true });
+    put(route("users.update", user.id), { preserveScroll: true });
   };
 
   const onRoleChange = (ev: any) => {

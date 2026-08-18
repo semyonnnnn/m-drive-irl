@@ -1,28 +1,36 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
 
+export interface AnswerOption {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+}
+
+export interface QuestionItem {
+    id: string;
+    text: string;
+    options: AnswerOption[];
+}
+
 export interface TestFormData {
     title: string;
-    department: string;
     description: string;
-    timeLimit: number;
-    questionCount: number;
-    questions: Array<{ id: string; text: string }>;
+    questions: QuestionItem[];
 }
 
 export default function Create({ auth }: PageProps) {
     const [formData, setFormData] = useState<TestFormData>({
         title: '',
-        department: '',
         description: '',
-        timeLimit: 30,
-        questionCount: 10,
         questions: [],
     });
 
-    const [newQuestionText, setNewQuestionText] = useState('');
+    const [questionText, setQuestionText] = useState('');
+    const [answers, setAnswers] = useState<[string, string, string, string]>(['', '', '', '']);
+    const [correctIndex, setCorrectIndex] = useState<number>(0);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -30,26 +38,93 @@ export default function Create({ auth }: PageProps) {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === 'timeLimit' || name === 'questionCount' ? Number(value) : value,
+            [name]: value,
         }));
     };
 
+    const handleAnswerChange = (index: number, value: string) => {
+        const updated = [...answers] as [string, string, string, string];
+        updated[index] = value;
+        setAnswers(updated);
+    };
+
     const handleAddQuestion = () => {
-        if (!newQuestionText.trim()) return;
+        if (!questionText.trim()) return;
+        if (answers.some((a) => !a.trim())) return;
+
+        const newQuestion: QuestionItem = {
+            id: `q_${Date.now()}`,
+            text: questionText.trim(),
+            options: answers.map((ans, idx) => ({
+                id: `opt_${Date.now()}_${idx}`,
+                text: ans.trim(),
+                isCorrect: idx === correctIndex,
+            })),
+        };
+
         setFormData((prev) => ({
             ...prev,
-            questions: [
-                ...prev.questions,
-                { id: `q_${Date.now()}`, text: newQuestionText.trim() },
-            ],
+            questions: [...prev.questions, newQuestion],
         }));
-        setNewQuestionText('');
+
+        // Reset Question Draft
+        setQuestionText('');
+        setAnswers(['', '', '', '']);
+        setCorrectIndex(0);
     };
 
     const handleRemoveQuestion = (id: string) => {
         setFormData((prev) => ({
             ...prev,
             questions: prev.questions.filter((q) => q.id !== id),
+        }));
+    };
+
+    const handleResetQuestions = () => {
+        setFormData((prev) => ({
+            ...prev,
+            questions: [],
+        }));
+    };
+
+    // INLINE EDITING FOR COMMITTED QUESTIONS
+    const handleUpdateQuestionText = (qId: string, text: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            questions: prev.questions.map((q) =>
+                q.id === qId ? { ...q, text } : q
+            ),
+        }));
+    };
+
+    const handleUpdateOptionText = (qId: string, optId: string, text: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            questions: prev.questions.map((q) => {
+                if (q.id !== qId) return q;
+                return {
+                    ...q,
+                    options: q.options.map((opt) =>
+                        opt.id === optId ? { ...opt, text } : opt
+                    ),
+                };
+            }),
+        }));
+    };
+
+    const handleSetCorrectOption = (qId: string, optId: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            questions: prev.questions.map((q) => {
+                if (q.id !== qId) return q;
+                return {
+                    ...q,
+                    options: q.options.map((opt) => ({
+                        ...opt,
+                        isCorrect: opt.id === optId,
+                    })),
+                };
+            }),
         }));
     };
 
@@ -62,21 +137,59 @@ export default function Create({ auth }: PageProps) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <h2 className="font-mono font-black text-xl text-zinc-900 uppercase tracking-widest">
-                    // СОЗДАНИЕ_ТЕСТА
-                </h2>
+                <div
+                    className="w-full border-b-2 border-white/20 p-4 font-mono flex items-center justify-between"
+                    style={{
+                        backgroundImage: `
+                            linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                            linear-gradient(to bottom, #52525b 0%, #3f3f46 80%, #27272a 100%)
+                        `,
+                        backgroundSize: '16px 16px, 16px 16px, 100% 100%',
+                    }}
+                >
+                    {/* BREADCRUMB NAVIGATION */}
+                    <div className="flex items-center gap-2 text-xs md:text-sm font-mono uppercase tracking-widest relative z-10">
+                        <span className="text-zinc-300 font-semibold hover:text-amber-400 transition cursor-pointer">
+                            <Link href={route('tests.index')}>тесты</Link>
+                        </span>
+                        <span className="text-amber-500 font-bold">&gt;&gt;</span>
+                        <span className="text-amber-400 font-bold truncate select-none">
+                            создание теста
+                        </span>
+                    </div>
+
+                    {/* STATUS INDICATOR */}
+                    <div className="flex items-center space-x-2 text-[10px] text-zinc-300 font-bold uppercase tracking-wider">
+                        <span className="h-2 w-2 rounded-xs bg-emerald-400 animate-pulse duration-3000" />
+                        <span>создание_теста</span>
+                    </div>
+                </div>
             }
         >
             <Head title="Создание теста" />
 
-            <div className="py-8 max-w-5xl mx-auto sm:px-6 lg:px-8">
-                <div className="w-full bg-zinc-200/60 p-6 clip-corner border-2 border-amber-500/40 font-mono shadow-xs">
+            {/* OUTER PAGE CANVAS */}
+            <form onSubmit={handleSubmit} className="w-full p-4 sm:p-6 font-mono flex flex-col justify-start items-start bg-zinc-400 gap-6">
+
+                {/* 1. PRIMARY CONSTRUCTOR PANEL */}
+                <div
+                    className="w-full h-auto p-6 clip-corner border-[3px] border-amber-600 shadow-md"
+                    style={{
+                        backgroundImage: `
+                            linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+                            linear-gradient(to bottom, #d4d4d8 0%, #d4d4d8 90%, #a1a1aa 100%)
+                        `,
+                        backgroundSize: '16px 16px, 16px 16px, 100% 100%',
+                    }}
+                >
                     {/* HEADER METADATA */}
                     <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-zinc-400">
                         <div className="flex items-center gap-2">
                             <span className="text-amber-600 font-black">//</span>
                             <h3 className="text-base font-black text-zinc-900 uppercase tracking-widest">
-                                КОНСТРУКТОР НОВОГО ПРОТОКОЛА
+                                КОНСТРУКТОР НОВОГО ТЕСТА
                             </h3>
                         </div>
                         <span className="text-[10px] font-black bg-amber-500 text-zinc-950 px-2 py-0.5 clip-corner">
@@ -84,145 +197,260 @@ export default function Create({ auth }: PageProps) {
                         </span>
                     </div>
 
-                    <form onSubmit={handleSubmit}>
-                        {/* CONFIGURATION FIELDS */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
+                    {/* 1. TEST NAME */}
+                    <div className="mb-4">
+                        <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
+                            Наименование Теста
+                        </label>
+                        <input
+                            type="text"
+                            name="title"
+                            value={formData.title}
+                            onChange={handleInputChange}
+                            placeholder="ВВЕДИТЕ НАЗВАНИЕ..."
+                            required
+                            className="w-full bg-zinc-100/90 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2.5 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
+                        />
+                    </div>
+
+                    {/* 2. INSTRUCTION / DESCRIPTION FIELD */}
+                    <div className="mb-6">
+                        <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
+                            Описание и Инструкции
+                        </label>
+                        <textarea
+                            rows={3}
+                            name="description"
+                            value={formData.description}
+                            onChange={handleInputChange}
+                            placeholder="УКАЖИТЕ ОСНОВНЫЕ ТРЕБОВАНИЯ И ВВОДНЫЕ..."
+                            className="w-full bg-zinc-100/90 text-zinc-950 placeholder-zinc-500 text-xs p-3 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner resize-none"
+                        />
+                    </div>
+
+                    {/* 3. QUESTION CREATION BLOCK */}
+                    <div className="pt-4 border-t-2 border-zinc-400">
+                        <label className="block text-[10px] font-black text-zinc-600 uppercase mb-3">
+                            // ДОБАВЛЕНИЕ ВОПРОСА
+                        </label>
+
+                        <div className="bg-zinc-200/80 p-4 border-2 border-zinc-400 clip-corner">
+                            <div className="mb-4">
                                 <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
-                                    Наименование Теста
+                                    Текст Вопроса
                                 </label>
                                 <input
                                     type="text"
-                                    name="title"
-                                    value={formData.title}
-                                    onChange={handleInputChange}
-                                    placeholder="ВВЕДИТЕ НАЗВАНИЕ..."
-                                    required
-                                    className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2.5 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
+                                    value={questionText}
+                                    onChange={(e) => setQuestionText(e.target.value)}
+                                    placeholder="ВВЕДИТЕ ТЕКСТ ВОПРОСА..."
+                                    className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
-                                    Целевая Группа / Подразделение
+
+                            {/* ANSWER INPUTS */}
+                            <div className="mb-4">
+                                <label className="block text-[10px] font-black text-zinc-600 uppercase mb-2">
+                                    Варианты Ответов (Отметьте правильный)
                                 </label>
-                                <input
-                                    type="text"
-                                    name="department"
-                                    value={formData.department}
-                                    onChange={handleInputChange}
-                                    placeholder="НАПР. ОТДЕЛ СТАТИСТИКИ..."
-                                    className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2.5 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
-                                />
-                            </div>
-                        </div>
 
-                        <div className="mb-4">
-                            <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
-                                Описание и Инструкции
-                            </label>
-                            <textarea
-                                rows={2}
-                                name="description"
-                                value={formData.description}
-                                onChange={handleInputChange}
-                                placeholder="УКАЖИТЕ ОСНОВНЫЕ ТРЕБОВАНИЯ И ВВОДНЫЕ..."
-                                className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs p-3 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner resize-none"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                            <div>
-                                <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
-                                    Лимит Времени (Мин)
-                                </label>
-                                <input
-                                    type="number"
-                                    name="timeLimit"
-                                    value={formData.timeLimit}
-                                    onChange={handleInputChange}
-                                    className="w-full bg-zinc-100 text-zinc-950 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 clip-corner"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
-                                    Количество Вопросов
-                                </label>
-                                <input
-                                    type="number"
-                                    name="questionCount"
-                                    value={formData.questionCount}
-                                    onChange={handleInputChange}
-                                    className="w-full bg-zinc-100 text-zinc-950 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 clip-corner"
-                                />
-                            </div>
-                        </div>
-
-                        {/* DYNAMIC QUESTION INGESTION */}
-                        <div className="mb-6 pt-4 border-t-2 border-zinc-300">
-                            <label className="block text-[10px] font-black text-zinc-600 uppercase mb-2">
-                                // ИНИЦИАЛИЗАЦИЯ ВОПРОСОВ ({formData.questions.length})
-                            </label>
-
-                            <div className="flex gap-2 mb-3">
-                                <input
-                                    type="text"
-                                    value={newQuestionText}
-                                    onChange={(e) => setNewQuestionText(e.target.value)}
-                                    placeholder="ДОБАВИТЬ ВОПРОС К ПРОТОКОЛУ..."
-                                    className="flex-1 bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleAddQuestion}
-                                    className="px-4 py-2 bg-zinc-950 border-2 border-amber-500 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-500 hover:text-zinc-950 transition-colors clip-corner cursor-pointer"
-                                >
-                                    + ДОБАВИТЬ
-                                </button>
-                            </div>
-
-                            {formData.questions.length > 0 && (
-                                <ul className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                    {formData.questions.map((q, idx) => (
-                                        <li
-                                            key={q.id}
-                                            className="flex items-center justify-between bg-zinc-100 p-2 border-2 border-zinc-300 text-xs font-bold clip-corner"
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {answers.map((answer, index) => (
+                                        <div
+                                            key={index}
+                                            className={`flex items-center gap-2 p-2 border-2 clip-corner transition-colors ${correctIndex === index
+                                                    ? 'bg-emerald-950/10 border-emerald-600'
+                                                    : 'bg-zinc-100 border-zinc-400'
+                                                }`}
                                         >
-                                            <span className="truncate pr-2">
-                                                <strong className="text-amber-600 mr-2">[{idx + 1}]</strong>
-                                                {q.text}
-                                            </span>
                                             <button
                                                 type="button"
-                                                onClick={() => handleRemoveQuestion(q.id)}
-                                                className="text-red-600 hover:text-red-800 font-black text-xs px-2 py-0.5 border border-red-500/40 clip-corner cursor-pointer"
+                                                onClick={() => setCorrectIndex(index)}
+                                                className={`w-5 h-5 flex items-center justify-center border-2 clip-corner transition-all cursor-pointer shrink-0 ${correctIndex === index
+                                                        ? 'bg-emerald-500 border-emerald-600 text-zinc-950'
+                                                        : 'bg-zinc-300 border-zinc-500 text-transparent hover:border-zinc-700'
+                                                    }`}
                                             >
-                                                [ УДАЛИТЬ ]
+                                                <span className="text-[10px] font-black font-mono">✓</span>
                                             </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
 
-                        {/* FORM CONTROLS */}
-                        <div className="flex gap-4 justify-end pt-4 border-t-2 border-zinc-300">
+                                            <input
+                                                type="text"
+                                                value={answer}
+                                                onChange={(e) =>
+                                                    handleAnswerChange(index, e.target.value)
+                                                }
+                                                placeholder={`ОТВЕТ #${index + 1}...`}
+                                                className="flex-1 bg-transparent text-zinc-950 placeholder-zinc-500 text-xs font-bold py-1.5 border-b-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider transition-colors"
+                                            />
+
+                                            <span
+                                                className={`text-[9px] font-black uppercase px-1.5 py-0.5 clip-corner shrink-0 ${correctIndex === index
+                                                        ? 'bg-emerald-500 text-zinc-950'
+                                                        : 'bg-zinc-300 text-zinc-600'
+                                                    }`}
+                                            >
+                                                {correctIndex === index ? 'ВЕРНО' : 'ОШИБКА'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                             <button
                                 type="button"
-                                onClick={() => router.visit(route('tests.index'))}
-                                className="px-5 py-2.5 bg-zinc-300 border-2 border-zinc-500 text-zinc-800 text-xs font-black uppercase tracking-wider hover:bg-zinc-400 cursor-pointer clip-corner"
+                                onClick={handleAddQuestion}
+                                className="w-full py-2 bg-zinc-950 border-2 border-amber-500 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-500 hover:text-zinc-950 transition-colors clip-corner cursor-pointer"
                             >
-                                [ ОТМЕНА ]
+                                + ДОБАВИТЬ ВОПРОС В ТЕСТ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. SEPARATE PANEL FOR ADDED QUESTIONS */}
+                {formData.questions.length > 0 && (
+                    <div
+                        className="w-full h-auto p-6 clip-corner border-[3px] border-amber-600 shadow-md bg-zinc-300"
+                        style={{
+                            backgroundImage: `
+                                linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+                                linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px)
+                            `,
+                            backgroundSize: '16px 16px',
+                        }}
+                    >
+                        <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-zinc-400">
+                            <div className="flex items-center gap-2">
+                                <span className="text-amber-600 font-black">//</span>
+                                <h3 className="text-base font-black text-zinc-900 uppercase tracking-widest">
+                                    ДОБАВЛЕННЫЕ ВОПРОСЫ В ТЕСТ ({formData.questions.length})
+                                </h3>
+                            </div>
+                            <span className="text-[10px] font-mono text-zinc-600 font-black uppercase">
+                                ОЧЕРЕДЬ ЗАПИСИ
+                            </span>
+                        </div>
+
+                        {/* TOP ACTION CONTROLS */}
+                        <div className="flex gap-4 justify-end pb-4 mb-4 border-b-2 border-zinc-400">
+                            <button
+                                type="button"
+                                onClick={handleResetQuestions}
+                                className="px-5 py-2.5 bg-zinc-300 border-2 border-red-600 text-red-700 text-xs font-black uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors cursor-pointer clip-corner"
+                            >
+                                [ СБРОСИТЬ ]
                             </button>
                             <button
                                 type="submit"
                                 className="px-5 py-2.5 bg-zinc-950 border-2 border-amber-500 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-500 hover:text-zinc-950 transition-colors cursor-pointer clip-corner"
                             >
-                                // СОХРАНИТЬ_ПРОТОКОЛ
+                                // СОХРАНИТЬ_ТЕСТ
                             </button>
                         </div>
-                    </form>
-                </div>
-            </div>
+
+                        {/* LIST OF COMMITTED QUESTIONS */}
+                        <ul className="space-y-4">
+                            {formData.questions.map((q, idx) => (
+                                <li
+                                    key={q.id}
+                                    className="bg-zinc-100 p-4 border-2 border-zinc-400 hover:border-amber-600 clip-corner transition-colors"
+                                >
+                                    <div className="flex items-start justify-between gap-3 mb-3">
+                                        <div className="flex items-center gap-2 flex-1">
+                                            <span className="text-amber-600 font-black text-xs font-mono shrink-0">
+                                                [{idx + 1}]
+                                            </span>
+                                            <input
+                                                type="text"
+                                                value={q.text}
+                                                onChange={(e) =>
+                                                    handleUpdateQuestionText(q.id, e.target.value)
+                                                }
+                                                className="w-full bg-transparent text-xs font-bold text-zinc-950 uppercase tracking-wide py-1 border-b-2 border-zinc-400 outline-hidden focus:border-amber-600 transition-colors"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveQuestion(q.id)}
+                                            className="text-red-700 hover:bg-red-200/60 font-black text-[10px] px-2 py-0.5 border border-red-500 clip-corner cursor-pointer uppercase shrink-0 transition-colors"
+                                        >
+                                            [ УДАЛИТЬ ]
+                                        </button>
+                                    </div>
+
+                                    {/* EDITABLE ANSWERS GRID WITH UNDERLINES */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-zinc-300">
+                                        {q.options.map((opt, oIdx) => (
+                                            <div
+                                                key={opt.id}
+                                                className={`flex items-center gap-2 p-2 border-2 clip-corner transition-colors ${opt.isCorrect
+                                                        ? 'bg-emerald-950/10 border-emerald-600'
+                                                        : 'bg-zinc-200/60 border-zinc-400'
+                                                    }`}
+                                            >
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleSetCorrectOption(q.id, opt.id)}
+                                                    className={`w-5 h-5 flex items-center justify-center border-2 clip-corner transition-all cursor-pointer shrink-0 ${opt.isCorrect
+                                                            ? 'bg-emerald-500 border-emerald-600 text-zinc-950'
+                                                            : 'bg-zinc-300 border-zinc-500 text-transparent hover:border-zinc-700'
+                                                        }`}
+                                                >
+                                                    <span className="text-[10px] font-black font-mono">✓</span>
+                                                </button>
+
+                                                <span className="text-xs text-zinc-500 font-mono shrink-0">
+                                                    {oIdx + 1}.
+                                                </span>
+
+                                                <input
+                                                    type="text"
+                                                    value={opt.text}
+                                                    onChange={(e) =>
+                                                        handleUpdateOptionText(
+                                                            q.id,
+                                                            opt.id,
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    className="flex-1 bg-transparent text-zinc-950 text-xs font-bold py-1 border-b-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider transition-colors"
+                                                />
+
+                                                <span
+                                                    className={`text-[9px] font-black uppercase px-1.5 py-0.5 clip-corner shrink-0 ${opt.isCorrect
+                                                            ? 'bg-emerald-500 text-zinc-950'
+                                                            : 'bg-zinc-300 text-zinc-600'
+                                                        }`}
+                                                >
+                                                    {opt.isCorrect ? 'ВЕРНО' : 'ОШИБКА'}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {/* BOTTOM ACTION CONTROLS */}
+                        <div className="flex gap-4 justify-end pt-6 mt-6 border-t-2 border-zinc-400">
+                            <button
+                                type="button"
+                                onClick={handleResetQuestions}
+                                className="px-5 py-2.5 bg-zinc-300 border-2 border-red-600 text-red-700 text-xs font-black uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors cursor-pointer clip-corner"
+                            >
+                                [ СБРОСИТЬ ]
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-5 py-2.5 bg-zinc-950 border-2 border-amber-500 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-500 hover:text-zinc-950 transition-colors cursor-pointer clip-corner"
+                            >
+                                // СОХРАНИТЬ_ТЕСТ
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </form>
         </AuthenticatedLayout>
     );
 }

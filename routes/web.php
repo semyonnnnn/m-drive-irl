@@ -1,13 +1,12 @@
 <?php
 
 use App\Http\Controllers\Auth\PasswordController;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-//////////////////////////////////////////
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     $user = Auth::user();
@@ -23,36 +22,40 @@ Route::get('/', function () {
     return Inertia::render('Main/Guest');
 })->name('dashboard');
 
-
 // 1. First Layer: User must be authenticated
 Route::middleware(['auth'])->group(function () {
 
-    // 2. Second Layer: Attach your custom middleware alias here 
-    // This locks down every route in this block if temp_password !== null
+    // 2. Second Layer: Force password reset gate
     Route::middleware(['force_reset'])->group(function () {
-        // 3. Third Layer: Final production verification gate
+
+        // 3. Third Layer: Email verification gate
         Route::middleware(['verified'])->group(function () {
-            Route::get('/user', [UserController::class, 'index'])->name('user.index');
-            Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
-            Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
-            Route::get('/user/{user}', function () {
-                return redirect('/user');
-            });
-            Route::post('/user', [UserController::class, 'upload'])->name('user.upload');
 
-            Route::get('/material', [MaterialController::class, 'index'])->name('material.index');
-            Route::get('/material/{id}/show', [MaterialController::class, 'show'])->name('material.show');
-            Route::post('/material', [MaterialController::class, 'store'])->name('material.post');
-            Route::delete('/material/{id}', [MaterialController::class, 'destroy'])->name('material.destroy');
+            // USERS RESOURCE
+            Route::get('/users', [UserController::class, 'index'])->name('users.index');
+            Route::post('/users/upload', [UserController::class, 'upload'])->name('users.upload');
+            Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+            Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+            Route::get('/users/{user}', function () {
+                return redirect()->route('users.index');
+            })->name('users.show');
 
-            Route::get('/test', [TestController::class, 'index'])->name('test.index');
-            Route::get('/test/{id}/show', [TestController::class, 'show'])->name('test.show');
-            Route::get('/test/create', [TestController::class, 'create'])->name('test.create');
-            Route::post('/test', [TestController::class, 'store'])->name('test.post');
-            Route::delete('/test/{id}', [TestController::class, 'destroy'])->name('test.destroy');
+            // MATERIALS RESOURCE
+            Route::get('/materials', [MaterialController::class, 'index'])->name('materials.index');
+            Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
+            Route::get('/materials/{material}', [MaterialController::class, 'show'])->name('materials.show');
+            Route::delete('/materials/{material}', [MaterialController::class, 'destroy'])->name('materials.destroy');
 
-            Route::post('/pass.download', [PasswordController::class, 'download'])->name('pass.download');
-            Route::post('/pass.regenerate', [PasswordController::class, 'regenerate'])->name('pass.regenerate');
+            // TESTS RESOURCE
+            Route::get('/tests', [TestController::class, 'index'])->name('tests.index');
+            Route::get('/tests/create', [TestController::class, 'create'])->name('tests.create');
+            Route::post('/tests', [TestController::class, 'store'])->name('tests.store');
+            Route::get('/tests/{test}', [TestController::class, 'show'])->name('tests.show');
+            Route::delete('/tests/{test}', [TestController::class, 'destroy'])->name('tests.destroy');
+
+            // UTILITIES / ACTIONS
+            Route::post('/passwords/download', [PasswordController::class, 'download'])->name('passwords.download');
+            Route::post('/passwords/regenerate', [PasswordController::class, 'regenerate'])->name('passwords.regenerate');
         });
     });
 });

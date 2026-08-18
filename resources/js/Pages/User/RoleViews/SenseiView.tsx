@@ -25,7 +25,7 @@ export default function Edit({
     const updateUser: FormEventHandler = (ev) => {
         ev.preventDefault();
 
-        put(route("user.update", user.id), {
+        put(route("users.update", user.id), {
             preserveScroll: true,
         });
     };

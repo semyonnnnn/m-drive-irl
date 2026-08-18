@@ -119,7 +119,7 @@ const StudyMaterialsSection = () => {
 
                     {/* Tactical Navigation Action Node */}
                     <Link
-                        href={route('material.index')}
+                        href={route('materials.index')}
                         className="px-4 py-1.5 bg-zinc-950 border border-zinc-900 text-zinc-100 text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 hover:text-zinc-950 hover:border-zinc-300 transition-all duration-150 clip-corner shadow-xs shrink-0 cursor-pointer">
                         [ Посмотреть все ]
                     </Link>

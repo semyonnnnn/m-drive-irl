@@ -40,7 +40,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         e.preventDefault();
 
         // 3. Simple two-argument signature mapping straight to backend update route
-        put(route("user.update", backendData.editableUser.id), {
+        put(route("users.update", backendData.editableUser.id), {
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => {

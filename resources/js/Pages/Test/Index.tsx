@@ -173,7 +173,7 @@ export default function TestIndexMock() {
                                 </button>
 
                                 <Link
-                                    href={route('test.create')}
+                                    href={route('tests.create')}
                                     className="group relative px-6 py-3 bg-amber-500/10 border-2 border-amber-500 text-black hover:bg-amber-500 hover:text-zinc-950 text-sm font-black uppercase tracking-[0.15em] transition-all duration-200 clip-corner cursor-pointer shadow-xs"
                                 >
                                     [ 02_СОЗДАТЬ_ТЕСТ ]
