@@ -15,8 +15,10 @@ class TestController extends Controller
      */
     public function index()
     {
+        $tests = Test::all();
+
         return Inertia::render('Test/Index', [
-            // 'materials' => (new UploadService)->paginate()
+            'tests' => $tests
         ]);
     }
 

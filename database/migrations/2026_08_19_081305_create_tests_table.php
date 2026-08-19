@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
+            $table->integer('questions_count');
+
             $table->json('content');
-            
             $table->timestamps();
         });
     }

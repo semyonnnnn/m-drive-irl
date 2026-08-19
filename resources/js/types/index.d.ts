@@ -175,6 +175,12 @@ export interface UserIndexProps {
     roleLabels: Record<string, string>;
 }
 
+export interface TestIndexProps {
+    auth: PageProps['auth'];
+    users: User[] | PaginatedDataProps<User>;
+    roleLabels: Record<string, string>;
+}
+
 export interface FlashProps {
     success: string | null;
     error: {

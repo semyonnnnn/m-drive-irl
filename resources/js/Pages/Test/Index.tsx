@@ -8,7 +8,7 @@ import { PopUp } from "@/components/custom/PopUp";
 
 const ITEMS_PER_PAGE = 6;
 
-export default function TestIndexMock() {
+export default function Index() {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [statusFilter, setStatusFilter] = useState<'ВСЕ' | 'В ПРОЦЕССЕ' | 'ЧЕРНОВИК'>('ВСЕ');
