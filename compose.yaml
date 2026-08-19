@@ -38,7 +38,6 @@ services:
             MYSQL_DATABASE: '${DB_DATABASE}'
             MYSQL_USER: '${DB_USERNAME}'
             MYSQL_PASSWORD: '${DB_PASSWORD}'
-            # MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         volumes:
             - 'sail-mariadb:/var/lib/mysql'
             - './vendor/laravel/sail/database/mariadb/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
@@ -52,14 +51,13 @@ services:
                 - '--innodb_initialized'
             retries: 3
             timeout: 5s
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin
+
+    cloudbeaver:
+        image: dbeaver/cloudbeaver:latest
         ports:
-            - 8080:80
-        environment:
-            PMA_HOST: mariadb
-            PMA_USER: sail
-            PMA_PASSWORD: password
+            - '8080:8978'
+        volumes:
+            - 'cloudbeaver-data:/opt/cloudbeaver/workspace'
         depends_on:
             - mariadb
         networks:
@@ -70,4 +68,6 @@ networks:
         driver: bridge
 volumes:
     sail-mariadb:
+        driver: local
+    cloudbeaver-data:
         driver: local

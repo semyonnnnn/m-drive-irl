@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 //////////////////////////////////////
-use App\Services\UploadService;
+use App\Http\Requests\TestRequest;
+use App\Models\Test;
 
 class TestController extends Controller
 {
@@ -19,9 +20,18 @@ class TestController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(TestRequest $r)
     {
+        $question = [
+            'title' => $r->title,
+            'description' => $r->description,
+            'content' => $r->questions
 
+        ];
+        $title = $question['title'];
+        Test::create($question);
+
+        return redirect()->route('tests.index')->with('success', "Тест '$title' успешно добавлен!");
     }
 
     public function destroy(int $id)

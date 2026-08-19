@@ -40,6 +40,10 @@ export default function Create({ auth }: PageProps) {
         questions: [],
     });
 
+    // Independent state for title and description to duplicate field views cleanly across blocks
+    const [titleState, setTitleState] = useState('');
+    const [descriptionState, setDescriptionState] = useState('');
+
     const [questionText, setQuestionText] = useState('');
     const [answers, setAnswers] = useState<[string, string, string, string]>(['', '', '', '']);
     const [correctIndex, setCorrectIndex] = useState<number>(0);
@@ -49,6 +53,17 @@ export default function Create({ auth }: PageProps) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<'single' | 'all' | null>(null);
     const [targetQuestionId, setTargetQuestionId] = useState<string | null>(null);
+
+    // Handlers to update local UI state and sync immediately with useForm data
+    const handleTitleChange = (val: string) => {
+        setTitleState(val);
+        setData('title', val);
+    };
+
+    const handleDescriptionChange = (val: string) => {
+        setDescriptionState(val);
+        setData('description', val);
+    };
 
     const handleAnswerChange = (index: number, value: string) => {
         const updated: [string, string, string, string] = [...answers];
@@ -178,6 +193,7 @@ export default function Create({ auth }: PageProps) {
             <Head title="Создание теста" />
 
             <form onSubmit={handleSubmit} className="w-full p-4 sm:p-6 font-mono flex flex-col justify-start items-start bg-zinc-400 gap-6">
+                {/* FIRST BLOCK: Constructor Header / General Info */}
                 <div
                     className="w-full h-auto p-6 clip-corner border-[3px] border-amber-600 shadow-md"
                     style={{
@@ -208,8 +224,8 @@ export default function Create({ auth }: PageProps) {
                         <input
                             type="text"
                             name="title"
-                            value={data.title}
-                            onChange={(e) => setData('title', e.target.value)}
+                            value={titleState}
+                            onChange={(e) => handleTitleChange(e.target.value)}
                             placeholder="ВВЕДИТЕ НАЗВАНИЕ..."
                             required
                             className="w-full bg-zinc-100/90 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2.5 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
@@ -224,8 +240,8 @@ export default function Create({ auth }: PageProps) {
                         <textarea
                             rows={3}
                             name="description"
-                            value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            value={descriptionState}
+                            onChange={(e) => handleDescriptionChange(e.target.value)}
                             placeholder="УКАЖИТЕ ОСНОВНЫЕ ТРЕБОВАНИЯ И ВВОДНЫЕ..."
                             className="w-full bg-zinc-100/90 text-zinc-950 placeholder-zinc-500 text-xs p-3 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner resize-none"
                         />
@@ -323,6 +339,7 @@ export default function Create({ auth }: PageProps) {
                     </p>
                 )}
 
+                {/* SECOND BLOCK: Saved Questions & Duplicated Test Info fields */}
                 {data.questions.length > 0 && (
                     <div
                         className="w-full flex flex-col gap-4 h-auto p-6 clip-corner border-[3px] border-amber-600 shadow-md bg-zinc-300"
@@ -334,7 +351,7 @@ export default function Create({ auth }: PageProps) {
                             backgroundSize: '16px 16px',
                         }}
                     >
-                        <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-zinc-400">
+                        <div className="flex items-center justify-between mb-2 pb-2 border-b-2 border-zinc-400">
                             <div className="flex items-center gap-2">
                                 <span className="text-amber-600 font-black">//</span>
                                 <h3 className="text-base font-black text-zinc-900 uppercase tracking-widest">
@@ -346,7 +363,38 @@ export default function Create({ auth }: PageProps) {
                             </span>
                         </div>
 
-                        <div className="flex gap-4 justify-end pb-4 mb-4 border-b-2 border-zinc-400">
+                        {/* DUPLICATED TEST FIELDS FOR SYNCED LIVE EDITING */}
+                        <div className="bg-zinc-200/90 p-4 border-2 border-zinc-400 clip-corner mb-2 space-y-3">
+                            <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest block mb-1">
+                                // ДАННЫЕ ТЕСТА (СИНХРОНИЗИРОВАНО)
+                            </span>
+                            <div>
+                                <label className="block text-[9px] font-black text-zinc-600 uppercase mb-1">
+                                    Наименование Теста
+                                </label>
+                                <input
+                                    type="text"
+                                    value={titleState}
+                                    onChange={(e) => handleTitleChange(e.target.value)}
+                                    placeholder="ВВЕДИТЕ НАЗВАНИЕ..."
+                                    className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[9px] font-black text-zinc-600 uppercase mb-1">
+                                    Описание и Инструкции
+                                </label>
+                                <textarea
+                                    rows={2}
+                                    value={descriptionState}
+                                    onChange={(e) => handleDescriptionChange(e.target.value)}
+                                    placeholder="УКАЖИТЕ ОСНОВНЫЕ ТРЕБОВАНИЯ И ВВОДНЫЕ..."
+                                    className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs p-2.5 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner resize-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 justify-end pb-4 mb-2 border-b-2 border-zinc-400">
                             <button
                                 type="button"
                                 onClick={triggerResetQuestionsModal}
@@ -456,7 +504,6 @@ export default function Create({ auth }: PageProps) {
                     </div>
                 )}
             </form>
-
 
             <DeleteTestConfirmationModal
                 show={isDeleteModalOpen}

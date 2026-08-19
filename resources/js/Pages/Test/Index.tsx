@@ -1,8 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Link, usePage } from "@inertiajs/react";
 ////////////////////////////////////////////
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { MockTestItem, MOCK_AVAILABLE_TESTS, MOCK_PASSED_TESTS } from "./Mockups";
-import { Link } from "@inertiajs/react";
+import { FlashProps } from "@/types";
+import { PopUp } from "@/components/custom/PopUp";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -16,6 +18,44 @@ export default function TestIndexMock() {
 
     const [availablePage, setAvailablePage] = useState<number>(1);
     const [passedPage, setPassedPage] = useState<number>(1);
+
+    const [message, setMessage] = useState<FlashProps>({
+        success: null,
+        error: {
+            summary: null,
+            details: null,
+        }
+    });
+
+
+    const flash = (usePage().props as any).flash as FlashProps;
+
+    useEffect(() => {
+        const isSuccessEmpty = flash.success === null;
+        const isErrorEmpty = !flash?.error?.summary && !flash?.error?.details;
+
+        if (isSuccessEmpty && isErrorEmpty) return;
+
+        setMessage(prev => ({
+            success: flash.success,
+            error: isErrorEmpty ? prev.error : {
+                summary: flash.error.summary,
+                details: flash.error.details
+            }
+        }));
+
+        console.log(flash);
+
+        if (flash.success) {
+            const timer = setTimeout(() => {
+                setMessage(prev => ({
+                    ...prev,
+                    success: null,
+                }));
+            }, 7000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash]);
 
     const REPLICATED_WATERMARK_TEXT = "ТЕСТИРОВАНИЕ";
     const WATERMARK_LAYOUT_MAP = ["left-[2%]", "left-[55%]"];
@@ -67,6 +107,15 @@ export default function TestIndexMock() {
 
     return (
         <AuthenticatedLayout>
+            {message.success && <PopUp message={message.success} handleClick={() => {
+                setMessage({
+                    success: null,
+                    error: {
+                        summary: null,
+                        details: null,
+                    }
+                });
+            }} />}
             <main className="min-h-screen bg-linear-to-r from-zinc-200/70 via-zinc-200/40 to-zinc-300/30 p-4 md:p-8 flex flex-col gap-8 relative select-none font-mono">
 
                 {/* ГЛОБАЛЬНАЯ ПАНЕЛЬ ПОИСКА И НАВИГАЦИЯ */}
