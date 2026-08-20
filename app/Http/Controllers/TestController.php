@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 //////////////////////////////////////
 use App\Http\Requests\TestRequest;
 use App\Models\Test;
@@ -15,7 +16,15 @@ class TestController extends Controller
      */
     public function index()
     {
-        $tests = Test::all();
+        $tests = Test::select(['id', 'title', 'description', 'user_id', 'questions_count', 'is_published', 'created_at'])
+            ->latest()
+            ->paginate(6);
+
+        // Calculate descending serial numbers directly on the backend
+        $tests->through(function ($test, $index) use ($tests) {
+            $test->row_number = $tests->total() - (($tests->currentPage() - 1) * $tests->perPage() + $index);
+            return $test;
+        });
 
         return Inertia::render('Test/Index', [
             'tests' => $tests
@@ -24,16 +33,17 @@ class TestController extends Controller
 
     public function store(TestRequest $r)
     {
-        $question = [
+        $questions = $r->questions;
+
+        Test::create([
             'title' => $r->title,
             'description' => $r->description,
-            'content' => $r->questions
+            'content' => $questions,
+            'questions_count' => count($questions), // Calculate and save
+            'user_id' => Auth::id(),
+        ]);
 
-        ];
-        $title = $question['title'];
-        Test::create($question);
-
-        return redirect()->route('tests.index')->with('success', "Тест '$title' успешно добавлен!");
+        return redirect()->route('tests.index')->with('success', "Тест успешно создан!");
     }
 
     public function destroy(int $id)
@@ -41,7 +51,8 @@ class TestController extends Controller
         \App\Models\Test::destroy($id);
     }
 
-    public function create(){
+    public function create()
+    {
         return Inertia::render('Test/Create');
     }
 

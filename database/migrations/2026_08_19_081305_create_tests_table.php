@@ -15,9 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->integer('questions_count');
-
             $table->json('content');
+            $table->unsignedInteger('questions_count')->default(0);
+
+            $table->boolean('is_published')->default(false);
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+
             $table->timestamps();
         });
     }

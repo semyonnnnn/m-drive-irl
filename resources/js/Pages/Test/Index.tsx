@@ -5,15 +5,16 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { MockTestItem, MOCK_AVAILABLE_TESTS, MOCK_PASSED_TESTS } from "./Mockups";
 import { FlashProps } from "@/types";
 import { PopUp } from "@/components/custom/PopUp";
+import { Test, PaginatedTest } from "@/types";
 
 const ITEMS_PER_PAGE = 6;
 
-export default function Index() {
+export default function Index({ p_tests }: { p_tests: PaginatedTest }) {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [statusFilter, setStatusFilter] = useState<'ВСЕ' | 'В ПРОЦЕССЕ' | 'ЧЕРНОВИК'>('ВСЕ');
 
-    const [availableTests, setAvailableTests] = useState<MockTestItem[]>(MOCK_AVAILABLE_TESTS);
+    const [availableTests, setAvailableTests] = useState<Test[]>(p_tests.data);
     const [passedTests, setPassedTests] = useState<MockTestItem[]>(MOCK_PASSED_TESTS);
 
     const [availablePage, setAvailablePage] = useState<number>(1);
@@ -27,6 +28,8 @@ export default function Index() {
         }
     });
 
+
+    console.log('tests', p_tests);
 
     const flash = (usePage().props as any).flash as FlashProps;
 
@@ -240,80 +243,75 @@ export default function Index() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 items-stretch">
-                            {paginatedAvailable.map((test) => (
-                                <div
-                                    key={test.id}
-                                    className="group flex flex-col justify-between bg-zinc-100/80 border-2 border-zinc-300 p-5 clip-corner hover:border-zinc-500 hover:bg-zinc-100 transition-all duration-150 shadow-xs relative"
-                                >
-                                    <div className="flex justify-between items-center mb-4 pb-3 border-b-2 border-zinc-300">
-                                        <span className="text-xs text-zinc-500 font-black tracking-widest uppercase">
-                                            #ТЕСТ-{test.id.padStart(4, '0')}
-                                        </span>
-                                        <span className={`text-xs font-black px-2.5 py-1 border-2 clip-corner uppercase tracking-widest ${test.status === 'В ПРОЦЕССЕ'
-                                            ? 'bg-emerald-500/10 border-emerald-600 text-emerald-800'
-                                            : test.status === 'ЧЕРНОВИК'
-                                                ? 'bg-amber-500/10 border-amber-600 text-amber-800'
-                                                : 'bg-zinc-200 border-zinc-400 text-zinc-700'
-                                            }`}>
-                                            [ {test.status} ]
-                                        </span>
-                                    </div>
+                            {paginatedAvailable.map((test) => {
+                                console.log('test:', test);
+                                return (
+                                    <div
+                                        key={test.id}
+                                        className="group flex flex-col justify-between bg-zinc-100/80 border-2 border-zinc-300 p-5 clip-corner hover:border-zinc-500 hover:bg-zinc-100 transition-all duration-150 shadow-xs relative"
+                                    >
+                                        <div className="flex justify-between items-center mb-4 pb-3 border-b-2 border-zinc-300">
+                                            <span className="text-xs text-zinc-500 font-black tracking-widest uppercase">
+                                                #ТЕСТ-{test.id.toString().padStart(4, '0')}
+                                            </span>
+                                            <span className={`text-xs font-black px-2.5 py-1 border-2 clip-corner uppercase tracking-widest ${test.status === 'В ПРОЦЕССЕ'
+                                                ? 'bg-emerald-500/10 border-emerald-600 text-emerald-800'
+                                                : test.status === 'ЧЕРНОВИК'
+                                                    ? 'bg-amber-500/10 border-amber-600 text-amber-800'
+                                                    : 'bg-zinc-200 border-zinc-400 text-zinc-700'
+                                                }`}>
+                                                [ {test.status ?? 'статус'} ]
+                                            </span>
+                                        </div>
 
-                                    <div className="mb-6 flex-1">
-                                        <h3 className="text-lg font-black text-zinc-950 group-hover:text-amber-600 transition-colors uppercase tracking-wide mb-3 line-clamp-2">
-                                            {test.title}
-                                        </h3>
-                                        <p className="text-zinc-700 text-sm font-bold line-clamp-3 leading-relaxed mb-6">
-                                            {test.description}
-                                        </p>
+                                        <div className="mb-6 flex-1">
+                                            <h3 className="text-lg font-black text-zinc-950 group-hover:text-amber-600 transition-colors uppercase tracking-wide mb-3 line-clamp-2">
+                                                {test.title}
+                                            </h3>
+                                            <p className="text-zinc-700 text-sm font-bold line-clamp-3 leading-relaxed mb-6">
+                                                {test.description}
+                                            </p>
 
-                                        <div className="grid grid-cols-2 gap-3 p-3 bg-zinc-200/70 border-2 border-zinc-300 text-xs font-bold">
-                                            <div>
-                                                <span className="text-zinc-500 uppercase block text-[10px] font-black">Вопросов:</span>
-                                                <span className="text-zinc-900 text-sm">{test.questions_count} ЕД.</span>
-                                            </div>
-                                            <div>
-                                                <span className="text-zinc-500 uppercase block text-[10px] font-black">Таймер:</span>
-                                                <span className="text-zinc-900 text-sm">{test.time_limit_minutes} МИН</span>
-                                            </div>
-                                            <div>
-                                                <span className="text-zinc-500 uppercase block text-[10px] font-black">Группа:</span>
-                                                <span className="text-zinc-900 text-sm truncate block">{test.target_group}</span>
-                                            </div>
-                                            <div>
-                                                <span className="text-zinc-500 uppercase block text-[10px] font-black">Создан:</span>
-                                                <span className="text-zinc-900 text-sm">{test.created_at}</span>
+                                            <div className="grid grid-cols-2 gap-3 p-3 bg-zinc-200/70 border-2 border-zinc-300 text-xs font-bold">
+                                                <div>
+                                                    <span className="text-zinc-500 uppercase block text-[10px] font-black">Вопросов:</span>
+                                                    <span className="text-zinc-900 text-sm">{test.questions_count} ЕД.</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-zinc-500 uppercase block text-[10px] font-black">Создан:</span>
+                                                    <span className="text-zinc-900 text-sm">{test.created_at}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {editMode ? (
-                                        <div className="flex gap-3 pt-4 border-t-2 border-zinc-300">
-                                            <button
-                                                onClick={() => alert(`Редактирование теста ${test.id}`)}
-                                                className="flex-1 py-3 bg-zinc-200 border-2 border-zinc-500 text-zinc-900 text-xs font-black uppercase tracking-wider hover:bg-zinc-300 cursor-pointer text-center"
-                                            >
-                                                [ ПРАВКА ]
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteAvailable(test.id)}
-                                                className="flex-1 py-3 bg-zinc-950 border-2 border-amber-600 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-600 hover:text-white cursor-pointer text-center"
-                                            >
-                                                [ УСТРАНИТЬ ]
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="pt-4 border-t-2 border-zinc-300">
-                                            <button
-                                                onClick={() => alert(`Запуск прохождения теста #${test.id}`)}
-                                                className="w-full block py-3 text-center bg-zinc-950 border-2 border-zinc-800 text-amber-400 text-xs font-black uppercase tracking-widest hover:bg-amber-500 hover:text-zinc-950 hover:border-amber-600 transition-all cursor-pointer clip-corner"
-                                            >
+                                        {editMode ? (
+                                            <div className="flex gap-3 pt-4 border-t-2 border-zinc-300">
+                                                <button
+                                                    onClick={() => alert(`Редактирование теста ${test.id}`)}
+                                                    className="flex-1 py-3 bg-zinc-200 border-2 border-zinc-500 text-zinc-900 text-xs font-black uppercase tracking-wider hover:bg-zinc-300 cursor-pointer text-center"
+                                                >
+                                                    [ ПРАВКА ]
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteAvailable(test.id)}
+                                                    className="flex-1 py-3 bg-zinc-950 border-2 border-amber-600 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-600 hover:text-white cursor-pointer text-center"
+                                                >
+                                                    [ УСТРАНИТЬ ]
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="pt-4 border-t-2 border-zinc-300">
+                                                <button
+                                                    onClick={() => alert(`Запуск прохождения теста #${test.id}`)}
+                                                    className="w-full block py-3 text-center bg-zinc-950 border-2 border-zinc-800 text-amber-400 text-xs font-black uppercase tracking-widest hover:bg-amber-500 hover:text-zinc-950 hover:border-amber-600 transition-all cursor-pointer clip-corner"
+                                                >
                                                 // НАЧАТЬ_ТЕСТИРОВАНИЕ →
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
 

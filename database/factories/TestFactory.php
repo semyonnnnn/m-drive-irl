@@ -17,9 +17,11 @@ class TestFactory extends Factory
     public function definition(): array
     {
         $russianFaker = \Faker\Factory::create('ru_RU');
+
+
         
         $questions = [];
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < rand(10, 30); $i++) {
             $options = [];
             $correctIndex = $russianFaker->numberBetween(0, 3);
 
@@ -44,6 +46,8 @@ class TestFactory extends Factory
             'content' => [
                 'questions' => $questions,
             ],
+            'questions_count' => count($questions),
+            'user_id' => '1'
         ];
     }
 }

@@ -6,9 +6,11 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+////////////////////////////////////////
 use App\Models\User;
 use App\Enum\RolesEnum;
 use App\Enum\PermissionsEnum;
+use App\Models\Test;
 
 class DatabaseSeeder extends Seeder
 {
@@ -55,6 +57,8 @@ class DatabaseSeeder extends Seeder
         if (!$Alina->hasRole(RolesEnum::Admin)) {
             $Alina->assignRole(RolesEnum::Admin);
         }
+
+        Test::factory()->count(100)->create();
 
         // 7. GENERATE 99 RANDOM DUMMY USERS
         // User::factory()

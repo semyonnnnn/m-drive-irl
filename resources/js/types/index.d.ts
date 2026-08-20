@@ -130,6 +130,26 @@ export interface PaginatedMaterials {
     prev_page_url: string | null;
     to: number;
 }
+
+export interface PaginatedTest {
+    data: Test[];
+    first_page_url: string;
+    from: number;
+    last_page_url: string;
+    current_page: number;
+    last_page: number;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    total: number;
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+}
 export interface CoverProps {
     item: LearningMaterial;
 }
@@ -175,10 +195,17 @@ export interface UserIndexProps {
     roleLabels: Record<string, string>;
 }
 
-export interface TestIndexProps {
-    auth: PageProps['auth'];
-    users: User[] | PaginatedDataProps<User>;
-    roleLabels: Record<string, string>;
+export interface Test {
+    id: number;
+    title: string;
+    description: string | null;
+    content: TestContent;
+    is_published: boolean;
+    user_id: number;
+    user?: User;
+    questions_count?: number;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface FlashProps {

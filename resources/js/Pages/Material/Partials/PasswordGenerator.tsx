@@ -126,7 +126,7 @@ const PasswordGenerator: React.FC = () => {
         setLocalSuccess(null);
         setStatus('PROCESSING');
 
-        post(endpointRoute, {
+        post(route(endpointRoute), {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {
@@ -295,7 +295,7 @@ const PasswordGenerator: React.FC = () => {
                         {/* BUTTON 01: Core Password Stream Generation */}
                         <button
                             type="button"
-                            onClick={() => handleProcessAndDownload('/pass.download')}
+                            onClick={() => handleProcessAndDownload('passwords.download')}
                             disabled={processing}
                             className={`text-nowrap px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-[0.15em] border transition-all duration-150 ${processing
                                 ? "bg-zinc-200 text-zinc-400 border-zinc-300 cursor-not-allowed"
@@ -314,7 +314,7 @@ const PasswordGenerator: React.FC = () => {
             <RegenerateConfirmationModal
                 isOpen={isConfirmOpen}
                 onClose={() => setIsConfirmOpen(false)}
-                onConfirm={() => handleProcessAndDownload('/pass.regenerate')}
+                onConfirm={() => handleProcessAndDownload('passwords.regenerate')}
                 processing={processing}
             />
         </div>
