@@ -5,29 +5,46 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-//////////////////////////////////////
 use App\Http\Requests\TestRequest;
 use App\Models\Test;
 
 class TestController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $tests = Test::select(['id', 'title', 'description', 'user_id', 'questions_count', 'is_published', 'created_at'])
-            ->latest()
-            ->paginate(6);
+        $userId = Auth::id();
 
-        // Calculate descending serial numbers directly on the backend
-        $tests->through(function ($test, $index) use ($tests) {
-            $test->row_number = $tests->total() - (($tests->currentPage() - 1) * $tests->perPage() + $index);
-            return $test;
-        });
+        // 1. Tests created by the authenticated user
+        $my_tests = Test::select(['id', 'title', 'description', 'user_id', 'questions_count', 'created_at'])
+            ->where('user_id', $userId)
+            ->latest()
+            ->orderBy('id', 'desc')
+            ->paginate(6, ['*'], 'my_page'); // Custom paginator page name if needed
+
+        // 2. Available tests (not created by user, and not yet passed)
+        $available_tests = Test::select(['id', 'title', 'description', 'user_id', 'questions_count', 'created_at'])
+            ->where('user_id', '!=', $userId)
+            ->whereDoesntHave('passedUsers', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->latest()
+            ->orderBy('id', 'desc')
+            ->paginate(6, ['*'], 'available_page');
+
+        // 3. Passed tests (not created by user, but already passed)
+        $passed_tests = Test::select(['id', 'title', 'description', 'user_id', 'questions_count', 'created_at'])
+            ->where('user_id', '!=', $userId)
+            ->whereHas('passedUsers', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->latest()
+            ->orderBy('id', 'desc')
+            ->paginate(6, ['*'], 'passed_page');
 
         return Inertia::render('Test/Index', [
-            'tests' => $tests
+            'my_tests' => $my_tests,
+            'available_tests' => $available_tests,
+            'passed_tests' => $passed_tests
         ]);
     }
 
@@ -39,7 +56,7 @@ class TestController extends Controller
             'title' => $r->title,
             'description' => $r->description,
             'content' => $questions,
-            'questions_count' => count($questions), // Calculate and save
+            'questions_count' => count($questions),
             'user_id' => Auth::id(),
         ]);
 
@@ -48,7 +65,7 @@ class TestController extends Controller
 
     public function destroy(int $id)
     {
-        \App\Models\Test::destroy($id);
+        Test::destroy($id);
     }
 
     public function create()
@@ -58,7 +75,7 @@ class TestController extends Controller
 
     public function show(int $id)
     {
-        $test = \App\Models\Test::findOrFail($id);
+        $test = Test::findOrFail($id);
 
         return Inertia::render('Test/Item', [
             'test' => $test

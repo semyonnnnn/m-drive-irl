@@ -18,7 +18,8 @@ return new class extends Migration
             $table->json('content');
             $table->unsignedInteger('questions_count')->default(0);
 
-            $table->boolean('is_published')->default(false);
+            //for treat it as non-existent
+            $table->boolean('is_published')->default(true);
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
 
             $table->timestamps();

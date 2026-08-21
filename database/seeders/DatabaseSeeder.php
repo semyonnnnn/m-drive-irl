@@ -8,9 +8,9 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 ////////////////////////////////////////
 use App\Models\User;
+use App\Models\Test;
 use App\Enum\RolesEnum;
 use App\Enum\PermissionsEnum;
-use App\Models\Test;
 
 class DatabaseSeeder extends Seeder
 {
@@ -59,6 +59,7 @@ class DatabaseSeeder extends Seeder
         }
 
         Test::factory()->count(100)->create();
+        User::factory()->count(48)->create();
 
         // 7. GENERATE 99 RANDOM DUMMY USERS
         // User::factory()
