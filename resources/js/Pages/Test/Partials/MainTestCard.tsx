@@ -1,15 +1,18 @@
 import React from 'react';
 import { Test } from '@/types';
+import { get } from 'react-hook-form';
+import { router } from '@inertiajs/react';
 
 interface MainTestCardProps {
     test: Test;
-    editMode: boolean;
     onDelete: (id: number) => void;
     onStart: (id: number) => void;
-    onEdit: (id: number) => void;
+    current_user_id: number;
 }
 
-const MainTestCard: React.FC<MainTestCardProps> = ({ test, editMode, onDelete, onStart, onEdit }) => {
+const MainTestCard: React.FC<MainTestCardProps> = ({ test, onDelete, onStart, current_user_id }) => {
+    const isMyTest = current_user_id == test.user_id;
+
     return (
         <div className="group flex flex-col justify-between bg-zinc-100/80 border-2 border-zinc-300 p-5 clip-corner hover:border-zinc-500 hover:bg-zinc-100 transition-all duration-150 shadow-xs relative">
             <div className="flex justify-between items-center mb-4 pb-[0.1rem] border-b-2 border-zinc-300">
@@ -38,10 +41,12 @@ const MainTestCard: React.FC<MainTestCardProps> = ({ test, editMode, onDelete, o
                 </div>
             </div>
 
-            {editMode ? (
+            {isMyTest ? (
                 <div className="flex gap-3 pt-4 border-t-2 border-zinc-300">
                     <button
-                        onClick={() => onEdit(test.id)}
+                        onClick={() => {
+                            router.get(route('tests.edit', test.id));
+                        }}
                         className="flex-1 py-3 bg-zinc-200 border-2 border-zinc-500 text-zinc-900 text-xs font-black uppercase tracking-wider hover:bg-zinc-300 cursor-pointer text-center"
                     >
                         [ ПРАВКА ]
@@ -56,7 +61,9 @@ const MainTestCard: React.FC<MainTestCardProps> = ({ test, editMode, onDelete, o
             ) : (
                 <div className="pt-4 border-t-2 border-zinc-300">
                     <button
-                        onClick={() => onStart(test.id)}
+                        onClick={() => {
+                            router.get(route('tests.show', test.id))
+                        }}
                         className="w-full block py-3 text-center bg-zinc-950 border-2 border-zinc-800 text-amber-400 text-xs font-black uppercase tracking-widest hover:bg-amber-500 hover:text-zinc-950 hover:border-amber-600 transition-all cursor-pointer clip-corner"
                     >
                         // НАЧАТЬ_ТЕСТИРОВАНИЕ →

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, usePage } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 ////////////////////////////////////////////
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { FlashProps } from "@/types";
@@ -7,16 +7,30 @@ import { PopUp } from "@/components/custom/PopUp";
 import { PaginatedTest } from "@/types";
 import MainTestCard from "./Partials/MainTestCard";
 import { Pagination } from "@/components/custom/Pagination";
+import DeleteTestConfirmationModal from "@/Pages/Test/Partials/DeleteTestConfirmationModal";
+import { uppercase } from "zod";
 
 type TabType = 'available' | 'passed' | 'my';
 
 export default function Index(
-    { available_tests, passed_tests, my_tests }:
-        { available_tests: PaginatedTest; passed_tests: PaginatedTest; my_tests: PaginatedTest }
+    { available_tests, passed_tests, my_tests, current_user_id }:
+        { available_tests: PaginatedTest; passed_tests: PaginatedTest; my_tests: PaginatedTest, current_user_id: number }
 ) {
-    const [editMode, setEditMode] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [activeTab, setActiveTab] = useState<TabType>('available');
+
+    // MODAL STATE MANAGEMENT
+    const [deleteModal, setDeleteModal] = useState<{
+        isOpen: boolean;
+        id: number | string | null;
+        title: string;
+        type: 'available' | 'passed' | null;
+    }>({
+        isOpen: false,
+        id: null,
+        title: '',
+        type: null,
+    });
 
     const [message, setMessage] = useState<FlashProps>({
         success: null,
@@ -60,12 +74,23 @@ export default function Index(
         setSearchQuery(val);
     };
 
-    const handleDeleteAvailable = (id: number) => {
-        // Implement delete action or rely on router reload
+    // TRIGGER MODAL FOR AVAILABLE / MY TESTS
+    const openDeleteAvailableModal = (id: number, title: string) => {
+        setDeleteModal({ isOpen: true, id, title, type: 'available' });
     };
 
-    const handleDeletePassed = (id: string | number) => {
-        // Implement delete action or rely on router reload
+    // TRIGGER MODAL FOR PASSED TESTS
+    const openDeletePassedModal = (id: string | number, title: string) => {
+        setDeleteModal({ isOpen: true, id, title, type: 'passed' });
+    };
+
+    // EXECUTE ACTUAL DELETION LOGIC
+    const handleConfirmDelete = () => {
+        if (!deleteModal.id) return;
+
+        router.delete(route('tests.destroy', deleteModal.id));
+        // Close modal and reset state
+        setDeleteModal({ isOpen: false, id: null, title: '', type: null });
     };
 
     return (
@@ -79,11 +104,19 @@ export default function Index(
                     }
                 });
             }} />}
+
+            {/* DELETE CONFIRMATION MODAL */}
+            <DeleteTestConfirmationModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ isOpen: false, id: null, title: '', type: null })}
+                onConfirm={handleConfirmDelete}
+                itemName={deleteModal.title}
+            />
+
             <main className="min-h-screen bg-linear-to-r from-zinc-200/70 via-zinc-200/40 to-zinc-300/30 p-4 md:p-8 flex flex-col gap-8 relative select-none font-mono">
 
                 {/* ГЛОБАЛЬНАЯ ПАНЕЛЬ ПОИСКА И НАВИГАЦИЯ */}
                 <div className="bg-transparent border-b-2 border-white pb-6 flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-20">
-                    {/* БЛОК МЕТКИ ПОИСКА И НАВИГАЦИИ */}
                     <div className="flex flex-wrap items-center gap-4 bg-white px-3 py-2 border-2 border-zinc-300">
                         <span className="text-amber-500 font-black">//</span>
                         <span className="text-xs font-black uppercase tracking-widest text-zinc-900">
@@ -91,7 +124,6 @@ export default function Index(
                         </span>
                     </div>
 
-                    {/* ПОЛЕ ВВОДА */}
                     <div className="relative w-full md:w-2/3 lg:w-1/2 flex gap-4 flex-1">
                         <div className="flex items-center gap-3 bg-white px-3 py-2 border-2 border-zinc-300">
                             <span className="text-amber-500 font-black text-lg">//</span>
@@ -117,60 +149,120 @@ export default function Index(
                     </div>
                 </div>
 
-                {/* 1. БЛОК ДОСТУПНЫХ ТЕСТОВ */}
-                {activeTab === 'available' && (
-                    <div className="relative p-6 md:p-8 bg-zinc-50 border-2 border-zinc-400/90 overflow-hidden rounded-xs z-10 clip-corner shadow-md">
-                        <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none z-0"></div>
+                {/* PERSISTENT WRAPPER FOR TABS & CONTROLS */}
+                <div className="relative p-6 md:p-8 bg-zinc-50 border-2 border-zinc-400/90 overflow-hidden rounded-xs z-10 clip-corner shadow-md flex flex-col gap-8">
+                    <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none z-0"></div>
 
-                        {WATERMARK_LAYOUT_MAP.map((position, idx) => (
-                            <div
-                                key={idx}
-                                className={`absolute top-36 ${position} text-9xl font-black text-zinc-950/2 pointer-events-none transform -rotate-3 z-0 uppercase tracking-widest`}
-                            >
-                                {REPLICATED_WATERMARK_TEXT}
-                            </div>
-                        ))}
+                    {WATERMARK_LAYOUT_MAP.map((position, idx) => (
+                        <div
+                            key={idx}
+                            className={`absolute top-36 ${position} text-9xl font-black text-zinc-950/2 pointer-events-none transform -rotate-3 z-0 uppercase tracking-widest`}
+                        >
+                            {REPLICATED_WATERMARK_TEXT}
+                        </div>
+                    ))}
 
-                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 p-5 bg-zinc-100 border-2 border-zinc-300 relative z-10 clip-corner shadow-xs">
-                            <div className="relative pl-5 border-l-8 border-zinc-950 py-1">
-                                <div className="absolute top-0 left-0 w-3 h-2 bg-amber-500 -ml-2"></div>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <h1 className="text-2xl md:text-3xl font-black text-zinc-900 uppercase tracking-wide">
-                                        Доступные Тесты
-                                    </h1>
-                                    <span className="text-lg text-zinc-700 font-black tracking-wider bg-zinc-200 border-2 border-zinc-400 px-2 py-1 clip-corner">
-                                        [{available_tests.total} доступно]
-                                    </span>
-                                </div>
-                                <p className="text-zinc-600 text-xs md:text-sm font-bold uppercase tracking-wider">
-                                    // Активные назначенные протоколы для прохождения и проверки
-                                </p>
-                            </div>
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 p-5 bg-zinc-100 border-2 border-zinc-300 relative z-10 clip-corner shadow-xs">
 
-                            <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => setEditMode(!editMode)}
-                                        className={`group relative px-6 py-3 border-2 text-sm font-black uppercase tracking-[0.15em] transition-all duration-200 cursor-pointer clip-corner shadow-xs ${editMode
-                                                ? 'border-amber-600 bg-[repeating-linear-gradient(45deg,#f59e0b,#f59e0b_15px,#52525b_15px,#52525b_30px)] text-white'
-                                                : 'bg-zinc-950 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-zinc-950'
-                                            }`}
-                                    >
-                                        <span className={editMode ? 'bg-zinc-950/90 px-3 py-1 text-amber-400 border border-amber-500 block' : ''}>
-                                            [ {editMode ? '01_ВЫЙТИ_ИЗ_УПРАВЛЕНИЯ' : '01_РЕЖИМ_УПРАВЛЕНИЯ'} ]
+                        {/* CONDITIONAL HEADERS & PERMANENT CREATE BUTTON */}
+                        <div className="flex flex-wrap items-center gap-6">
+                            {activeTab === 'available' && (
+                                <div className="relative pl-5 border-l-8 border-zinc-950 py-1">
+                                    <div className="absolute top-0 left-0 w-3 h-2 bg-amber-500 -ml-2"></div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h1 className="text-2xl md:text-3xl font-black text-zinc-900 uppercase tracking-wide">
+                                            Доступные Тесты
+                                        </h1>
+                                        <span className="text-lg text-zinc-700 font-black tracking-wider bg-zinc-200 border-2 border-zinc-400 px-2 py-1 clip-corner text-nowrap">
+                                            [{available_tests.total} доступно]
                                         </span>
-                                    </button>
-
-                                    <Link
-                                        href={route('tests.create')}
-                                        className="group relative px-6 py-3 bg-amber-500/10 border-2 border-amber-500 text-black hover:bg-amber-500 hover:text-zinc-950 text-sm font-black uppercase tracking-[0.15em] transition-all duration-200 clip-corner cursor-pointer shadow-xs"
-                                    >
-                                        [ 02_СОЗДАТЬ_ТЕСТ ]
-                                    </Link>
+                                    </div>
+                                    <p className="text-zinc-600 text-xs md:text-sm font-bold uppercase tracking-wider">
+                                        // Активные назначенные протоколы для прохождения и проверки
+                                    </p>
                                 </div>
+                            )}
+
+                            {activeTab === 'passed' && (
+                                <div className="relative pl-5 border-l-8 border-zinc-950 py-1">
+                                    <div className="absolute top-0 left-0 w-3 h-2 bg-emerald-500 -ml-2"></div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h2 className="text-2xl md:text-3xl font-black text-zinc-900 uppercase tracking-wide">
+                                            Завершенные Тесты
+                                        </h2>
+                                        <span className="text-xs text-zinc-700 font-black tracking-wider bg-zinc-300 border-2 border-zinc-400 px-2 py-1 clip-corner">
+                                            [{passed_tests.total} В АРХИВЕ]
+                                        </span>
+                                    </div>
+                                    <p className="text-zinc-600 text-xs md:text-sm font-bold uppercase tracking-wider">
+                                        // История завершенных попыток и зафиксированные оценки
+                                    </p>
+                                </div>
+                            )}
+
+                            {activeTab === 'my' && (
+                                <div className="relative pl-5 border-l-8 border-zinc-950 py-1">
+                                    <div className="absolute top-0 left-0 w-3 h-2 bg-blue-500 -ml-2"></div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h2 className="text-2xl md:text-3xl font-black text-zinc-900 uppercase tracking-wide">
+                                            Мои Тесты
+                                        </h2>
+                                        <span className="text-lg text-zinc-700 font-black tracking-wider bg-zinc-200 border-2 border-zinc-400 px-2 py-1 clip-corner">
+                                            [{my_tests.total} создано]
+                                        </span>
+                                    </div>
+                                    <p className="text-zinc-600 text-xs md:text-sm font-bold uppercase tracking-wider">
+                                        // Управление собственными созданными протоколами
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* PERMANENT CREATE BUTTON CONTAINER */}
+                            <div className="hidden lg:flex items-center">
+                                <div className="border-r-2 border-gray-400 block h-10 mx-6"></div>
+                                <Link
+                                    href={route('tests.create')}
+                                    className="group relative px-6 py-3 bg-amber-500/10 border-2 border-amber-500 text-black hover:bg-amber-500 hover:text-zinc-950 text-sm font-black uppercase tracking-[0.15em] transition-all duration-200 clip-corner cursor-pointer shadow-xs text-nowrap h-fit"
+                                >
+                                    [ 00_СОЗДАТЬ_ТЕСТ ]
+                                </Link>
                             </div>
                         </div>
 
+                        {/* TAB SWITCHER BUTTONS */}
+                        <div className="flex flex-wrap items-center gap-2 mt-4 lg:mt-0 w-full lg:w-auto">
+                            <button
+                                onClick={() => setActiveTab('available')}
+                                className={`px-6 py-3 border-2 text-sm font-black uppercase tracking-[0.15em] transition-all duration-200 cursor-pointer clip-corner shadow-xs ${activeTab === 'available'
+                                    ? 'bg-amber-500 border-zinc-950 text-zinc-950'
+                                    : 'bg-zinc-950 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-zinc-950'
+                                    }`}
+                            >
+                                [ 01_ДОСТУПНЫЕ ]
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('passed')}
+                                className={`px-6 py-3 border-2 text-sm font-black uppercase tracking-[0.15em] transition-all duration-200 cursor-pointer clip-corner shadow-xs ${activeTab === 'passed'
+                                    ? 'bg-amber-500 border-zinc-950 text-zinc-950'
+                                    : 'bg-zinc-950 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-zinc-950'
+                                    }`}
+                            >
+                                [ 02_ЗАВЕРШЕННЫЕ ]
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('my')}
+                                className={`px-6 py-3 border-2 text-sm font-black uppercase tracking-[0.15em] transition-all duration-200 cursor-pointer clip-corner shadow-xs ${activeTab === 'my'
+                                    ? 'bg-amber-500 border-zinc-950 text-zinc-950'
+                                    : 'bg-zinc-950 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-zinc-950'
+                                    }`}
+                            >
+                                [ 03_МОИ ]
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 1. БЛОК ДОСТУПНЫХ ТЕСТОВ */}
+                    <div className={`flex-col gap-6 ${activeTab === 'available' ? 'flex' : 'hidden'}`}>
                         {available_tests.data.length === 0 ? (
                             <div className="p-12 text-center border-2 border-dashed border-zinc-300 bg-zinc-100/50 my-4">
                                 <span className="text-zinc-500 font-black uppercase tracking-widest text-sm">
@@ -183,10 +275,9 @@ export default function Index(
                                     <MainTestCard
                                         key={test.id}
                                         test={test}
-                                        editMode={editMode}
-                                        onDelete={handleDeleteAvailable}
+                                        onDelete={(id) => openDeleteAvailableModal(id, test.title)}
                                         onStart={(id) => alert(`Запуск прохождения теста #${id}`)}
-                                        onEdit={(id) => alert(`Редактирование теста ${id}`)}
+                                        current_user_id={current_user_id}
                                     />
                                 ))}
                             </div>
@@ -199,30 +290,9 @@ export default function Index(
                             total={available_tests.total}
                         />
                     </div>
-                )}
 
-                {/* 2. БЛОК ЗАВЕРШЕННЫХ ТЕСТОВ */}
-                {activeTab === 'passed' && (
-                    <div className="relative p-6 md:p-8 bg-zinc-100/90 border-2 border-zinc-400/90 overflow-hidden rounded-xs z-10 clip-corner shadow-md">
-                        <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none z-0"></div>
-
-                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 p-5 bg-zinc-200/80 border-2 border-zinc-300 relative z-10 clip-corner shadow-xs">
-                            <div className="relative pl-5 border-l-8 border-zinc-950 py-1">
-                                <div className="absolute top-0 left-0 w-3 h-2 bg-emerald-500 -ml-2"></div>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <h2 className="text-2xl md:text-3xl font-black text-zinc-900 uppercase tracking-wide">
-                                        Завершенные Тесты
-                                    </h2>
-                                    <span className="text-xs text-zinc-700 font-black tracking-wider bg-zinc-300 border-2 border-zinc-400 px-2 py-1 clip-corner">
-                                        [{passed_tests.total} В АРХИВЕ]
-                                    </span>
-                                </div>
-                                <p className="text-zinc-600 text-xs md:text-sm font-bold uppercase tracking-wider">
-                                    // История завершенных попыток и зафиксированные оценки
-                                </p>
-                            </div>
-                        </div>
-
+                    {/* 2. БЛОК ЗАВЕРШЕННЫХ ТЕСТОВ */}
+                    <div className={`flex-col gap-6 ${activeTab === 'passed' ? 'flex' : 'hidden'}`}>
                         {passed_tests.data.length === 0 ? (
                             <div className="p-12 text-center border-2 border-dashed border-zinc-300 bg-zinc-200/50 my-4">
                                 <span className="text-zinc-500 font-black uppercase tracking-widest text-sm">
@@ -273,12 +343,12 @@ export default function Index(
                                             </div>
                                         </div>
 
-                                        <div className="pt-4 border-t-2 border-zinc-300">
+                                        <div className="pt-4 border-t-2 border-zinc-300 flex gap-3">
                                             <button
                                                 onClick={() => alert(`Просмотр результатов теста #${test.id}`)}
-                                                className="w-full block py-3 text-center bg-zinc-200 border-2 border-zinc-400 text-zinc-900 text-xs font-black uppercase tracking-widest hover:bg-zinc-950 hover:text-amber-500 hover:border-zinc-950 transition-all cursor-pointer clip-corner"
+                                                className="flex-1 py-3 text-center bg-zinc-200 border-2 border-zinc-400 text-zinc-900 text-xs font-black uppercase tracking-widest hover:bg-zinc-950 hover:text-amber-500 hover:border-zinc-950 transition-all cursor-pointer clip-corner"
                                             >
-                                                // ПРОСМОТР_РЕЗУЛЬТАТОВ →
+                                                // РЕЗУЛЬТАТЫ
                                             </button>
                                         </div>
                                     </div>
@@ -293,30 +363,9 @@ export default function Index(
                             total={passed_tests.total}
                         />
                     </div>
-                )}
 
-                {/* 3. БЛОК МОИХ ТЕСТОВ */}
-                {activeTab === 'my' && (
-                    <div className="relative p-6 md:p-8 bg-zinc-50 border-2 border-zinc-400/90 overflow-hidden rounded-xs z-10 clip-corner shadow-md">
-                        <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none z-0"></div>
-
-                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 p-5 bg-zinc-100 border-2 border-zinc-300 relative z-10 clip-corner shadow-xs">
-                            <div className="relative pl-5 border-l-8 border-zinc-950 py-1">
-                                <div className="absolute top-0 left-0 w-3 h-2 bg-blue-500 -ml-2"></div>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <h2 className="text-2xl md:text-3xl font-black text-zinc-900 uppercase tracking-wide">
-                                        Мои Тесты
-                                    </h2>
-                                    <span className="text-lg text-zinc-700 font-black tracking-wider bg-zinc-200 border-2 border-zinc-400 px-2 py-1 clip-corner">
-                                        [{my_tests.total} создано]
-                                    </span>
-                                </div>
-                                <p className="text-zinc-600 text-xs md:text-sm font-bold uppercase tracking-wider">
-                                    // Управление собственными созданными протоколами
-                                </p>
-                            </div>
-                        </div>
-
+                    {/* 3. БЛОК МОИХ ТЕСТОВ */}
+                    <div className={`flex-col gap-6 ${activeTab === 'my' ? 'flex' : 'hidden'}`}>
                         {my_tests.data.length === 0 ? (
                             <div className="p-12 text-center border-2 border-dashed border-zinc-300 bg-zinc-100/50 my-4">
                                 <span className="text-zinc-500 font-black uppercase tracking-widest text-sm">
@@ -329,10 +378,9 @@ export default function Index(
                                     <MainTestCard
                                         key={test.id}
                                         test={test}
-                                        editMode={true}
-                                        onDelete={handleDeleteAvailable}
+                                        onDelete={(id) => openDeleteAvailableModal(id, test.title)}
                                         onStart={(id) => alert(`Предпросмотр теста #${id}`)}
-                                        onEdit={(id) => alert(`Редактирование теста ${id}`)}
+                                        current_user_id={current_user_id}
                                     />
                                 ))}
                             </div>
@@ -345,47 +393,7 @@ export default function Index(
                             total={my_tests.total}
                         />
                     </div>
-                )}
-
-                {/* HUD SWITCHER BUTTONS (REPLACING THE SCROLL BUTTON POSITION) */}
-                <div className="fixed bottom-8 right-8 z-50 flex items-center gap-2">
-                    <button
-                        onClick={() => setActiveTab('available')}
-                        className={`px-4 py-3 font-mono font-black text-xs uppercase tracking-widest border-2 transition-all cursor-pointer clip-corner shadow-2xl ${activeTab === 'available'
-                                ? 'bg-amber-500 border-zinc-950 text-zinc-950'
-                                : 'bg-zinc-950 border-amber-500 text-amber-500 hover:bg-zinc-900'
-                            }`}
-                    >
-                        [ 01_ДОСТУПНЫЕ ]
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('passed')}
-                        className={`px-4 py-3 font-mono font-black text-xs uppercase tracking-widest border-2 transition-all cursor-pointer clip-corner shadow-2xl ${activeTab === 'passed'
-                                ? 'bg-emerald-500 border-zinc-950 text-zinc-950'
-                                : 'bg-zinc-950 border-emerald-500 text-emerald-500 hover:bg-zinc-900'
-                            }`}
-                    >
-                        [ 02_ЗАВЕРШЕННЫЕ ]
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('my')}
-                        className={`px-4 py-3 font-mono font-black text-xs uppercase tracking-widest border-2 transition-all cursor-pointer clip-corner shadow-2xl ${activeTab === 'my'
-                                ? 'bg-blue-500 border-zinc-950 text-zinc-950'
-                                : 'bg-zinc-950 border-blue-500 text-blue-500 hover:bg-zinc-900'
-                            }`}
-                    >
-                        [ 03_МОИ ]
-                    </button>
                 </div>
-
-                {/* 
-                // SCROLL TO TOP BUTTON COMMENTED OUT AS REQUESTED
-                <button
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    ...
-                >
-                </button> 
-                */}
 
             </main>
         </AuthenticatedLayout>

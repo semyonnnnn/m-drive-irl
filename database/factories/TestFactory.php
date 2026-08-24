@@ -18,36 +18,55 @@ class TestFactory extends Factory
     {
         $russianFaker = \Faker\Factory::create('ru_RU');
 
-
-        
-        $questions = [];
-        for ($i = 0; $i < rand(10, 30); $i++) {
+        $content = [];
+        for ($i = 0; $i < rand(3, 8); $i++) {
             $options = [];
             $correctIndex = $russianFaker->numberBetween(0, 3);
 
             for ($j = 0; $j < 4; $j++) {
+                // Ensure text satisfies min:3 and max:255 constraints
+                $optText = ucfirst($russianFaker->words(2, true));
+                if (mb_strlen($optText) < 3) {
+                    $optText = 'Вариант ' . $optText;
+                }
+
                 $options[] = [
                     'id' => 'opt_' . $russianFaker->uuid(),
-                    'text' => ucfirst($russianFaker->word()),
+                    'text' => mb_substr($optText, 0, 255),
                     'isCorrect' => ($j === $correctIndex),
                 ];
             }
 
-            $questions[] = [
+            // Ensure question text satisfies min:3 and max:255 constraints
+            $qText = ucfirst($russianFaker->sentence(4));
+            if (mb_strlen($qText) < 3) {
+                $qText = 'Вопрос по теме?';
+            }
+
+            $content[] = [
                 'id' => 'q_' . $russianFaker->uuid(),
-                'text' => rtrim($russianFaker->sentence(), '.') . '?',
+                'text' => mb_substr($qText, 0, 255),
                 'options' => $options,
             ];
         }
 
+        // Ensure title and description satisfy min:3 and max:255 constraints
+        $title = ucfirst($russianFaker->sentence(3));
+        if (mb_strlen($title) < 3) {
+            $title = 'Тест знаний';
+        }
+
+        $description = $russianFaker->paragraph();
+        if (mb_strlen($description) < 3) {
+            $description = 'Описание теста.';
+        }
+
         return [
-            'title' => ucfirst($russianFaker->sentence(3)),
-            'description' => $russianFaker->paragraph(),
-            'content' => [
-                'questions' => $questions,
-            ],
-            'questions_count' => count($questions),
-            'user_id' => '1'
+            'title' => mb_substr($title, 0, 255),
+            'description' => mb_substr($description, 0, 255),
+            'content' => $content, // Moved to top-level to match TestRequest rules
+            'questions_count' => count($content),
+            'user_id' => '1',
         ];
     }
 }

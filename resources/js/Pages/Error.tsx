@@ -76,12 +76,16 @@ export default function Error() {
                                 [ СИСТ_ОШИБКА // КОД: {code} ]
                             </span>
                         </div>
-                        <Link
-                            href="/"
-                            className="text-[10px] text-[#a1a1aa] font-bold bg-[#18181b] border border-[#27272a] px-3 py-1.5 tracking-widest uppercase transition-all duration-200 hover:border-[#ef4444] hover:text-[#f87171] hover:bg-[#2a0808]"
+                        <a
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                window.history.back();
+                            }}
+                            className="text-[10px] text-[#a1a1aa] font-bold bg-[#18181b] border border-[#27272a] px-3 py-1.5 tracking-widest uppercase transition-all duration-200 hover:border-[#ef4444] hover:text-[#f87171] hover:bg-[#2a0808] inline-block cursor-pointer"
                         >
                             [ ВОЗВРАТ_НА_БАЗУ ]
-                        </Link>
+                        </a>
                     </div>
 
                     {/* БЛОК КРУПНОГО КОДА ОШИБКИ */}

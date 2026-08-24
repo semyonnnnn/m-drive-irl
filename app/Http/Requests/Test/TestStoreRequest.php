@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Test;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TestRequest extends FormRequest
+class TestStoreRequest extends FormRequest
 {
     public function rules(): array
     {
@@ -13,15 +13,15 @@ class TestRequest extends FormRequest
             'description' => ['required', 'string', 'min:3', 'max:255'],
             'questions' => ['required', 'array'],
             'questions.*.id' => [
-                'required', 
-                'string', 
+                'required',
+                'string',
                 'regex:/^q_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i'
             ],
             'questions.*.text' => ['required', 'string', 'min:3', 'max:255'],
             'questions.*.options' => ['required', 'array'],
             'questions.*.options.*.id' => [
-                'required', 
-                'string', 
+                'required',
+                'string',
                 'regex:/^opt_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i'
             ],
             'questions.*.options.*.text' => ['required', 'string', 'min:3', 'max:255'],

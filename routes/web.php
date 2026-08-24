@@ -49,8 +49,12 @@ Route::middleware(['auth'])->group(function () {
             // TESTS RESOURCE
             Route::get('/tests', [TestController::class, 'index'])->name('tests.index');
             Route::get('/tests/create', [TestController::class, 'create'])->name('tests.create');
+            Route::get('/tests/{test}/show', [TestController::class, 'show'])->name('tests.show');
+            Route::get('/tests/{test}/edit', [TestController::class, 'edit'])->name('tests.edit');
+
+            Route::post('/tests/{test}/attempts', [TestController::class, 'attempt'])->name('tests.attempts.store');
+            Route::put('/tests/{test}/update', [TestController::class, 'update'])->name('tests.update');
             Route::post('/tests', [TestController::class, 'store'])->name('tests.store');
-            Route::get('/tests/{test}', [TestController::class, 'show'])->name('tests.show');
             Route::delete('/tests/{test}', [TestController::class, 'destroy'])->name('tests.destroy');
 
             // UTILITIES / ACTIONS
