@@ -13,6 +13,7 @@ export interface AnswerOption {
 export interface QuestionItem {
     id: string;
     text: string;
+    value: number;
     options: AnswerOption[];
 }
 
@@ -33,6 +34,19 @@ const generateUUID = (): string => {
     });
 };
 
+// Shared by the draft "new question" value input and each saved question's
+// value input, so both enforce the same 1-5 single-digit rule identically.
+const clampQuestionValue = (rawInput: string): number => {
+    const digitsOnly = rawInput.replace(/\D/g, '');
+
+    if (digitsOnly === '') {
+        return 1;
+    }
+
+    const lastDigit = Number(digitsOnly[digitsOnly.length - 1]);
+    return Math.min(5, Math.max(1, lastDigit));
+};
+
 export default function Create({ auth }: PageProps) {
     const { data, setData, post, processing, errors } = useForm<TestFormData>({
         title: '',
@@ -45,6 +59,7 @@ export default function Create({ auth }: PageProps) {
     const [descriptionState, setDescriptionState] = useState('');
 
     const [questionText, setQuestionText] = useState('');
+    const [questionValue, setQuestionValue] = useState<number>(1);
     const [answers, setAnswers] = useState<[string, string, string, string]>(['', '', '', '']);
     const [correctIndex, setCorrectIndex] = useState<number>(0);
     const [draftError, setDraftError] = useState<string | null>(null);
@@ -86,6 +101,7 @@ export default function Create({ auth }: PageProps) {
         const newQuestion: QuestionItem = {
             id: `q_${generateUUID()}`,
             text: questionText.trim(),
+            value: questionValue,
             options: answers.map((ans, idx) => ({
                 id: `opt_${generateUUID()}`,
                 text: ans.trim(),
@@ -97,6 +113,7 @@ export default function Create({ auth }: PageProps) {
 
         // Reset draft state
         setQuestionText('');
+        setQuestionValue(1);
         setAnswers(['', '', '', '']);
         setCorrectIndex(0);
         setDraftError(null);
@@ -132,6 +149,11 @@ export default function Create({ auth }: PageProps) {
 
     const handleUpdateQuestionText = (qId: string, text: string) => {
         setData('questions', data.questions.map((q) => (q.id === qId ? { ...q, text } : q)));
+    };
+
+    const handleUpdateQuestionValue = (qId: string, rawInput: string) => {
+        const clamped = clampQuestionValue(rawInput);
+        setData('questions', data.questions.map((q) => (q.id === qId ? { ...q, value: clamped } : q)));
     };
 
     const handleUpdateOptionText = (qId: string, optId: string, text: string) => {
@@ -254,20 +276,38 @@ export default function Create({ auth }: PageProps) {
                         </label>
 
                         <div className="bg-zinc-200/80 p-4 border-2 border-zinc-400 clip-corner">
-                            <div className="mb-4">
-                                <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
-                                    Текст Вопроса
-                                </label>
-                                <input
-                                    type="text"
-                                    value={questionText}
-                                    onChange={(e) => {
-                                        setQuestionText(e.target.value);
-                                        if (draftError) setDraftError(null);
-                                    }}
-                                    placeholder="ВВЕДИТЕ ТЕКСТ ВОПРОСА..."
-                                    className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
-                                />
+                            <div className="mb-4 flex gap-3">
+                                <div className='w-full'>
+                                    <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
+                                        Текст Вопроса
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={questionText}
+                                        onChange={(e) => {
+                                            setQuestionText(e.target.value);
+                                            if (draftError) setDraftError(null);
+                                        }}
+                                        placeholder="ВВЕДИТЕ ТЕКСТ ВОПРОСА..."
+                                        className="w-full bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-zinc-600 uppercase mb-1">
+                                        Цена Вопроса [1 - 5]
+                                    </label>
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        value={questionValue}
+                                        onChange={(e) => {
+                                            setQuestionValue(clampQuestionValue(e.target.value));
+                                            if (draftError) setDraftError(null);
+                                        }}
+                                        placeholder="1-5"
+                                        className="w-40 bg-zinc-100 text-zinc-950 placeholder-zinc-500 text-xs px-3 py-2 font-bold border-2 border-zinc-400 outline-hidden focus:border-amber-600 uppercase tracking-wider clip-corner"
+                                    />
+                                </div>
                             </div>
 
                             <div className="mb-4">
@@ -429,6 +469,20 @@ export default function Create({ auth }: PageProps) {
                                                 className="w-full bg-transparent text-xs font-bold text-zinc-950 uppercase tracking-wide py-1 border-b-2 border-zinc-400 outline-hidden focus:border-amber-600 transition-colors"
                                             />
                                         </div>
+
+                                        <div className="flex items-center gap-1 shrink-0">
+                                            <label className="text-[9px] font-black text-zinc-600 uppercase">
+                                                Цена:
+                                            </label>
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                value={q.value}
+                                                onChange={(e) => handleUpdateQuestionValue(q.id, e.target.value)}
+                                                className="w-10 text-center bg-zinc-200 text-zinc-950 text-xs font-black py-1 border-2 border-zinc-400 outline-hidden focus:border-amber-600 clip-corner"
+                                            />
+                                        </div>
+
                                         <button
                                             type="button"
                                             onClick={() => triggerRemoveQuestionModal(q.id)}

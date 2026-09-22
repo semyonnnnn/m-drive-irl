@@ -10,6 +10,7 @@ use App\Http\Requests\Test\TestStoreRequest;
 use App\Http\Requests\Test\TestUpdateRequest;
 use App\Http\Requests\Test\TestAttemptRequest;
 use App\Models\Test;
+use App\Services\TestEvaluationService;
 
 class TestController extends Controller
 {
@@ -99,6 +100,7 @@ class TestController extends Controller
         $test = Test::findOrFail($id);
 
         $content = is_string($test->content) ? json_decode($test->content, true) : $test->content;
+        // dd($content);
 
         $testData = [
             'id' => $test->id,
@@ -133,29 +135,10 @@ class TestController extends Controller
         return redirect()->route('tests.index')->with('success', "Тест '$test_name' успешно обновлён!");
     }
 
-    public function attempt(TestAttemptRequest $r)
+    public function attempt(TestAttemptRequest $r, TestEvaluationService $evaluator)
     {
         $test = Test::findOrFail($r->input('id'));
-        $questions = is_string($test->content) ? json_decode($test->content, true) : $test->content;
-
-        $submittedAnswers = $r->input('answers', []);
-        $results = [];
-
-        foreach ($questions as $question) {
-            $qId = $question['id'];
-            $userSelectedOptId = $submittedAnswers[$qId] ?? null;
-
-            $correctOption = collect($question['options'])->firstWhere('isCorrect', true);
-            $userSelectedOption = collect($question['options'])->firstWhere('id', $userSelectedOptId);
-
-            $isCorrect = $userSelectedOptId && $correctOption && $userSelectedOptId === $correctOption['id'];
-
-            $results[$question['text']] = [
-                'user_answer' => $userSelectedOption['text'] ?? null,
-                'correct_answer' => $correctOption['text'] ?? null,
-                'is_correct' => $isCorrect,
-            ];
-        }
+        $results = $evaluator->evaluate($r, $test);
 
         dd([
             'test_title' => $test->title,

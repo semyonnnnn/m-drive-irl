@@ -171,6 +171,9 @@ export default function Show({ auth, test }: ShowProps) {
                                                     {q.text}
                                                 </h4>
                                             </div>
+                                            <span className="text-sm font-black uppercase px-1.5 py-0.5 clip-corner bg-zinc-300 text-zinc-700 shrink-0">
+                                                Цена: {q.value}
+                                            </span>
                                         </div>
 
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

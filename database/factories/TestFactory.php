@@ -47,6 +47,7 @@ class TestFactory extends Factory
                 'id' => 'q_' . $russianFaker->uuid(),
                 'text' => mb_substr($qText, 0, 255),
                 'options' => $options,
+                'value' => rand(1, 5),
             ];
         }
 

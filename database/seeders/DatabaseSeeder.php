@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Test;
 use App\Enum\RolesEnum;
 use App\Enum\PermissionsEnum;
+use Database\Factories\AlinaTestFactory;
 
 class DatabaseSeeder extends Seeder
 {
@@ -59,6 +60,9 @@ class DatabaseSeeder extends Seeder
         }
 
         Test::factory()->count(100)->create();
+        Test::factory()->count(20)->create([
+            'user_id' => $Alina->id,
+        ]);
         User::factory()->count(48)->create();
 
         // 7. GENERATE 99 RANDOM DUMMY USERS

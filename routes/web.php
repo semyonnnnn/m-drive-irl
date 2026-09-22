@@ -47,15 +47,18 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/materials/{material}', [MaterialController::class, 'destroy'])->name('materials.destroy');
 
             // TESTS RESOURCE
-            Route::get('/tests', [TestController::class, 'index'])->name('tests.index');
-            Route::get('/tests/create', [TestController::class, 'create'])->name('tests.create');
-            Route::get('/tests/{test}/show', [TestController::class, 'show'])->name('tests.show');
-            Route::get('/tests/{test}/edit', [TestController::class, 'edit'])->name('tests.edit');
+            Route::get('/tests', [TestController::class, 'index'])->name('tests.index'); //all
+            Route::get('/tests/create', [TestController::class, 'create'])->name('tests.create'); //create
+            Route::get('/tests/{test}/show', [TestController::class, 'show'])->name('tests.show'); //take a test as user
+            Route::get('/tests/{test}/edit', [TestController::class, 'edit'])->name('tests.edit'); //edit test as author
 
-            Route::post('/tests/{test}/attempts', [TestController::class, 'attempt'])->name('tests.attempts.store');
+            //TEST ACTIONS
+            //author
             Route::put('/tests/{test}/update', [TestController::class, 'update'])->name('tests.update');
             Route::post('/tests', [TestController::class, 'store'])->name('tests.store');
             Route::delete('/tests/{test}', [TestController::class, 'destroy'])->name('tests.destroy');
+            //user
+            Route::post('/tests/{test}/attempts', [TestController::class, 'attempt'])->name('tests.attempts.store');
 
             // UTILITIES / ACTIONS
             Route::post('/passwords/download', [PasswordController::class, 'download'])->name('passwords.download');
