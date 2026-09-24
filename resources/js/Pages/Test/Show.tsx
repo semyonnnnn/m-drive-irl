@@ -46,7 +46,7 @@ export default function Show({ auth, test }: ShowProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('tests.attempts.store', test.id), {
+        post(route('attempts.store', test.id), {
             onSuccess: () => setSubmitted(true),
         });
     };

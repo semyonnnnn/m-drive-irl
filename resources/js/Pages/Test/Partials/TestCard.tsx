@@ -1,16 +1,14 @@
 import React from 'react';
 import { Test } from '@/types';
-import { get } from 'react-hook-form';
 import { router } from '@inertiajs/react';
 
-interface MainTestCardProps {
+interface TestCardProps {
     test: Test;
-    onDelete: (id: number) => void;
-    onStart: (id: number) => void;
+    onDelete: (id: number, title: string) => void;
     current_user_id: number;
 }
 
-const MainTestCard: React.FC<MainTestCardProps> = ({ test, onDelete, onStart, current_user_id }) => {
+const TestCard: React.FC<TestCardProps> = ({ test, onDelete, current_user_id }) => {
     const isMyTest = current_user_id == test.user_id;
 
     return (
@@ -52,7 +50,7 @@ const MainTestCard: React.FC<MainTestCardProps> = ({ test, onDelete, onStart, cu
                         [ ПРАВКА ]
                     </button>
                     <button
-                        onClick={() => onDelete(test.id)}
+                        onClick={() => onDelete(test.id, test.title)}
                         className="flex-1 py-3 bg-zinc-950 border-2 border-amber-600 text-amber-500 text-xs font-black uppercase tracking-wider hover:bg-amber-600 hover:text-white cursor-pointer text-center"
                     >
                         [ УСТРАНИТЬ ]
@@ -62,7 +60,7 @@ const MainTestCard: React.FC<MainTestCardProps> = ({ test, onDelete, onStart, cu
                 <div className="pt-4 border-t-2 border-zinc-300">
                     <button
                         onClick={() => {
-                            router.get(route('tests.show', test.id))
+                            router.get(route('tests.show', test.id));
                         }}
                         className="w-full block py-3 text-center bg-zinc-950 border-2 border-zinc-800 text-amber-400 text-xs font-black uppercase tracking-widest hover:bg-amber-500 hover:text-zinc-950 hover:border-amber-600 transition-all cursor-pointer clip-corner"
                     >
@@ -74,4 +72,4 @@ const MainTestCard: React.FC<MainTestCardProps> = ({ test, onDelete, onStart, cu
     );
 };
 
-export default MainTestCard;
+export { TestCard };

@@ -1,12 +1,14 @@
 <?php
 
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+///////////////////////////////////////////////
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\TestAttemptController;
 
 Route::get('/', function () {
     $user = Auth::user();
@@ -58,7 +60,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/tests', [TestController::class, 'store'])->name('tests.store');
             Route::delete('/tests/{test}', [TestController::class, 'destroy'])->name('tests.destroy');
             //user
-            Route::post('/tests/{test}/attempts', [TestController::class, 'attempt'])->name('tests.attempts.store');
+            Route::post('/attempts', [TestAttemptController::class, 'store'])->name('attempts.store');
 
             // UTILITIES / ACTIONS
             Route::post('/passwords/download', [PasswordController::class, 'download'])->name('passwords.download');

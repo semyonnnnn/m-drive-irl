@@ -18,6 +18,7 @@ class TestStoreRequest extends FormRequest
                 'regex:/^q_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i'
             ],
             'questions.*.text' => ['required', 'string', 'min:3', 'max:255'],
+            'questions.*.value' => ['required', 'integer', 'min:1', 'max:5'],
             'questions.*.options' => ['required', 'array'],
             'questions.*.options.*.id' => [
                 'required',
@@ -47,6 +48,11 @@ class TestStoreRequest extends FormRequest
 
             'questions.*.id.required' => 'Каждый вопрос должен иметь идентификатор.',
             'questions.*.id.regex' => 'Неверный формат идентификатора вопроса.',
+
+            'questions.*.value.required' => 'Укажите цену вопроса.',
+            'questions.*.value.integer' => 'Цена вопроса должна быть целым числом.',
+            'questions.*.value.min' => 'Цена вопроса должна быть от 1 до 5.',
+            'questions.*.value.max' => 'Цена вопроса должна быть от 1 до 5.',
 
             'questions.*.text.required' => 'Текст вопроса обязателен.',
             'questions.*.text.string' => 'Текст вопроса должен быть строкой.',

@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Hash;
 ////////////////////////////////////////
 use App\Models\User;
 use App\Models\Test;
+use App\Models\TestAttempt;
 use App\Enum\RolesEnum;
 use App\Enum\PermissionsEnum;
-use Database\Factories\AlinaTestFactory;
 
 class DatabaseSeeder extends Seeder
 {
@@ -58,19 +58,17 @@ class DatabaseSeeder extends Seeder
         if (!$Alina->hasRole(RolesEnum::Admin)) {
             $Alina->assignRole(RolesEnum::Admin);
         }
-
-        Test::factory()->count(100)->create();
-        Test::factory()->count(20)->create([
-            'user_id' => $Alina->id,
-        ]);
         User::factory()->count(48)->create();
 
-        // 7. GENERATE 99 RANDOM DUMMY USERS
-        // User::factory()
-        //     ->count(1000)
-        //     ->create()
-        //     ->each(function ($user) {
-        //         $user->assignRole(RolesEnum::Gakusei);
-        //     });
+        Test::factory()->count(100)->create();
+        Test::factory()->count(100)->create([
+            'user_id' => $Alina->id,
+        ]);
+        // Generate 20 safe, progressive attempts for the root user one by one
+        for ($i = 0; $i < 20; $i++) {
+            TestAttempt::factory()
+                ->forRandomExistingTest($rootUser)
+                ->create();
+        }
     }
 }

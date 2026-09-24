@@ -29,6 +29,10 @@ class Test extends Model
         return $this->belongsToMany(User::class, 'test_user')
             ->withTimestamps();
     }
+    public function testAttempts()
+    {
+        return $this->hasMany(TestAttempt::class);
+    }
 
     // Override the default created_at attribute to return the localized Russian string directly
     public function getCreatedAtAttribute($value)
