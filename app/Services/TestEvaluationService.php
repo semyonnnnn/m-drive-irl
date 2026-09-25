@@ -14,6 +14,9 @@ class TestEvaluationService
         $submittedAnswers = $r->input('answers', []);
         $results = [];
 
+        $totalValue = 0;
+        $userValue = 0;
+
         foreach ($questions as $question) {
             $qId = $question['id'];
             $userSelectedOptId = $submittedAnswers[$qId] ?? null;
@@ -23,14 +26,22 @@ class TestEvaluationService
 
             $isCorrect = $userSelectedOptId && $correctOption && $userSelectedOptId === $correctOption['id'];
 
+            $totalValue += $question['value'] ?? 1;
+            $userValue += $isCorrect ? ($question['value'] ?? 1) : 0;
+
             $results[$question['text']] = [
+                'id' => $qId,
+                'value' => $question['value'] ?? 1,
                 'user_answer' => $userSelectedOption['text'] ?? null,
                 'correct_answer' => $correctOption['text'] ?? null,
                 'is_correct' => $isCorrect,
             ];
         }
 
-        return $results;
+
+
+        $percent = (int)ceil($userValue / $totalValue * 100);
+
+        return array_merge($results, ['totalValue' => $totalValue, 'userValue' => $userValue, 'percent' => $percent]);
     }
-    
 }

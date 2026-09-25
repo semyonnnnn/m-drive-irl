@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Test;
 use App\Models\TestAttempt;
+use App\Models\Setting; // <-- 1. Import the Setting model here
 use App\Enum\RolesEnum;
 use App\Enum\PermissionsEnum;
 
@@ -17,6 +18,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // 0. CREATE INITIAL SYSTEM SETTINGS
+        Setting::updateOrCreate(
+            ['key' => 'passing_threshold_percentage'],
+            ['value' => '0.8']
+        );
+
         // 1. ROLES (Using firstOrCreate to prevent crash if they exist)
         $rootRole    = Role::firstOrCreate(['name' => RolesEnum::Root->value]);
         $adminRole   = Role::firstOrCreate(['name' => RolesEnum::Admin->value]);
@@ -64,6 +71,7 @@ class DatabaseSeeder extends Seeder
         Test::factory()->count(100)->create([
             'user_id' => $Alina->id,
         ]);
+
         // Generate 20 safe, progressive attempts for the root user one by one
         for ($i = 0; $i < 20; $i++) {
             TestAttempt::factory()

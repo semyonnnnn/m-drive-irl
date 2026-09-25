@@ -224,3 +224,26 @@ export interface ErrorTelemetryProps {
 export interface PageUser extends PageProps {
     user: User;
 }
+
+export interface AnswerOption {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+}
+
+export interface QuestionItem {
+    id: string;
+    text: string;
+    value: number;
+    options: AnswerOption[];
+}
+
+export interface Test {
+    id: number;
+    title: string;
+    description?: string;
+    minPoints: number;
+    maxPoints: number; // <-- Add this property
+    content?: QuestionItem[] | { questions: QuestionItem[] };
+    questions?: QuestionItem[];
+}

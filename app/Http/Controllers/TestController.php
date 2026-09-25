@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Test\TestStoreRequest;
 use App\Http\Requests\Test\TestUpdateRequest;
 use App\Models\Test;
-use App\Models\TestAttempt;
+use App\Services\TestService;
 
 class TestController extends Controller
 {
@@ -69,20 +69,13 @@ class TestController extends Controller
             ->paginate(6, ['*'], 'passed_page');
     }
 
-    public function store(TestStoreRequest $r)
+    public function store(TestStoreRequest $r, TestService $testService)
     {
-        $questions = $r->questions;
+        $test = $testService->getData($r->validated());
 
+        Test::create($test);
 
-        Test::create([
-            'title' => $r->title,
-            'description' => $r->description,
-            'content' => $questions,
-            'questions_count' => count($questions),
-            'user_id' => Auth::id(),
-        ]);
-
-        return redirect()->route('tests.index')->with('success', "Тест '$r->title' успешно создан!");
+        return redirect()->route('tests.index')->with('success', "Тест '{$test['title']}' успешно создан!");
     }
 
     public function destroy(int $id)

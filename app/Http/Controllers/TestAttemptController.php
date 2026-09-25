@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TestAttempt;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; ////////////////////////////
 use App\Http\Requests\Test\TestAttemptRequest;
 use App\Services\TestEvaluationService;
 use App\Models\Test;
+use App\Models\TestAttempt;
 
 class TestAttemptController extends Controller
 {
@@ -34,9 +34,18 @@ class TestAttemptController extends Controller
         $test = Test::findOrFail($r->input('id'));
         $results = $evaluator->evaluate($r, $test);
 
+        $userId = $r->user()->id;
+        $attempt = (TestAttempt::where('user_id', $userId)
+            ->where('test_id', $test->id)
+            ->max('attempt') ?? 0) + 1;
+
+
         dd([
+            'user_id' => $userId,
+            'test_id' => $test->id,
+            'attempt' => $attempt,
             'test_title' => $test->title,
-            'evaluation' => $results,
+            'results' => $results,
         ]);
     }
 

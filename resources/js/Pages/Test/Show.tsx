@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
-import { Test, QuestionItem } from './Edit';
+import { Test, QuestionItem } from '@/types';
 
 interface ShowProps extends PageProps {
     test: Test;
@@ -23,6 +23,9 @@ export default function Show({ auth, test }: ShowProps) {
     };
 
     const questions = resolveQuestions();
+
+    // Calculate maximum possible points on the frontend
+    const maxPoints = questions.reduce((sum, q) => sum + (q.value || 0), 0);
 
     const { data, setData, post, processing, errors } = useForm<{
         id: number,
@@ -140,12 +143,25 @@ export default function Show({ auth, test }: ShowProps) {
                         }}
                     >
                         <div className="flex items-center justify-between mb-2 pb-2 border-b-2 border-zinc-400">
-                            <div className="flex items-center gap-2">
-                                <span className="text-amber-600 font-black">//</span>
-                                <h3 className="text-base font-black text-zinc-900 uppercase tracking-widest">
-                                    ВОПРОСЫ ({questions.length})
-                                </h3>
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-amber-600 font-black">//</span>
+                                    <h3 className="text-base font-black text-zinc-900 uppercase tracking-widest">
+                                        ВОПРОСЫ ({questions.length})
+                                    </h3>
+                                </div>
+
+                                {/* Badges container for Min and Max points */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black tracking-wider bg-amber-600/20 border border-amber-600 text-zinc-900 px-2 py-0.5 clip-corner">
+                                        МИН. БАЛЛОВ: {test.minPoints}
+                                    </span>
+                                    <span className="text-[10px] font-black tracking-wider bg-zinc-900/10 border border-zinc-700 text-zinc-800 px-2 py-0.5 clip-corner">
+                                        МАКС. БАЛЛОВ: {maxPoints}
+                                    </span>
+                                </div>
                             </div>
+
                             <span className="text-[10px] font-mono text-zinc-600 font-black uppercase">
                                 ВЫБЕРИТЕ ВАРИАНТЫ ОТВЕТА
                             </span>
@@ -185,14 +201,14 @@ export default function Show({ auth, test }: ShowProps) {
                                                         key={opt.id}
                                                         onClick={() => handleSelectOption(q.id, opt.id)}
                                                         className={`flex items-center gap-2 p-2.5 border-2 clip-corner transition-all cursor-pointer ${isSelected
-                                                            ? 'bg-emerald-950/10 border-emerald-600 text-zinc-950 font-bold'
-                                                            : 'bg-zinc-200/60 border-zinc-400 text-zinc-800 hover:border-zinc-600'
+                                                                ? 'bg-emerald-950/10 border-emerald-600 text-zinc-950 font-bold'
+                                                                : 'bg-zinc-200/60 border-zinc-400 text-zinc-800 hover:border-zinc-600'
                                                             }`}
                                                     >
                                                         <div
                                                             className={`w-5 h-5 flex items-center justify-center border-2 clip-corner transition-all shrink-0 ${isSelected
-                                                                ? 'bg-emerald-500 border-emerald-600 text-zinc-950'
-                                                                : 'bg-zinc-300 border-zinc-500 text-transparent'
+                                                                    ? 'bg-emerald-500 border-emerald-600 text-zinc-950'
+                                                                    : 'bg-zinc-300 border-zinc-500 text-transparent'
                                                                 }`}
                                                         >
                                                             <span className="text-[10px] font-black font-mono">✓</span>

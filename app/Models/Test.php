@@ -10,7 +10,7 @@ class Test extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'content', 'is_published', 'user_id', 'questions_count'];
+    protected $fillable = ['title', 'description', 'content', 'is_published', 'user_id', 'questions_count', 'minPoints'];
 
     protected $casts = [
         'content' => 'array',

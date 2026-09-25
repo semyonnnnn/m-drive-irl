@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Test;
+use App\Services\TestService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,7 +26,6 @@ class TestFactory extends Factory
             $correctIndex = $russianFaker->numberBetween(0, 3);
 
             for ($j = 0; $j < 4; $j++) {
-                // Ensure text satisfies min:3 and max:255 constraints
                 $optText = ucfirst($russianFaker->words(2, true));
                 if (mb_strlen($optText) < 3) {
                     $optText = 'Вариант ' . $optText;
@@ -37,7 +38,6 @@ class TestFactory extends Factory
                 ];
             }
 
-            // Ensure question text satisfies min:3 and max:255 constraints
             $qText = ucfirst($russianFaker->sentence(4));
             if (mb_strlen($qText) < 3) {
                 $qText = 'Вопрос по теме?';
@@ -51,7 +51,6 @@ class TestFactory extends Factory
             ];
         }
 
-        // Ensure title and description satisfy min:3 and max:255 constraints
         $title = ucfirst($russianFaker->sentence(3));
         if (mb_strlen($title) < 3) {
             $title = 'Тест знаний';
@@ -62,11 +61,20 @@ class TestFactory extends Factory
             $description = 'Описание теста.';
         }
 
-        return [
+        // Delegate structure, counts, and minimal score calculations to TestService
+        $testService = app(TestService::class);
+        $testData = $testService->getData([
             'title' => mb_substr($title, 0, 255),
             'description' => mb_substr($description, 0, 255),
-            'content' => $content, // Moved to top-level to match TestRequest rules
-            'questions_count' => count($content),
+            'questions' => $content,
+        ]);
+
+        return [
+            'title' => $testData['title'],
+            'description' => $testData['description'],
+            'content' => $testData['content'],
+            'questions_count' => $testData['questions_count'],
+            'minPoints' => $testData['minPoints'],
             'user_id' => '1',
         ];
     }

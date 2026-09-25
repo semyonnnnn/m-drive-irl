@@ -3,27 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
 import DeleteTestConfirmationModal from './Partials/DeleteTestConfirmationModal';
-
-export interface AnswerOption {
-    id: string;
-    text: string;
-    isCorrect: boolean;
-}
-
-export interface QuestionItem {
-    id: string;
-    text: string;
-    value: number;
-    options: AnswerOption[];
-}
-
-export interface Test {
-    id: number;
-    title: string;
-    description: string;
-    questions?: QuestionItem[];
-    content?: QuestionItem[] | { questions?: QuestionItem[] };
-}
+import { QuestionItem, Test } from '@/types';
 
 interface EditProps extends PageProps {
     test: Test;
